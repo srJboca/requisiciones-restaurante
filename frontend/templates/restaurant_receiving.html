@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>Restaurant Receiving</h2>
+    <form method="GET" action="{{ url_for('restaurant_receiving') }}" style="margin: 1rem 0; display: flex; gap: 1rem;">
+        <input type="date" name="order_date" class="form-control" style="width: auto;" value="{{ request.args.get('order_date', '') }}">
+        <button type="submit" class="btn btn-secondary">Filter by Date</button>
+        <a href="{{ url_for('restaurant_receiving') }}" class="btn" style="background: var(--border);">Clear Filter</a>
+    </form>
+
+    {% if not orders %}
+    <p>No shipped orders found for receiving.</p>
+    {% endif %}
+
+    {% for order in orders %}
+    <div class="card" style="background: #F9FAFB; box-shadow: none; border: 1px solid var(--border);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="color: var(--primary);">Order #{{ order.order_id }}</h3>
+            <span style="color: var(--text-light); text-align: right;">
+                Date: {{ order.order_date }}<br>
+                {% if order.shipped_by_name %}<small>Shipped by: {{ order.shipped_by_name }}</small>{% endif %}
+            </span>
+        </div>
+        
+        <form onsubmit="submitReceiving(event, {{ order.order_id }})" id="form-{{ order.order_id }}">
+            <table class="grid-table">
+                <thead>
+                    <tr>
+                        <th>SKU</th>
+                        <th>Product Name</th>
+                        <th>Shipped Qty</th>
+                        <th>Received Qty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order['items'] %}
+                    <tr class="recv-row-{{ order.order_id }}">
+                        <td>{{ item.sku }}</td>
+                        <td>{{ item.product_name }}</td>
+                        <td>{{ item.shipped_quantity }}</td>
+                        <td>
+                            <input type="number" step="0.01" class="grid-input recv-qty" data-id="{{ item.item_id }}" value="{{ item.shipped_quantity }}">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div style="margin-top: 1rem; text-align: right;">
+                <button type="submit" class="btn btn-primary">Confirm Receipt</button>
+            </div>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    const API_URL = "{{ API_URL }}";
+    const TOKEN = "{{ session.get('access_token') }}";
+
+    function submitReceiving(e, orderId) {
+        e.preventDefault();
+        const rows = document.querySelectorAll(`.recv-row-${orderId}`);
+        let items = [];
+        
+        rows.forEach(row => {
+            const input = row.querySelector('.recv-qty');
+            let recv = parseFloat(input.value);
+            if (isNaN(recv)) recv = 0;
+            
+            items.push({
+                order_item_id: parseInt(input.dataset.id),
+                received_quantity: recv
+            });
+        });
+
+        window.processReceiving(items, orderId, TOKEN, API_URL);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="text-align: center; margin-top: 10vh;">
+    <h1 style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;">Welcome to ReqSys</h1>
+    <p style="font-size: 1.25rem; color: var(--text-light); margin-bottom: 2rem;">
+        The complete B2B ordering solution for your restaurant chain.
+    </p>
+    <a href="{{ url_for('login') }}" class="btn btn-primary" style="font-size: 1.25rem; padding: 1rem 3rem;">Login to Continue</a>
+</div>
+{% endblock %}

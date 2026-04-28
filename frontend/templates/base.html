@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Requisitions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">ReqSys</a>
+        <div class="nav-links">
+            {% if session.get('access_token') %}
+                <span style="margin-right: 1rem; color: var(--text-light);">Role: {{ session.get('role') }}</span>
+                {% if session.get('role') == 'Admin' %}
+                    <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+                {% elif session.get('role') == 'Restaurant' %}
+                    <a href="{{ url_for('restaurant_order') }}">Order Builder</a>
+                    <a href="{{ url_for('restaurant_receiving') }}">Receiving</a>
+                {% elif session.get('role') == 'Production Plant' %}
+                    <a href="{{ url_for('production_shipping') }}">Shipping</a>
+                {% endif %}
+                <a href="#" onclick="openChangePasswordModal()" style="margin-right: 0.5rem;">Change Password</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Modal Template -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">Confirm Submission</h3>
+            <p id="confirmModalText">Are you sure?</p>
+            <div class="modal-actions">
+                <button class="btn" style="background: var(--border);" onclick="closeConfirmModal()">Cancel</button>
+                <button class="btn btn-primary" id="confirmModalBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal Template -->
+    <div class="modal-overlay" id="changePasswordModal">
+        <div class="modal" style="width: 400px;">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">Change Password</h3>
+            <form onsubmit="submitChangePassword(event)">
+                <div class="form-group">
+                    <label class="form-label" for="oldPassword">Current Password</label>
+                    <input type="password" id="oldPassword" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="confirmPassword">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" class="form-control" required>
+                </div>
+                <div class="modal-actions" style="margin-top: 1.5rem;">
+                    <button type="button" class="btn" style="background: var(--border);" onclick="closeChangePasswordModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        const GLOBAL_API_URL = "{{ API_URL if API_URL else 'http://localhost:8000' }}";
+        const GLOBAL_TOKEN = "{{ session.get('access_token', '') }}";
+
+        function openChangePasswordModal() {
+            document.getElementById('oldPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('changePasswordModal').classList.add('active');
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').classList.remove('active');
+        }
+
+        async function submitChangePassword(e) {
+            e.preventDefault();
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                alert("New passwords do not match.");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${GLOBAL_API_URL}/auth/change-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${GLOBAL_TOKEN}`
+                    },
+                    body: JSON.stringify({
+                        old_password: oldPassword,
+                        new_password: newPassword
+                    })
+                });
+
+                if (res.ok) {
+                    alert('Password changed successfully! You may need to log in again.');
+                    closeChangePasswordModal();
+                    // Optionally force logout
+                    // window.location.href = "{{ url_for('logout') }}";
+                } else {
+                    const data = await res.json();
+                    alert(`Error: ${data.detail}`);
+                }
+            } catch (err) {
+                alert('Connection error. Please try again.');
+            }
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

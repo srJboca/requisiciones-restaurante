@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+    <!-- Left Column -->
+    <div>
+        <div class="card">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">Restaurants</h3>
+            
+            <form onsubmit="createRestaurant(event)" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
+                <input type="text" id="newRestName" class="form-control" placeholder="Name" required>
+                <input type="text" id="newRestLoc" class="form-control" placeholder="Location">
+                <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+            </form>
+
+            <ul style="list-style: none;">
+                {% for r in restaurants %}
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="{% if not r.is_active %}text-decoration: line-through; color: var(--text-light);{% endif %}">
+                        {{ r.name }} - {{ r.location }}
+                    </span>
+                    <button class="btn {% if r.is_active %}btn-danger{% else %}btn-secondary{% endif %}" 
+                            style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" 
+                            onclick="toggleRestaurant({{ r.id }})">
+                        {% if r.is_active %}Disable{% else %}Enable{% endif %}
+                    </button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">Product Groups</h3>
+            <form onsubmit="createProductGroup(event)" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
+                <input type="text" id="newGroupName" class="form-control" placeholder="Group Name" required>
+                <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+            </form>
+            <ul style="list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                {% for g in groups %}
+                <li style="background: var(--background); padding: 0.25rem 0.75rem; border-radius: 16px; font-size: 0.875rem;">
+                    {{ g.name }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">Products</h3>
+            
+            <form onsubmit="createProduct(event)" style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="newProdName" class="form-control" placeholder="Name" required>
+                    <input type="text" id="newProdSku" class="form-control" placeholder="SKU" required>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="newProdUm" class="form-control" placeholder="Unit Measure" required>
+                    <select id="newProdGroup" class="form-control">
+                        <option value="">No Group</option>
+                        {% for g in groups %}
+                        <option value="{{ g.id }}">{{ g.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+                </div>
+            </form>
+
+            <ul style="list-style: none; max-height: 300px; overflow-y: auto;">
+                {% for p in products %}
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="{% if not p.is_active %}text-decoration: line-through; color: var(--text-light);{% endif %}">
+                        {{ p.name }} ({{ p.sku }})
+                    </span>
+                    <button class="btn {% if p.is_active %}btn-danger{% else %}btn-secondary{% endif %}" 
+                            style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" 
+                            onclick="toggleProduct({{ p.id }})">
+                        {% if p.is_active %}Disable{% else %}Enable{% endif %}
+                    </button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">Users</h3>
+            
+            <form onsubmit="createUser(event)" style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="newUsername" class="form-control" placeholder="Username" required>
+                    <input type="password" id="newPassword" class="form-control" placeholder="Password" required>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <select id="newUserRole" class="form-control" required onchange="document.getElementById('newUserRest').style.display = this.value === 'Restaurant' ? 'block' : 'none'">
+                        <option value="">Select Role</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Restaurant">Restaurant</option>
+                        <option value="Production Plant">Production Plant</option>
+                    </select>
+                    <select id="newUserRest" class="form-control" style="display: none;">
+                        <option value="">Assign Restaurant</option>
+                        {% for r in restaurants %}
+                        <option value="{{ r.id }}">{{ r.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+                </div>
+            </form>
+
+            <ul style="list-style: none; max-height: 200px; overflow-y: auto;">
+                {% for u in users %}
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>{{ u.username }}</strong> ({{ u.role }})
+                    </div>
+                    <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: var(--border);" onclick="adminResetPassword({{ u.id }}, '{{ u.username }}')">Reset Pwd</button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div>
+        <div class="card" style="margin-bottom: 2rem;">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">System Settings</h3>
+            <form onsubmit="updateSettings(event)" style="display: flex; align-items: center; gap: 1rem;">
+                <label for="etaDays">Requisition ETA (Business Days):</label>
+                <input type="number" id="etaDays" class="form-control" value="{{ eta_days }}" style="width: 100px;" min="0" required>
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">Recent Audit Logs</h3>
+            <div style="max-height: 600px; overflow-y: auto;">
+                <table class="grid-table" style="font-size: 0.875rem;">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Action</th>
+                            <th>Entity</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.timestamp }}</td>
+                            <td>{{ log.action }}</td>
+                            <td>{{ log.entity_type }} (ID: {{ log.entity_id }})</td>
+                            <td>{{ log.details }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    const API_URL = "{{ API_URL }}";
+    const TOKEN = "{{ session.get('access_token') }}";
+
+    async function createRestaurant(e) {
+        e.preventDefault();
+        const name = document.getElementById('newRestName').value;
+        const location = document.getElementById('newRestLoc').value;
+        try {
+            const res = await fetch(`${API_URL}/admin/restaurants`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                body: JSON.stringify({ name, location: location || null })
+            });
+            if(res.ok) window.location.reload();
+            else alert('Error creating restaurant');
+        } catch(err) { alert('Connection error'); }
+    }
+
+    async function createProduct(e) {
+        e.preventDefault();
+        const name = document.getElementById('newProdName').value;
+        const sku = document.getElementById('newProdSku').value;
+        const unit_measure = document.getElementById('newProdUm').value;
+        const group_id_str = document.getElementById('newProdGroup').value;
+        const group_id = group_id_str ? parseInt(group_id_str) : null;
+
+        try {
+            const res = await fetch(`${API_URL}/admin/products`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                body: JSON.stringify({ name, sku, unit_measure, group_id })
+            });
+            if(res.ok) window.location.reload();
+            else alert('Error creating product');
+        } catch(err) { alert('Connection error'); }
+    }
+
+    async function createProductGroup(e) {
+        e.preventDefault();
+        const name = document.getElementById('newGroupName').value;
+        try {
+            const res = await fetch(`${API_URL}/admin/product-groups`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                body: JSON.stringify({ name })
+            });
+            if(res.ok) window.location.reload();
+            else alert('Error creating product group');
+        } catch(err) { alert('Connection error'); }
+    }
+
+    async function createUser(e) {
+        e.preventDefault();
+        const username = document.getElementById('newUsername').value;
+        const password = document.getElementById('newPassword').value;
+        const role = document.getElementById('newUserRole').value;
+        const rest_id_str = document.getElementById('newUserRest').value;
+        
+        let restaurant_id = null;
+        if (role === 'Restaurant' && rest_id_str) {
+            restaurant_id = parseInt(rest_id_str);
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/admin/users`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                body: JSON.stringify({ username, password, role, restaurant_id })
+            });
+            if(res.ok) window.location.reload();
+            else {
+                const data = await res.json();
+                alert(`Error creating user: ${data.detail || 'Unknown error'}`);
+            }
+        } catch(err) { alert('Connection error'); }
+    }
+
+    async function toggleRestaurant(id) {
+        try {
+            const res = await fetch(`${API_URL}/admin/restaurants/${id}/toggle`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${TOKEN}` }
+            });
+            if(res.ok) window.location.reload();
+            else alert('Error toggling restaurant');
+        } catch(err) { alert('Connection error'); }
+    }
+
+    async function toggleProduct(id) {
+        try {
+            const res = await fetch(`${API_URL}/admin/products/${id}/toggle`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${TOKEN}` }
+            });
+            if(res.ok) window.location.reload();
+            else alert('Error toggling product');
+        } catch(err) { alert('Connection error'); }
+    }
+
+    async function updateSettings(e) {
+        e.preventDefault();
+        const eta_days = document.getElementById('etaDays').value;
+        try {
+            const res = await fetch(`${API_URL}/admin/settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                body: JSON.stringify({ eta_days })
+            });
+            if(res.ok) {
+                alert('Settings updated successfully');
+                window.location.reload();
+            } else alert('Error updating settings');
+        } catch(err) { alert('Connection error'); }
+    }
+
+    async function adminResetPassword(userId, username) {
+        const newPassword = prompt(`Enter new password for user ${username}:`);
+        if (!newPassword) return; // Cancelled or empty
+        
+        if (newPassword.length < 4) {
+            alert("Password must be at least 4 characters long.");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/admin/users/${userId}/reset-password`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'Authorization': `Bearer ${TOKEN}` 
+                },
+                body: JSON.stringify({ new_password: newPassword })
+            });
+            if(res.ok) {
+                alert(`Password for ${username} has been reset successfully.`);
+            } else {
+                const data = await res.json();
+                alert(`Error: ${data.detail}`);
+            }
+        } catch(err) { alert('Connection error'); }
+    }
+</script>
+{% endblock %}
