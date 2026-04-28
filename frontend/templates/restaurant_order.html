@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h2>Daily Requisition Builder</h2>
+    <h2>{{ _('Daily Requisition Builder') }}</h2>
     
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 1rem;">
         <div style="display: flex; gap: 1rem; align-items: flex-end;">
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" for="orderDate">Requisition Date</label>
+                <label class="form-label" for="orderDate">{{ _('Requisition Date') }}</label>
                 <input type="date" id="orderDate" class="form-control" value="{{ selected_date }}" onchange="changeDate()" style="width: 150px;">
             </div>
             
             <div class="form-group" style="margin: 0;">
-                <label class="form-label" for="groupSelect">Filter by Product Group</label>
+                <label class="form-label" for="groupSelect">{{ _('Filter by Product Group') }}</label>
                 <select id="groupSelect" class="form-control" onchange="filterProducts()" style="width: 250px;">
-                    <option value="all">All Groups</option>
+                    <option value="all">{{ _('All Groups') }}</option>
                     {% for g in groups %}
                     <option value="{{ g.id }}">{{ g.name }}</option>
                     {% endfor %}
@@ -23,16 +23,16 @@
         
         <div style="text-align: right;">
             {% if today_order.status != 'Draft' and today_order.status != 'None' %}
-            <div style="margin-bottom: 0.5rem;"><span style="background: var(--success); color: white; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 500;">Status: {{ today_order.status }}</span></div>
+            <div style="margin-bottom: 0.5rem;"><span style="background: var(--success); color: white; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 500;">{{ _('Status') }}: {{ _(today_order.status) }}</span></div>
             <div style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 0.25rem;">
-                {% if today_order.submitted_by_name %}Submitted by: {{ today_order.submitted_by_name }}<br>{% endif %}
-                {% if today_order.shipped_by_name %}Shipped by: {{ today_order.shipped_by_name }}<br>{% endif %}
-                {% if today_order.received_by_name %}Closed by: {{ today_order.received_by_name }}<br>{% endif %}
+                {% if today_order.submitted_by_name %}{{ _('Submitted by') }}: {{ today_order.submitted_by_name }}<br>{% endif %}
+                {% if today_order.shipped_by_name %}{{ _('Shipped by') }}: {{ today_order.shipped_by_name }}<br>{% endif %}
+                {% if today_order.received_by_name %}{{ _('Closed by') }}: {{ today_order.received_by_name }}<br>{% endif %}
             </div>
-            <div style="font-size: 0.875rem; color: var(--text-light);">Delivery ETA: {{ today_order.delivery_date }}</div>
+            <div style="font-size: 0.875rem; color: var(--text-light);">{{ _('Delivery ETA') }}: {{ today_order.delivery_date }}</div>
             {% else %}
-            <div style="margin-bottom: 0.5rem;"><span style="background: var(--warning); color: white; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 500;">Status: Draft</span></div>
-            <div id="etaPreview" style="font-size: 0.875rem; color: var(--text-light);">Delivery ETA: Calculating...</div>
+            <div style="margin-bottom: 0.5rem;"><span style="background: var(--warning); color: white; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 500;">{{ _('Status') }}: {{ _('Draft') }}</span></div>
+            <div id="etaPreview" style="font-size: 0.875rem; color: var(--text-light);">{{ _('Delivery ETA') }}: {{ _('Calculating...') }}</div>
             {% endif %}
         </div>
     </div>
@@ -41,12 +41,12 @@
         <table class="grid-table">
             <thead>
                 <tr>
-                    <th>SKU</th>
-                    <th>Product Name</th>
-                    <th>Unit Measure</th>
-                    <th>Current Inventory</th>
-                    <th>Required Quantity</th>
-                    <th>Edited By</th>
+                    <th>{{ _('SKU') }}</th>
+                    <th>{{ _('Product Name') }}</th>
+                    <th>{{ _('Unit Measure') }}</th>
+                    <th>{{ _('Current Inventory') }}</th>
+                    <th>{{ _('Required Quantity') }}</th>
+                    <th>{{ _('Edited By') }}</th>
                 </tr>
             </thead>
             <tbody id="productGrid">
@@ -75,24 +75,24 @@
         
         <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
             {% if today_order.status == 'Draft' or today_order.status == 'None' %}
-                <button type="submit" class="btn btn-secondary">Save Draft</button>
-                <button type="button" class="btn btn-primary" onclick="window.sendOrderToProduction(document.getElementById('orderDate').value, '{{ session.get('access_token') }}', API_URL)">Send to Production</button>
+                <button type="submit" class="btn btn-secondary">{{ _('Save Draft') }}</button>
+                <button type="button" class="btn btn-primary" onclick="window.sendOrderToProduction(document.getElementById('orderDate').value, '{{ session.get('access_token') }}', API_URL)">{{ _('Send to Production') }}</button>
             {% else %}
-                <p style="color: var(--success); font-weight: 500;">Order for {{ selected_date }} has been {{ today_order.status }}.</p>
+                <p style="color: var(--success); font-weight: 500;">{{ _('Order for') }} {{ selected_date }} {{ _('has been') }} {{ _(today_order.status) }}.</p>
             {% endif %}
         </div>
     </form>
 </div>
 
 <div class="card" style="margin-top: 2rem;">
-    <h2>Requisitions Report</h2>
+    <h2>{{ _('Requisitions Report') }}</h2>
     <table class="grid-table" style="margin-top: 1rem;">
         <thead>
             <tr>
-                <th>Order Date</th>
-                <th>Status</th>
-                <th>Action By</th>
-                <th>Total Items</th>
+                <th>{{ _('Order Date') }}</th>
+                <th>{{ _('Status') }}</th>
+                <th>{{ _('Action By') }}</th>
+                <th>{{ _('Total Items') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -105,19 +105,19 @@
                         {% elif o.status == 'Submitted' %}background: var(--primary); color: white;
                         {% elif o.status == 'Shipped' %}background: #F59E0B; color: white;
                         {% elif o.status == 'Closed' %}background: var(--success); color: white;{% endif %}">
-                        {{ o.status }}
+                        {{ _(o.status) }}
                     </span>
                 </td>
                 <td style="font-size: 0.875rem;">
-                    {% if o.status == 'Submitted' and o.submitted_by_name %}Submitted by {{ o.submitted_by_name }}<br>{% endif %}
-                    {% if o.status == 'Shipped' and o.shipped_by_name %}Shipped by {{ o.shipped_by_name }}<br>{% endif %}
-                    {% if o.status == 'Closed' and o.received_by_name %}Closed by {{ o.received_by_name }}{% endif %}
+                    {% if o.status == 'Submitted' and o.submitted_by_name %}{{ _('Submitted by') }} {{ o.submitted_by_name }}<br>{% endif %}
+                    {% if o.status == 'Shipped' and o.shipped_by_name %}{{ _('Shipped by') }} {{ o.shipped_by_name }}<br>{% endif %}
+                    {% if o.status == 'Closed' and o.received_by_name %}{{ _('Closed by') }} {{ o.received_by_name }}{% endif %}
                 </td>
                 <td>{{ o.total_items }}</td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="3" style="text-align: center; padding: 2rem; color: var(--text-light);">No past requisitions found.</td>
+                <td colspan="4" style="text-align: center; padding: 2rem; color: var(--text-light);">{{ _('No past requisitions found.') }}</td>
             </tr>
             {% endfor %}
         </tbody>

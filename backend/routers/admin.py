@@ -29,6 +29,7 @@ class ProductCreate(BaseModel):
 
 class SettingUpdate(BaseModel):
     eta_days: str
+    default_language: str | None = 'en'
 
 class AdminPasswordReset(BaseModel):
     new_password: str
@@ -135,17 +136,29 @@ def get_audit_logs(db: Session = Depends(get_db)):
 
 @router.get("/settings")
 def get_settings(db: Session = Depends(get_db)):
-    setting = db.query(SystemSetting).filter(SystemSetting.setting_key == 'eta_days').first()
-    return {"eta_days": setting.setting_value if setting else "2"}
+    eta_setting = db.query(SystemSetting).filter(SystemSetting.setting_key == 'eta_days').first()
+    lang_setting = db.query(SystemSetting).filter(SystemSetting.setting_key == 'default_language').first()
+    return {
+        "eta_days": eta_setting.setting_value if eta_setting else "2",
+        "default_language": lang_setting.setting_value if lang_setting else "en"
+    }
 
 @router.post("/settings")
 def update_settings(data: SettingUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_admin)):
-    setting = db.query(SystemSetting).filter(SystemSetting.setting_key == 'eta_days').first()
-    if not setting:
-        setting = SystemSetting(setting_key='eta_days', setting_value=data.eta_days)
-        db.add(setting)
+    eta_setting = db.query(SystemSetting).filter(SystemSetting.setting_key == 'eta_days').first()
+    if not eta_setting:
+        eta_setting = SystemSetting(setting_key='eta_days', setting_value=data.eta_days)
+        db.add(eta_setting)
     else:
-        setting.setting_value = data.eta_days
+        eta_setting.setting_value = data.eta_days
+        
+    lang_setting = db.query(SystemSetting).filter(SystemSetting.setting_key == 'default_language').first()
+    if not lang_setting:
+        lang_setting = SystemSetting(setting_key='default_language', setting_value=data.default_language or 'en')
+        db.add(lang_setting)
+    else:
+        lang_setting.setting_value = data.default_language or 'en'
+        
     db.commit()
-    log_audit(db, current_user.id, "Update Settings", "SystemSetting", None, f"Updated eta_days to {data.eta_days}")
+    log_audit(db, current_user.id, "Update Settings", "SystemSetting", None, f"Updated eta_days to {data.eta_days}, lang to {data.default_language}")
     return {"message": "Settings updated"}

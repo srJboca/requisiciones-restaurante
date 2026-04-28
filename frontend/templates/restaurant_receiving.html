@@ -1,24 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h2>Restaurant Receiving</h2>
+    <h2>{{ _('Restaurant Receiving') }}</h2>
     <form method="GET" action="{{ url_for('restaurant_receiving') }}" style="margin: 1rem 0; display: flex; gap: 1rem;">
         <input type="date" name="order_date" class="form-control" style="width: auto;" value="{{ request.args.get('order_date', '') }}">
-        <button type="submit" class="btn btn-secondary">Filter by Date</button>
-        <a href="{{ url_for('restaurant_receiving') }}" class="btn" style="background: var(--border);">Clear Filter</a>
+        <button type="submit" class="btn btn-secondary">{{ _('Filter by Date') }}</button>
+        <a href="{{ url_for('restaurant_receiving') }}" class="btn" style="background: var(--border);">{{ _('Clear Filter') }}</a>
     </form>
 
     {% if not orders %}
-    <p>No shipped orders found for receiving.</p>
+    <p>{{ _('No shipped orders found for receiving.') }}</p>
     {% endif %}
 
     {% for order in orders %}
     <div class="card" style="background: #F9FAFB; box-shadow: none; border: 1px solid var(--border);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="color: var(--primary);">Order #{{ order.order_id }}</h3>
+            <h3 style="color: var(--primary);">{{ _('Order #') }}{{ order.order_id }}</h3>
             <span style="color: var(--text-light); text-align: right;">
-                Date: {{ order.order_date }}<br>
-                {% if order.shipped_by_name %}<small>Shipped by: {{ order.shipped_by_name }}</small>{% endif %}
+                {{ _('Date') }}: {{ order.order_date }}<br>
+                {% if order.shipped_by_name %}<small>{{ _('Shipped by') }}: {{ order.shipped_by_name }}</small>{% endif %}
             </span>
         </div>
         
@@ -26,10 +26,10 @@
             <table class="grid-table">
                 <thead>
                     <tr>
-                        <th>SKU</th>
-                        <th>Product Name</th>
-                        <th>Shipped Qty</th>
-                        <th>Received Qty</th>
+                        <th>{{ _('SKU') }}</th>
+                        <th>{{ _('Product Name') }}</th>
+                        <th>{{ _('Shipped Qty') }}</th>
+                        <th>{{ _('Received Qty') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,7 +46,7 @@
                 </tbody>
             </table>
             <div style="margin-top: 1rem; text-align: right;">
-                <button type="submit" class="btn btn-primary">Confirm Receipt</button>
+                <button type="submit" class="btn btn-primary">{{ _('Confirm Receipt') }}</button>
             </div>
         </form>
     </div>

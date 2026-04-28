@@ -2,11 +2,34 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from datetime import datetime
 import requests
+from flask_babel import Babel, gettext as _
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "frontendsecret_change_in_production")
 API_URL = os.environ.get("API_URL", "http://backend:8000")
 PUBLIC_API_URL = os.environ.get("PUBLIC_API_URL", "http://localhost:8000")
+
+def get_locale():
+    if "lang" in session:
+        return session["lang"]
+    
+    # Fetch default language from backend settings
+    try:
+        headers = get_auth_headers()
+        res = requests.get(f"{API_URL}/admin/settings", headers=headers)
+        if res.status_code == 200:
+            return res.json().get("default_language", "en")
+    except:
+        pass
+    return "en"
+
+babel = Babel(app, locale_selector=get_locale)
+
+@app.route("/set-lang/<lang>")
+def set_lang(lang):
+    if lang in ["en", "es"]:
+        session["lang"] = lang
+    return redirect(request.referrer or url_for("welcome"))
 
 def get_auth_headers():
     token = session.get("access_token")
@@ -141,12 +164,15 @@ def admin_dashboard():
         logs = requests.get(f"{API_URL}/admin/audit-logs", headers=headers).json()
         
         eta_res = requests.get(f"{API_URL}/admin/settings", headers=headers)
-        eta_days = eta_res.json().get("eta_days", "2") if eta_res.status_code == 200 else "2"
+        settings = eta_res.json() if eta_res.status_code == 200 else {}
+        eta_days = settings.get("eta_days", "2")
+        default_language = settings.get("default_language", "en")
     except:
         users, restaurants, groups, products, logs = [], [], [], [], []
         eta_days = "2"
+        default_language = "en"
 
-    return render_template("admin_dashboard.html", users=users, restaurants=restaurants, groups=groups, products=products, logs=logs, eta_days=eta_days, API_URL=PUBLIC_API_URL)
+    return render_template("admin_dashboard.html", users=users, restaurants=restaurants, groups=groups, products=products, logs=logs, eta_days=eta_days, default_language=default_language, API_URL=PUBLIC_API_URL)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

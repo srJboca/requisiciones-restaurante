@@ -120,11 +120,23 @@
     <!-- Right Column -->
     <div>
         <div class="card" style="margin-bottom: 2rem;">
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">System Settings</h3>
-            <form onsubmit="updateSettings(event)" style="display: flex; align-items: center; gap: 1rem;">
-                <label for="etaDays">Requisition ETA (Business Days):</label>
-                <input type="number" id="etaDays" class="form-control" value="{{ eta_days }}" style="width: 100px;" min="0" required>
-                <button type="submit" class="btn btn-primary">Save Settings</button>
+            <h2>{{ _('Admin Dashboard') }}</h2>
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">{{ _('System Settings') }}</h3>
+            <form onsubmit="updateSettings(event)" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <div>
+                    <label for="etaDays" style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem;">{{ _('Requisition ETA (Business Days)') }}:</label>
+                    <input type="number" id="etaDays" class="form-control" value="{{ eta_days }}" style="width: 100px;" min="0" required>
+                </div>
+                <div>
+                    <label for="defaultLang" style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem;">{{ _('Default Language') }}:</label>
+                    <select id="defaultLang" class="form-control" style="width: 150px;">
+                        <option value="en" {% if default_language == 'en' %}selected{% endif %}>{{ _('English') }}</option>
+                        <option value="es" {% if default_language == 'es' %}selected{% endif %}>{{ _('Spanish') }}</option>
+                    </select>
+                </div>
+                <div style="margin-top: 1.25rem;">
+                    <button type="submit" class="btn btn-primary">{{ _('Save Settings') }}</button>
+                </div>
             </form>
         </div>
 
@@ -260,11 +272,12 @@
     async function updateSettings(e) {
         e.preventDefault();
         const eta_days = document.getElementById('etaDays').value;
+        const default_language = document.getElementById('defaultLang').value;
         try {
             const res = await fetch(`${API_URL}/admin/settings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
-                body: JSON.stringify({ eta_days })
+                body: JSON.stringify({ eta_days, default_language })
             });
             if(res.ok) {
                 alert('Settings updated successfully');

@@ -1,0 +1,280 @@
+# Spanish translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-04-28 01:34+0000\n"
+"PO-Revision-Date: 2026-04-28 01:34+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: es <LL@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: templates/admin_dashboard.html:123 templates/base.html:20
+msgid "Admin Dashboard"
+msgstr "Panel de Administración"
+
+#: templates/admin_dashboard.html:124
+msgid "System Settings"
+msgstr "Configuración del Sistema"
+
+#: templates/admin_dashboard.html:127
+msgid "Requisition ETA (Business Days)"
+msgstr "ETA de Requisición (Días Hábiles)"
+
+#: templates/admin_dashboard.html:131
+msgid "Default Language"
+msgstr "Idioma Predeterminado"
+
+#: templates/admin_dashboard.html:133
+msgid "English"
+msgstr "Inglés"
+
+#: templates/admin_dashboard.html:134
+msgid "Spanish"
+msgstr "Español"
+
+#: templates/admin_dashboard.html:138
+msgid "Save Settings"
+msgstr "Guardar Configuración"
+
+#: templates/base.html:22
+msgid "Order Builder"
+msgstr "Creador de Pedidos"
+
+#: templates/base.html:23
+msgid "Receiving"
+msgstr "Recepción"
+
+#: templates/base.html:25
+msgid "Shipping"
+msgstr "Envíos"
+
+#: templates/base.html:27 templates/base.html:62
+msgid "Change Password"
+msgstr "Cambiar Contraseña"
+
+#: templates/base.html:28
+msgid "Logout"
+msgstr "Cerrar Sesión"
+
+#: templates/base.html:30 templates/login.html:4 templates/login.html:14
+msgid "Login"
+msgstr "Iniciar Sesión"
+
+#: templates/base.html:65
+msgid "Current Password"
+msgstr "Contraseña Actual"
+
+#: templates/base.html:69
+msgid "New Password"
+msgstr "Nueva Contraseña"
+
+#: templates/base.html:73
+msgid "Confirm New Password"
+msgstr "Confirmar Nueva Contraseña"
+
+#: templates/base.html:77
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: templates/base.html:78
+msgid "Save Changes"
+msgstr "Guardar Cambios"
+
+#: templates/login.html:7
+msgid "Username"
+msgstr "Nombre de Usuario"
+
+#: templates/login.html:11
+msgid "Password"
+msgstr "Contraseña"
+
+#: templates/production_shipping.html:4
+msgid "Production Plant Shipping"
+msgstr "Envíos Planta de Producción"
+
+#: templates/production_shipping.html:7 templates/restaurant_receiving.html:7
+msgid "Filter by Date"
+msgstr "Filtrar por Fecha"
+
+#: templates/production_shipping.html:8 templates/restaurant_receiving.html:8
+msgid "Clear Filter"
+msgstr "Limpiar Filtro"
+
+#: templates/production_shipping.html:12
+msgid "No pending requirements found."
+msgstr "No se encontraron requerimientos pendientes."
+
+#: templates/production_shipping.html:18
+#: templates/restaurant_receiving.html:18
+msgid "Order #"
+msgstr "Pedido #"
+
+#: templates/production_shipping.html:20
+#: templates/restaurant_receiving.html:20
+msgid "Date"
+msgstr "Fecha"
+
+#: templates/production_shipping.html:21 templates/restaurant_order.html:28
+#: templates/restaurant_order.html:112
+msgid "Submitted by"
+msgstr "Enviado por"
+
+#: templates/production_shipping.html:29 templates/restaurant_order.html:44
+#: templates/restaurant_receiving.html:29
+msgid "SKU"
+msgstr "SKU"
+
+#: templates/production_shipping.html:30 templates/restaurant_order.html:45
+#: templates/restaurant_receiving.html:30
+msgid "Product Name"
+msgstr "Nombre del Producto"
+
+#: templates/production_shipping.html:31
+msgid "Current Inv"
+msgstr "Inv. Actual"
+
+#: templates/production_shipping.html:32
+msgid "Required Qty"
+msgstr "Cant. Requerida"
+
+#: templates/production_shipping.html:33
+#: templates/restaurant_receiving.html:31
+msgid "Shipped Qty"
+msgstr "Cant. Enviada"
+
+#: templates/production_shipping.html:51
+msgid "Ship Order"
+msgstr "Enviar Pedido"
+
+#: templates/restaurant_order.html:4
+msgid "Daily Requisition Builder"
+msgstr "Constructor de Requisiciones Diarias"
+
+#: templates/restaurant_order.html:9
+msgid "Requisition Date"
+msgstr "Fecha de Requisición"
+
+#: templates/restaurant_order.html:14
+msgid "Filter by Product Group"
+msgstr "Filtrar por Grupo"
+
+#: templates/restaurant_order.html:16
+msgid "All Groups"
+msgstr "Todos los Grupos"
+
+#: templates/restaurant_order.html:26 templates/restaurant_order.html:34
+#: templates/restaurant_order.html:93
+msgid "Status"
+msgstr "Estado"
+
+#: templates/restaurant_order.html:29 templates/restaurant_order.html:113
+#: templates/restaurant_receiving.html:21
+msgid "Shipped by"
+msgstr "Enviado por"
+
+#: templates/restaurant_order.html:30 templates/restaurant_order.html:114
+msgid "Closed by"
+msgstr "Cerrado por"
+
+#: templates/restaurant_order.html:32 templates/restaurant_order.html:35
+msgid "Delivery ETA"
+msgstr "ETA de Entrega"
+
+#: templates/restaurant_order.html:34
+msgid "Draft"
+msgstr "Borrador"
+
+#: templates/restaurant_order.html:35
+msgid "Calculating..."
+msgstr "Calculando..."
+
+#: templates/restaurant_order.html:46
+msgid "Unit Measure"
+msgstr "Unidad de Medida"
+
+#: templates/restaurant_order.html:47
+msgid "Current Inventory"
+msgstr "Inventario Actual"
+
+#: templates/restaurant_order.html:48
+msgid "Required Quantity"
+msgstr "Cantidad Requerida"
+
+#: templates/restaurant_order.html:49
+msgid "Edited By"
+msgstr "Editado Por"
+
+#: templates/restaurant_order.html:78
+msgid "Save Draft"
+msgstr "Guardar Borrador"
+
+#: templates/restaurant_order.html:79
+msgid "Send to Production"
+msgstr "Enviar a Producción"
+
+#: templates/restaurant_order.html:81
+msgid "Order for"
+msgstr "Pedido para"
+
+#: templates/restaurant_order.html:81
+msgid "has been"
+msgstr "ha sido"
+
+#: templates/restaurant_order.html:88
+msgid "Requisitions Report"
+msgstr "Reporte de Requisiciones"
+
+#: templates/restaurant_order.html:92
+msgid "Order Date"
+msgstr "Fecha de Pedido"
+
+#: templates/restaurant_order.html:94
+msgid "Action By"
+msgstr "Acción por"
+
+#: templates/restaurant_order.html:95
+msgid "Total Items"
+msgstr "Total de Artículos"
+
+#: templates/restaurant_order.html:120
+msgid "No past requisitions found."
+msgstr "No se encontraron requisiciones pasadas."
+
+#: templates/restaurant_receiving.html:4
+msgid "Restaurant Receiving"
+msgstr "Recepción de Restaurante"
+
+#: templates/restaurant_receiving.html:12
+msgid "No shipped orders found for receiving."
+msgstr "No se encontraron pedidos enviados para recepción."
+
+#: templates/restaurant_receiving.html:32
+msgid "Received Qty"
+msgstr "Cant. Recibida"
+
+#: templates/restaurant_receiving.html:49
+msgid "Confirm Receipt"
+msgstr "Confirmar Recepción"
+
+#: templates/welcome.html:4
+msgid "Welcome to ReqSys"
+msgstr "Bienvenido a ReqSys"
+
+#: templates/welcome.html:6
+msgid "The centralized restaurant requisition management system."
+msgstr ""
+"El sistema centralizado de gestión de requisiciones para restaurantes."
+
+#: templates/welcome.html:8
+msgid "Login to Continue"
+msgstr "Inicie Sesión para Continuar"

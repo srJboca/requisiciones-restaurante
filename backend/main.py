@@ -11,7 +11,11 @@ app = FastAPI(title="Restaurant Requisitions API", description="API for Restaura
 # CORS middleware to allow requests from the frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5000",
+        "http://localhost:5001",
+        "https://5vns60zn-5001.use2.devtunnels.ms"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

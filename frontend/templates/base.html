@@ -1,43 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurant Requisitions</title>
+    <title>La Cesta - Requisiciones</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
+
 <body>
     <nav class="navbar">
-        <a href="/" class="navbar-brand">ReqSys</a>
-        <div class="nav-links">
+        <a href="/" class="navbar-brand">La Cesta - Requisiciones</a>
+        <div class="nav-links" style="display: flex; align-items: center;">
+            <div style="margin-right: 1.5rem; font-size: 0.875rem;">
+                <a href="{{ url_for('set_lang', lang='en') }}"
+                    style="margin-left: 0.5rem; {% if session.get('lang', 'en') == 'en' %}font-weight: bold; color: var(--primary);{% endif %}">EN</a>
+                |
+                <a href="{{ url_for('set_lang', lang='es') }}"
+                    style="margin-left: 0; {% if session.get('lang') == 'es' %}font-weight: bold; color: var(--primary);{% endif %}">ES</a>
+            </div>
             {% if session.get('access_token') %}
-                <span style="margin-right: 1rem; color: var(--text-light);">Role: {{ session.get('role') }}</span>
-                {% if session.get('role') == 'Admin' %}
-                    <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
-                {% elif session.get('role') == 'Restaurant' %}
-                    <a href="{{ url_for('restaurant_order') }}">Order Builder</a>
-                    <a href="{{ url_for('restaurant_receiving') }}">Receiving</a>
-                {% elif session.get('role') == 'Production Plant' %}
-                    <a href="{{ url_for('production_shipping') }}">Shipping</a>
-                {% endif %}
-                <a href="#" onclick="openChangePasswordModal()" style="margin-right: 0.5rem;">Change Password</a>
-                <a href="{{ url_for('logout') }}">Logout</a>
+            {% if session.get('role') == 'Admin' %}
+            <a href="{{ url_for('admin_dashboard') }}">{{ _('Admin Dashboard') }}</a>
+            {% elif session.get('role') == 'Restaurant' %}
+            <a href="{{ url_for('restaurant_order') }}">{{ _('Order Builder') }}</a>
+            <a href="{{ url_for('restaurant_receiving') }}">{{ _('Receiving') }}</a>
+            {% elif session.get('role') == 'Production Plant' %}
+            <a href="{{ url_for('production_shipping') }}">{{ _('Shipping') }}</a>
+            {% endif %}
+            <a href="#" onclick="openChangePasswordModal()">{{ _('Change Password') }}</a>
+            <a href="{{ url_for('logout') }}">{{ _('Logout') }}</a>
             {% else %}
-                <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('login') }}">{{ _('Login') }}</a>
             {% endif %}
         </div>
     </nav>
 
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-          {% endif %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
         {% endwith %}
-        
+
         {% block content %}{% endblock %}
     </div>
 
@@ -56,23 +64,24 @@
     <!-- Change Password Modal Template -->
     <div class="modal-overlay" id="changePasswordModal">
         <div class="modal" style="width: 400px;">
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">Change Password</h3>
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">{{ _('Change Password') }}</h3>
             <form onsubmit="submitChangePassword(event)">
                 <div class="form-group">
-                    <label class="form-label" for="oldPassword">Current Password</label>
+                    <label class="form-label" for="oldPassword">{{ _('Current Password') }}</label>
                     <input type="password" id="oldPassword" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="newPassword">New Password</label>
+                    <label class="form-label" for="newPassword">{{ _('New Password') }}</label>
                     <input type="password" id="newPassword" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="confirmPassword">Confirm New Password</label>
+                    <label class="form-label" for="confirmPassword">{{ _('Confirm New Password') }}</label>
                     <input type="password" id="confirmPassword" class="form-control" required>
                 </div>
                 <div class="modal-actions" style="margin-top: 1.5rem;">
-                    <button type="button" class="btn" style="background: var(--border);" onclick="closeChangePasswordModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn" style="background: var(--border);"
+                        onclick="closeChangePasswordModal()">{{ _('Cancel') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ _('Save Changes') }}</button>
                 </div>
             </form>
         </div>
@@ -134,4 +143,5 @@
     </script>
     {% block scripts %}{% endblock %}
 </body>
+
 </html>
