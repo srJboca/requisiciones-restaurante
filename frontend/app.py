@@ -150,6 +150,33 @@ def production_shipping():
 
     return render_template("production_shipping.html", orders=orders, API_URL=PUBLIC_API_URL)
 
+@app.route("/history")
+def history():
+    role = session.get("role")
+    if not role:
+        return redirect(url_for("welcome"))
+        
+    headers = get_auth_headers()
+    date_filter = request.args.get("order_date", "")
+    
+    try:
+        if role == "Admin":
+            url = f"{API_URL}/admin/history"
+        elif role == "Restaurant":
+            url = f"{API_URL}/requisitions/history"
+        elif role == "Production Plant":
+            url = f"{API_URL}/production/history"
+            
+        if date_filter:
+            url += f"?order_date={date_filter}"
+            
+        res = requests.get(url, headers=headers)
+        orders = res.json() if res.status_code == 200 else []
+    except:
+        orders = []
+
+    return render_template("history.html", orders=orders, role=role, API_URL=PUBLIC_API_URL)
+
 @app.route("/admin/dashboard")
 def admin_dashboard():
     if session.get("role") != "Admin":

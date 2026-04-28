@@ -11,6 +11,7 @@
     --warning: #F59E0B;
     --success: #10B981;
     --border: #E5E7EB;
+    --accent: #646464;
     --radius: 12px;
 }
 
@@ -138,7 +139,8 @@ body {
     margin-top: 1rem;
 }
 
-.grid-table th, .grid-table td {
+.grid-table th,
+.grid-table td {
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid var(--border);

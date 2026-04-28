@@ -69,3 +69,38 @@ def ship_order(order_id: int, ship_data: OrderShip, db: Session = Depends(get_db
     db.commit()
     log_audit(db, current_user.id, "Ship Order", "Order", order.id, f"Shipped order {order.id}")
     return {"message": "Order shipped successfully"}
+
+@router.get("/history")
+def get_history(order_date: str | None = None, restaurant_id: int | None = None, db: Session = Depends(get_db)):
+    # Production sees all non-draft orders
+    query = db.query(Order).filter(Order.status != 'Draft').order_by(Order.order_date.desc())
+    if order_date:
+        query = query.filter(Order.order_date == order_date)
+    if restaurant_id:
+        query = query.filter(Order.restaurant_id == restaurant_id)
+        
+    orders = query.all()
+    result = []
+    for o in orders:
+        items = []
+        for i in o.items:
+            items.append({
+                "item_id": i.id,
+                "product_id": i.product_id,
+                "product_name": i.product.name,
+                "sku": i.product.sku,
+                "required_quantity": float(i.required_quantity),
+                "shipped_quantity": float(i.shipped_quantity) if i.shipped_quantity is not None else 0,
+                "received_quantity": float(i.received_quantity) if i.received_quantity is not None else 0
+            })
+        result.append({
+            "order_id": o.id,
+            "restaurant_name": o.restaurant.name if o.restaurant else "Unknown",
+            "order_date": o.order_date,
+            "status": o.status,
+            "items": items,
+            "submitted_by_name": o.submitted_by.username if o.submitted_by else None,
+            "shipped_by_name": o.shipped_by.username if o.shipped_by else None,
+            "received_by_name": o.received_by.username if o.received_by else None
+        })
+    return result

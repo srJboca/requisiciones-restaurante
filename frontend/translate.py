@@ -68,7 +68,12 @@ translations = {
     "Confirm Receipt": "Confirmar Recepción",
     "Welcome to ReqSys": "Bienvenido a ReqSys",
     "The centralized restaurant requisition management system.": "El sistema centralizado de gestión de requisiciones para restaurantes.",
-    "Login to Continue": "Inicie Sesión para Continuar"
+    "Login to Continue": "Inicie Sesión para Continuar",
+    "La Cesta - Café Local": "La Cesta - Café Local",
+    "History": "Historial",
+    "View Details": "Ver Detalles",
+    "items": "artículos",
+    "No past requisitions found.": "No se encontraron requisiciones pasadas."
 }
 
 po = polib.pofile('translations/es/LC_MESSAGES/messages.po')

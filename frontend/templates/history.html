@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>{{ _('History') }}</h2>
+    <form method="GET" action="{{ url_for('history') }}" style="margin: 1rem 0; display: flex; gap: 1rem;">
+        <input type="date" name="order_date" class="form-control" style="width: auto;"
+            value="{{ request.args.get('order_date', '') }}">
+        <button type="submit" class="btn btn-secondary">{{ _('Filter by Date') }}</button>
+        <a href="{{ url_for('history') }}" class="btn" style="background: var(--border);">{{ _('Clear Filter') }}</a>
+    </form>
+
+    {% if not orders %}
+    <p>{{ _('No past requisitions found.') }}</p>
+    {% endif %}
+
+    {% for order in orders %}
+    <div class="card"
+        style="background: #F9FAFB; box-shadow: none; border: 1px solid var(--border); margin-bottom: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+                <h3 style="color: var(--primary);">{{ _('Order #') }}{{ order.order_id }}
+                    {% if role != 'Restaurant' %}- {{ order.restaurant_name }}{% endif %}
+                </h3>
+                <span style="font-weight: 600; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;
+                    {% if order.status == 'Draft' %}background: var(--warning); color: #fff;
+                    {% elif order.status == 'Submitted' %}background: var(--primary); color: #fff;
+                    {% elif order.status == 'Shipped' %}background: var(--accent); color: #fff;
+                    {% elif order.status == 'Closed' %}background: var(--success); color: #fff;
+                    {% endif %}">{{ _(order.status) }}</span>
+            </div>
+            <span style="color: var(--text-light); text-align: right; font-size: 0.9rem;">
+                {{ _('Date') }}: {{ order.order_date }}<br>
+                {% if order.submitted_by_name %}<small>{{ _('Submitted by') }}: {{ order.submitted_by_name
+                    }}</small><br>{% endif %}
+                {% if order.shipped_by_name %}<small>{{ _('Shipped by') }}: {{ order.shipped_by_name }}</small><br>{%
+                endif %}
+                {% if order.received_by_name %}<small>{{ _('Closed by') }}: {{ order.received_by_name }}</small>{% endif
+                %}
+            </span>
+        </div>
+
+        <details>
+            <summary style="cursor: pointer; font-weight: bold; color: var(--accent); margin-bottom: 0.5rem;">{{ _('View
+                Details') }} ({{ order['items']|length }} {{ _('items') }})</summary>
+            <div style="margin-top: 1rem;">
+                <table class="grid-table">
+                    <thead>
+                        <tr>
+                            <th>{{ _('SKU') }}</th>
+                            <th>{{ _('Product Name') }}</th>
+                            <th>{{ _('Required Qty') }}</th>
+                            <th>{{ _('Shipped Qty') }}</th>
+                            <th>{{ _('Received Qty') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order['items'] %}
+                        <tr>
+                            <td>{{ item.sku }}</td>
+                            <td>{{ item.product_name }}</td>
+                            <td>{{ item.required_quantity }}</td>
+                            <td>{{ item.shipped_quantity }}</td>
+                            <td>{{ item.received_quantity }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </details>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
