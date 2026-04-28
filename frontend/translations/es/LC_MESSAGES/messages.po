@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-28 13:42+0000\n"
+"POT-Creation-Date: 2026-04-28 13:44+0000\n"
 "PO-Revision-Date: 2026-04-28 01:34+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: es\n"
 "Language-Team: es <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.18.0\n"
 
 #: templates/admin_dashboard.html:123 templates/base.html:25
@@ -73,7 +73,7 @@ msgstr "Cerrar Sesión"
 
 #: templates/base.html:38 templates/login.html:4 templates/login.html:14
 msgid "Login"
-msgstr "Iniciar Sesión"
+msgstr "Ingresar"
 
 #: templates/base.html:73
 msgid "Current Password"
@@ -171,7 +171,7 @@ msgstr "Cant. Recibida"
 
 #: templates/login.html:7
 msgid "Username"
-msgstr "Nombre de Usuario"
+msgstr "Usuario"
 
 #: templates/login.html:11
 msgid "Password"
@@ -203,7 +203,7 @@ msgstr "Fecha de Requisición"
 
 #: templates/restaurant_order.html:14
 msgid "Filter by Product Group"
-msgstr "Filtrar por Grupo"
+msgstr "Filtrar por Grupo de Producto"
 
 #: templates/restaurant_order.html:16
 msgid "All Groups"
@@ -292,17 +292,15 @@ msgstr "La Cesta - Café Local"
 
 #: templates/welcome.html:6
 msgid "The centralized restaurant requisition management system."
-msgstr "El sistema centralizado de gestión de requisiciones para restaurantes."
+msgstr ""
+"El sistema centralizado de gestión de requisiciones para restaurantes."
 
 #: templates/welcome.html:8
 #, fuzzy
 msgid ""
 "Login\n"
 "        to Continue"
-msgstr ""
-"Login\n"
-"        to Continue"
+msgstr "Ingresar"
 
 #~ msgid "Welcome to ReqSys"
 #~ msgstr "Bienvenido a ReqSys"
-
