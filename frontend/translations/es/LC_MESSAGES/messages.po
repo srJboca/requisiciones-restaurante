@@ -135,14 +135,12 @@ msgid "Closed by"
 msgstr "Cerrado por"
 
 #: templates/history.html:43
-#, fuzzy
 msgid ""
 "View\n"
 "                Details"
 msgstr "Ver Detalles"
 
 #: templates/history.html:44
-#, fuzzy
 msgid "items"
 msgstr "artículos"
 
@@ -296,7 +294,6 @@ msgstr ""
 "El sistema centralizado de gestión de requisiciones para restaurantes."
 
 #: templates/welcome.html:8
-#, fuzzy
 msgid ""
 "Login\n"
 "        to Continue"
