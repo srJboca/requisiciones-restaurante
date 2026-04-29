@@ -1,0 +1,69 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "value": "eastus2"
+    },
+
+    "mysqlServerName": {
+      "value": "lacesta-mysql"
+    },
+    "mysqlAdminLogin": {
+      "value": "restadmin"
+    },
+    "mysqlAdminPassword": {
+      "value": "CHANGE_ME_STRONG_PASSWORD"
+    },
+    "mysqlVersion": {
+      "value": "8.0.21"
+    },
+    "mysqlSkuName": {
+      "value": "Standard_B1ms"
+    },
+    "mysqlSkuTier": {
+      "value": "Burstable"
+    },
+    "mysqlStorageSizeGB": {
+      "value": 20
+    },
+    "mysqlBackupRetentionDays": {
+      "value": 7
+    },
+
+    "appServicePlanName": {
+      "value": "lacesta-asp"
+    },
+    "appServicePlanSku": {
+      "value": "B1"
+    },
+
+    "backendAppName": {
+      "value": "lacesta-backend"
+    },
+    "backendSecretKey": {
+      "value": "CHANGE_ME_BACKEND_SECRET"
+    },
+
+    "frontendAppName": {
+      "value": "lacesta-frontend"
+    },
+    "frontendSecretKey": {
+      "value": "CHANGE_ME_FRONTEND_SECRET"
+    },
+
+    "databaseName": {
+      "value": "requisitions_db"
+    },
+    "dbAppUser": {
+      "value": "api_user"
+    },
+    "dbAppPassword": {
+      "value": "CHANGE_ME_DB_APP_PASSWORD"
+    },
+
+    "allowAllAzureIps": {
+      "value": true
+    }
+  }
+}

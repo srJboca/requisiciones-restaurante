@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Azure deployment secrets
+azure/parameters.json
+notes.txt
