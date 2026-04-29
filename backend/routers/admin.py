@@ -1,7 +1,10 @@
 """
 CompanyAdmin router — all operations scoped to the current user's company.
 """
-from fastapi import APIRouter, Depends, HTTPException
+import csv
+import io
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional
@@ -260,6 +263,112 @@ def toggle_product(product_id: int, db: Session = Depends(get_db), current_user:
     prod.is_active = not prod.is_active
     db.commit()
     return {"id": prod.id, "is_active": prod.is_active}
+
+@router.get("/products/template")
+def download_product_template(_: User = Depends(get_current_company_admin)):
+    """Download a CSV template for bulk product import."""
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["name", "sku", "unit_measure", "group_name"])
+    writer.writerow(["Arroz 500g", "ARR-001", "Kg", "Abarrotes"])
+    writer.writerow(["Leche Entera", "LEC-001", "Litro", "Lacteos"])
+    writer.writerow(["Pan Tajado", "PAN-001", "Unidad", "Panaderia"])
+    # BOM (utf-8-sig) ensures Excel opens it correctly
+    content = "\ufeff" + output.getvalue()
+    return StreamingResponse(
+        io.BytesIO(content.encode("utf-8")),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="product_template.csv"'},
+    )
+
+@router.post("/products/import")
+def import_products(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_company_admin),
+):
+    """Bulk-import products from a CSV file.
+
+    Expected columns: name, sku, unit_measure, group_name
+    - Rows with missing required fields are skipped.
+    - Duplicate SKUs (within the company) are skipped.
+    - group_name is created automatically if it doesn't exist.
+    """
+    # Read and decode — handle both utf-8 and utf-8-sig (Excel BOM)
+    try:
+        raw = file.file.read()
+        content = raw.decode("utf-8-sig")
+    except Exception:
+        raise HTTPException(status_code=400, detail="Could not read file. Ensure it is a valid UTF-8 CSV.")
+
+    reader = csv.DictReader(io.StringIO(content))
+
+    # Validate headers
+    required_headers = {"name", "sku", "unit_measure"}
+    if reader.fieldnames is None or not required_headers.issubset(set(reader.fieldnames)):
+        raise HTTPException(
+            status_code=400,
+            detail=f"CSV must contain columns: name, sku, unit_measure (and optionally group_name). Found: {reader.fieldnames}"
+        )
+
+    imported, skipped = 0, 0
+    errors: list[str] = []
+    group_cache: dict[str, int] = {}  # group_name → group_id to avoid repeated lookups
+
+    for row_num, row in enumerate(reader, start=2):  # 2 = first data row
+        name = (row.get("name") or "").strip()
+        sku = (row.get("sku") or "").strip()
+        unit_measure = (row.get("unit_measure") or "").strip()
+        group_name = (row.get("group_name") or "").strip()
+
+        # Required field check
+        if not name or not sku or not unit_measure:
+            errors.append(f"Row {row_num}: missing required field(s) — skipped.")
+            skipped += 1
+            continue
+
+        # Duplicate SKU check
+        if db.query(Product).filter(
+            Product.sku == sku, Product.company_id == current_user.company_id
+        ).first():
+            errors.append(f"Row {row_num}: SKU '{sku}' already exists — skipped.")
+            skipped += 1
+            continue
+
+        # Resolve product group
+        group_id = None
+        if group_name:
+            if group_name in group_cache:
+                group_id = group_cache[group_name]
+            else:
+                group = db.query(ProductGroup).filter(
+                    ProductGroup.name == group_name,
+                    ProductGroup.company_id == current_user.company_id
+                ).first()
+                if not group:
+                    group = ProductGroup(name=group_name, company_id=current_user.company_id)
+                    db.add(group)
+                    db.flush()  # get the auto-generated id
+                group_cache[group_name] = group.id
+                group_id = group.id
+
+        db.add(Product(
+            name=name, sku=sku, unit_measure=unit_measure,
+            group_id=group_id, company_id=current_user.company_id
+        ))
+        imported += 1
+
+    db.commit()
+    log_audit(
+        db, current_user.id, "Import Products CSV", "Product",
+        details=f"Imported {imported}, skipped {skipped}"
+    )
+    return {
+        "imported": imported,
+        "skipped": skipped,
+        "errors": errors,
+        "message": f"Imported {imported} product(s). {skipped} row(s) skipped."
+    }
 
 # ── Settings ─────────────────────────────────────────────────
 

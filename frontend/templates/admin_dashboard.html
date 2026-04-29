@@ -79,7 +79,7 @@
         <div class="card">
             <h3 style="margin-bottom: 1rem; color: var(--primary);">Products</h3>
             
-            <form onsubmit="createProduct(event)" style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+            <form onsubmit="createProduct(event)" style="margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
                 <div style="display: flex; gap: 0.5rem;">
                     <input type="text" id="newProdName" class="form-control" placeholder="Name" required>
                     <input type="text" id="newProdSku" class="form-control" placeholder="SKU" required>
@@ -95,6 +95,17 @@
                     <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
                 </div>
             </form>
+            
+            <div style="margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px dashed var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-size: 0.9rem; color: var(--text-light);">Bulk Import Products:</span>
+                    <a href="#" onclick="downloadTemplate(event)" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.2rem 0.5rem; text-decoration: none;">Download Template</a>
+                </div>
+                <form onsubmit="importProducts(event)" style="display: flex; gap: 0.5rem;">
+                    <input type="file" id="importFile" class="form-control" accept=".csv" required style="padding: 0.3rem;">
+                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; white-space: nowrap;">Upload CSV</button>
+                </form>
+            </div>
 
             <ul style="list-style: none; max-height: 300px; overflow-y: auto;">
                 {% for p in products %}
@@ -266,6 +277,30 @@
         } catch(err) { alert('Connection error'); }
     }
 
+    async function importProducts(e) {
+        e.preventDefault();
+        const fileInput = document.getElementById('importFile');
+        if (!fileInput.files.length) return;
+        
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        
+        try {
+            const res = await fetch(`${API_URL}/admin/products/import`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${TOKEN}` }, // No Content-Type header so fetch sets it with boundary
+                body: formData
+            });
+            const data = await res.json();
+            if(res.ok) {
+                alert(data.message);
+                window.location.reload();
+            } else {
+                alert(data.detail || 'Error importing products');
+            }
+        } catch(err) { alert('Connection error'); }
+    }
+
     async function createProductGroup(e) {
         e.preventDefault();
         const name = document.getElementById('newGroupName').value;
@@ -277,6 +312,28 @@
             });
             if(res.ok) window.location.reload();
             else alert('Error creating product group');
+        } catch(err) { alert('Connection error'); }
+    }
+
+    async function downloadTemplate(e) {
+        e.preventDefault();
+        try {
+            const res = await fetch(`${API_URL}/admin/products/template`, {
+                headers: { 'Authorization': `Bearer ${TOKEN}` }
+            });
+            if (!res.ok) {
+                alert('Error downloading template');
+                return;
+            }
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'product_template.csv';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
         } catch(err) { alert('Connection error'); }
     }
 

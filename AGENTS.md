@@ -1,4 +1,4 @@
-# AGENTS.md
+# AGENTS.md — La Cesta Restaurant Requisitions
 
 ## Critical Gotchas
 
@@ -9,9 +9,9 @@
 
 ## Architecture
 
-- **Backend entrypoint**: `backend/main.py` → `app = FastAPI(...)`. Routers are imported and included at lines 24-27. Tables are created via `Base.metadata.create_all(bind=engine)` at line 7 — no Alembic migrations.
+- **Backend entrypoint**: `backend/main.py` → `app = FastAPI(...)`. Routers are imported and included at lines 35-39. Tables are created via `Base.metadata.create_all(bind=engine)` at line 8 — no Alembic migrations.
 - **Frontend entrypoint**: `frontend/app.py` runs Flask directly (`app.run(host="0.0.0.0", port=5000)`). Babel locale is resolved from session, then falls back to backend settings.
-- **Frontend-to-backend通信**: `API_URL` env var inside Docker is `http://backend:8000` (internal network). `PUBLIC_API_URL` is `http://localhost:8000` for browser-side JS.
+- **Frontend-to-backend communication**: `API_URL` env var inside Docker is `http://backend:8000` (internal network). `PUBLIC_API_URL` is `http://localhost:8000` for browser-side JS.
 - **CORS**: Backend allows `localhost:5000` and `localhost:5001` explicitly (see `backend/main.py:14-17`).
 
 ## Non-Obvious Commands
@@ -50,12 +50,14 @@ Note: `PROTEINAS.SQL` uses uppercase — this matters on case-sensitive filesyst
 
 ## Key Files
 
-- `docker-compose.yml` — canonical port mappings and env vars (truth over CLAUDE.md)
+- `docker-compose.yml` — canonical port mappings and env vars (truth over README)
 - `db/init.sql` — schema + admin user seed
 - `frontend/translate.py` — custom i18n post-processing (required after pybabel update)
 - `backend/database.py` — SQLAlchemy engine/session setup
 - `backend/dependencies.py` — JWT auth helpers and audit logger
 
-## Secrets
+## Default Credentials
 
-Default credentials (`admin`/`admin123`) and `SECRET_KEY=supersecretkey_change_in_production` are hardcoded in `docker-compose.yml`. Change before any non-local deployment.
+- **SuperAdmin**: `superadmin` / `admin123` (login without domain)
+- **CompanyAdmin**: `admin@lacesta` / `admin123` (domain is required; `admin` alone will fail)
+- `SECRET_KEY=supersecretkey_change_in_production` — change before any non-local deployment
