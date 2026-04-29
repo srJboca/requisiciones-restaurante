@@ -2,14 +2,15 @@
 {% block content %}
 <div class="card">
     <h2>{{ _('Daily Requisition Builder') }}</h2>
-    
+
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 1rem;">
         <div style="display: flex; gap: 1rem; align-items: flex-end;">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" for="orderDate">{{ _('Requisition Date') }}</label>
-                <input type="date" id="orderDate" class="form-control" value="{{ selected_date }}" onchange="changeDate()" style="width: 150px;">
+                <input type="date" id="orderDate" class="form-control" value="{{ selected_date }}"
+                    onchange="changeDate()" style="width: 150px;">
             </div>
-            
+
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" for="groupSelect">{{ _('Filter by Product Group') }}</label>
                 <select id="groupSelect" class="form-control" onchange="filterProducts()" style="width: 250px;">
@@ -20,24 +21,45 @@
                 </select>
             </div>
         </div>
-        
+
         <div style="text-align: right;">
             {% if today_order.status != 'Draft' and today_order.status != 'None' %}
-            <div style="margin-bottom: 0.5rem;"><span style="background: var(--success); color: white; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 500;">{{ _('Status') }}: {{ _(today_order.status) }}</span></div>
+            <div style="margin-bottom: 0.5rem;"><span
+                    style="background: var(--success); color: white; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 500;">{{
+                    _('Status') }}: {{ _(today_order.status) }}</span></div>
             <div style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 0.25rem;">
-                {% if today_order.submitted_by_name %}{{ _('Submitted by') }}: {{ today_order.submitted_by_name }}<br>{% endif %}
-                {% if today_order.shipped_by_name %}{{ _('Shipped by') }}: {{ today_order.shipped_by_name }}<br>{% endif %}
-                {% if today_order.received_by_name %}{{ _('Closed by') }}: {{ today_order.received_by_name }}<br>{% endif %}
+                {% if today_order.submitted_by_name %}{{ _('Submitted by') }}: {{ today_order.submitted_by_name }}<br>{%
+                endif %}
+                {% if today_order.shipped_by_name %}{{ _('Shipped by') }}: {{ today_order.shipped_by_name }}<br>{% endif
+                %}
+                {% if today_order.received_by_name %}{{ _('Closed by') }}: {{ today_order.received_by_name }}<br>{%
+                endif %}
             </div>
-            <div style="font-size: 0.875rem; color: var(--text-light);">{{ _('Delivery ETA') }}: {{ today_order.delivery_date }}</div>
+            <div style="font-size: 0.875rem; color: var(--text-light);">{{ _('Delivery ETA') }}: {{
+                today_order.delivery_date }}</div>
             {% else %}
-            <div style="margin-bottom: 0.5rem;"><span style="background: var(--warning); color: white; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 500;">{{ _('Status') }}: {{ _('Draft') }}</span></div>
-            <div id="etaPreview" style="font-size: 0.875rem; color: var(--text-light);">{{ _('Delivery ETA') }}: {{ _('Calculating...') }}</div>
+            <div style="margin-bottom: 0.5rem;"><span
+                    style="background: var(--warning); color: white; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 500;">{{
+                    _('Status') }}: {{ _('Draft') }}</span></div>
+            <div id="etaPreview" style="font-size: 0.875rem; color: var(--text-light);">{{ _('Delivery ETA') }}: {{
+                _('Calculating...') }}</div>
             {% endif %}
         </div>
     </div>
 
     <form id="orderForm" onsubmit="submitOrder(event)" style="margin-top: 1.5rem;">
+        <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+            {% if today_order.status == 'Draft' or today_order.status == 'None' %}
+            <button type="submit" class="btn btn-secondary">{{ _('Save Draft') }}</button>
+            <button type="button" class="btn btn-primary"
+                onclick="window.sendOrderToProduction(document.getElementById('orderDate').value, '{{ session.get('access_token') }}', API_URL, document.getElementById('restaurantNotes').value)">{{
+                _('Send to Production') }}</button>
+            {% else %}
+            <p style="color: var(--success); font-weight: 500;">{{ _('Order for') }} {{ selected_date }} {{ _('has
+                been') }} {{ _(today_order.status) }}.</p>
+            {% endif %}
+        </div>
+
         <table class="grid-table">
             <thead>
                 <tr>
@@ -56,34 +78,42 @@
                     <td>{{ p.name }}</td>
                     <td>{{ p.unit_measure }}</td>
                     <td>
-                        <input type="number" step="0.01" class="grid-input current-inv" data-id="{{ p.id }}" 
-                               {% if p.id in today_items %}value="{{ today_items[p.id].current_inventory }}"{% endif %} 
-                               placeholder="0" {% if today_order.status != 'Draft' and today_order.status != 'None' %}readonly{% endif %}>
+                        <input type="number" step="0.01" class="grid-input current-inv" data-id="{{ p.id }}" {% if p.id
+                            in today_items %}value="{{ today_items[p.id].current_inventory }}" {% endif %}
+                            placeholder="0" {% if today_order.status !='Draft' and today_order.status !='None'
+                            %}readonly{% endif %}>
                     </td>
                     <td>
-                        <input type="number" step="0.01" class="grid-input req-qty" data-id="{{ p.id }}" 
-                               {% if p.id in today_items %}value="{{ today_items[p.id].required_quantity }}"{% endif %} 
-                               placeholder="0" {% if today_order.status != 'Draft' and today_order.status != 'None' %}readonly{% endif %}>
+                        <input type="number" step="0.01" class="grid-input req-qty" data-id="{{ p.id }}" {% if p.id in
+                            today_items %}value="{{ today_items[p.id].required_quantity }}" {% endif %} placeholder="0"
+                            {% if today_order.status !='Draft' and today_order.status !='None' %}readonly{% endif %}>
                     </td>
                     <td style="font-size: 0.875rem; color: var(--text-light);">
-                        {% if p.id in today_items and today_items[p.id].edited_by_name %}{{ today_items[p.id].edited_by_name }}{% else %}-{% endif %}
+                        {% if p.id in today_items and today_items[p.id].edited_by_name %}{{
+                        today_items[p.id].edited_by_name }}{% else %}-{% endif %}
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        
+
         <div style="margin-top: 1.5rem;">
-            <label for="restaurantNotes" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">{{ _('Notes for Production Plant') }}</label>
-            <textarea id="restaurantNotes" class="form-control" rows="3" placeholder="{{ _('Optional annotations...') }}" {% if today_order.status != 'Draft' and today_order.status != 'None' %}readonly{% endif %}>{{ today_order.restaurant_notes or '' }}</textarea>
+            <label for="restaurantNotes" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">{{ _('Notes
+                for Production Plant') }}</label>
+            <textarea id="restaurantNotes" class="form-control" rows="3"
+                placeholder="{{ _('Optional annotations...') }}" {% if today_order.status !='Draft' and
+                today_order.status !='None' %}readonly{% endif %}>{{ today_order.restaurant_notes or '' }}</textarea>
         </div>
-        
+
         <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
             {% if today_order.status == 'Draft' or today_order.status == 'None' %}
-                <button type="submit" class="btn btn-secondary">{{ _('Save Draft') }}</button>
-                <button type="button" class="btn btn-primary" onclick="window.sendOrderToProduction(document.getElementById('orderDate').value, '{{ session.get('access_token') }}', API_URL, document.getElementById('restaurantNotes').value)">{{ _('Send to Production') }}</button>
+            <button type="submit" class="btn btn-secondary">{{ _('Save Draft') }}</button>
+            <button type="button" class="btn btn-primary"
+                onclick="window.sendOrderToProduction(document.getElementById('orderDate').value, '{{ session.get('access_token') }}', API_URL, document.getElementById('restaurantNotes').value)">{{
+                _('Send to Production') }}</button>
             {% else %}
-                <p style="color: var(--success); font-weight: 500;">{{ _('Order for') }} {{ selected_date }} {{ _('has been') }} {{ _(today_order.status) }}.</p>
+            <p style="color: var(--success); font-weight: 500;">{{ _('Order for') }} {{ selected_date }} {{ _('has
+                been') }} {{ _(today_order.status) }}.</p>
             {% endif %}
         </div>
     </form>
@@ -114,18 +144,25 @@
                     </span>
                 </td>
                 <td style="font-size: 0.875rem;">
-                    {% if o.status == 'Submitted' and o.submitted_by_name %}{{ _('Submitted by') }} {{ o.submitted_by_name }}<br>{% endif %}
-                    {% if o.status == 'Shipped' and o.shipped_by_name %}{{ _('Shipped by') }} {{ o.shipped_by_name }}<br>{% endif %}
-                    {% if o.status == 'Closed' and o.received_by_name %}{{ _('Closed by') }} {{ o.received_by_name }}<br>{% endif %}
-                    {% if o.restaurant_notes %}<div style="margin-top:0.25rem;"><strong>{{ _('Restaurant Notes') }}:</strong> {{ o.restaurant_notes }}</div>{% endif %}
-                    {% if o.production_notes %}<div style="margin-top:0.25rem;"><strong>{{ _('Production Notes') }}:</strong> {{ o.production_notes }}</div>{% endif %}
-                    {% if o.receiving_notes %}<div style="margin-top:0.25rem;"><strong>{{ _('Receiving Notes') }}:</strong> {{ o.receiving_notes }}</div>{% endif %}
+                    {% if o.status == 'Submitted' and o.submitted_by_name %}{{ _('Submitted by') }} {{
+                    o.submitted_by_name }}<br>{% endif %}
+                    {% if o.status == 'Shipped' and o.shipped_by_name %}{{ _('Shipped by') }} {{ o.shipped_by_name
+                    }}<br>{% endif %}
+                    {% if o.status == 'Closed' and o.received_by_name %}{{ _('Closed by') }} {{ o.received_by_name
+                    }}<br>{% endif %}
+                    {% if o.restaurant_notes %}<div style="margin-top:0.25rem;"><strong>{{ _('Restaurant Notes')
+                            }}:</strong> {{ o.restaurant_notes }}</div>{% endif %}
+                    {% if o.production_notes %}<div style="margin-top:0.25rem;"><strong>{{ _('Production Notes')
+                            }}:</strong> {{ o.production_notes }}</div>{% endif %}
+                    {% if o.receiving_notes %}<div style="margin-top:0.25rem;"><strong>{{ _('Receiving Notes')
+                            }}:</strong> {{ o.receiving_notes }}</div>{% endif %}
                 </td>
                 <td>{{ o.total_items }}</td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="4" style="text-align: center; padding: 2rem; color: var(--text-light);">{{ _('No past requisitions found.') }}</td>
+                <td colspan="4" style="text-align: center; padding: 2rem; color: var(--text-light);">{{ _('No past
+                    requisitions found.') }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -149,11 +186,11 @@
     function calculateETA() {
         const dateInput = document.getElementById('orderDate').value;
         if (!dateInput) return;
-        
+
         let date = new Date(dateInput);
         // Correct for timezone offset to prevent date shifting
         date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
-        
+
         let daysToAdd = ETA_DAYS;
         while (daysToAdd > 0) {
             date.setDate(date.getDate() + 1);
@@ -161,7 +198,7 @@
                 daysToAdd--;
             }
         }
-        
+
         const preview = document.getElementById('etaPreview');
         if (preview) {
             preview.innerText = `Delivery ETA: ${date.toISOString().split('T')[0]}`;
@@ -188,7 +225,7 @@
         setMinDate();
         calculateETA();
         updateZeroInventoryHighlights();
-        
+
         document.querySelectorAll('.current-inv').forEach(input => {
             input.addEventListener('input', updateZeroInventoryHighlights);
         });
@@ -208,23 +245,23 @@
 
     async function submitOrder(e) {
         e.preventDefault();
-        
+
         const rows = document.querySelectorAll('.product-row:not(.hidden)');
         let items = [];
         let hasZeroInventory = false;
-        
+
         rows.forEach(row => {
             const invInput = row.querySelector('.current-inv');
             const reqInput = row.querySelector('.req-qty');
-            
+
             let inv = parseFloat(invInput.value);
             let req = parseFloat(reqInput.value);
-            
+
             if (isNaN(inv) || invInput.value.trim() === '') {
                 inv = 0;
             }
             if (isNaN(req)) req = 0;
-            
+
             if (req > 0) {
                 if (inv === 0) hasZeroInventory = true;
                 items.push({
@@ -234,7 +271,7 @@
                 });
             }
         });
-        
+
         if (items.length === 0) {
             alert('Please specify at least one required quantity before saving.');
             return;
