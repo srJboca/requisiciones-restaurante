@@ -311,9 +311,13 @@ def import_products(
             detail=f"CSV must contain columns: name, sku, unit_measure (and optionally group_name). Found: {reader.fieldnames}"
         )
 
-    imported, skipped = 0, 0
+    imported, skipped, updated = 0, 0, 0
     errors: list[str] = []
     group_cache: dict[str, int] = {}  # group_name → group_id to avoid repeated lookups
+    
+    # Pre-load existing products to avoid duplicate queries and handle duplicates within the CSV itself
+    existing_products = db.query(Product).filter(Product.company_id == current_user.company_id).all()
+    sku_cache = {p.sku: p for p in existing_products}
 
     for row_num, row in enumerate(reader, start=2):  # 2 = first data row
         name = (row.get("name") or "").strip()
@@ -324,14 +328,6 @@ def import_products(
         # Required field check
         if not name or not sku or not unit_measure:
             errors.append(f"Row {row_num}: missing required field(s) — skipped.")
-            skipped += 1
-            continue
-
-        # Duplicate SKU check
-        if db.query(Product).filter(
-            Product.sku == sku, Product.company_id == current_user.company_id
-        ).first():
-            errors.append(f"Row {row_num}: SKU '{sku}' already exists — skipped.")
             skipped += 1
             continue
 
@@ -352,22 +348,34 @@ def import_products(
                 group_cache[group_name] = group.id
                 group_id = group.id
 
-        db.add(Product(
-            name=name, sku=sku, unit_measure=unit_measure,
-            group_id=group_id, company_id=current_user.company_id
-        ))
-        imported += 1
+        if sku in sku_cache:
+            # Update existing product
+            prod = sku_cache[sku]
+            prod.name = name
+            prod.unit_measure = unit_measure
+            prod.group_id = group_id
+            updated += 1
+        else:
+            # Create new product
+            new_prod = Product(
+                name=name, sku=sku, unit_measure=unit_measure,
+                group_id=group_id, company_id=current_user.company_id
+            )
+            db.add(new_prod)
+            sku_cache[sku] = new_prod
+            imported += 1
 
     db.commit()
     log_audit(
         db, current_user.id, "Import Products CSV", "Product",
-        details=f"Imported {imported}, skipped {skipped}"
+        details=f"Imported {imported}, updated {updated}, skipped {skipped}"
     )
     return {
         "imported": imported,
+        "updated": updated,
         "skipped": skipped,
         "errors": errors,
-        "message": f"Imported {imported} product(s). {skipped} row(s) skipped."
+        "message": f"Imported {imported} new product(s). Updated {updated} existing. {skipped} row(s) skipped."
     }
 
 # ── Settings ─────────────────────────────────────────────────
