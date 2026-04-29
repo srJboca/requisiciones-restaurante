@@ -1,8 +1,62 @@
 {% extends "base.html" %}
 {% block content %}
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-    <!-- Left Column -->
-    <div>
+<style>
+    .tab-container {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid var(--border);
+        padding-bottom: 0;
+    }
+    .tab-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-light);
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 0.75rem 1.5rem;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: all 0.2s ease;
+    }
+    .tab-btn.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+    }
+    .tab-btn:hover:not(.active) {
+        color: var(--text);
+    }
+    .tab-pane {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+    .tab-pane.active {
+        display: block;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .grid-2col {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+    }
+</style>
+
+<h2>{{ _('Admin Dashboard') }}</h2>
+
+<div class="tab-container">
+    <button class="tab-btn active" onclick="switchTab('tab-org')">Organization</button>
+    <button class="tab-btn" onclick="switchTab('tab-catalog')">Catalog</button>
+    <button class="tab-btn" onclick="switchTab('tab-users')">Users & Logs</button>
+    <button class="tab-btn" onclick="switchTab('tab-settings')">Settings</button>
+</div>
+
+<!-- ORGANIZATION TAB -->
+<div id="tab-org" class="tab-pane active">
+    <div class="grid-2col">
         <div class="card">
             <h3 style="margin-bottom: 1rem; color: var(--primary);">Production Plants</h3>
             <form onsubmit="createProductionPlant(event)" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
@@ -60,22 +114,12 @@
                 {% endfor %}
             </ul>
         </div>
+    </div>
+</div>
 
-        <div class="card">
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">Product Groups</h3>
-            <form onsubmit="createProductGroup(event)" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
-                <input type="text" id="newGroupName" class="form-control" placeholder="Group Name" required>
-                <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
-            </form>
-            <ul style="list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                {% for g in groups %}
-                <li style="background: var(--background); padding: 0.25rem 0.75rem; border-radius: 16px; font-size: 0.875rem;">
-                    {{ g.name }}
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-
+<!-- CATALOG TAB -->
+<div id="tab-catalog" class="tab-pane">
+    <div class="grid-2col">
         <div class="card">
             <h3 style="margin-bottom: 1rem; color: var(--primary);">Products</h3>
             
@@ -107,7 +151,7 @@
                 </form>
             </div>
 
-            <ul style="list-style: none; max-height: 300px; overflow-y: auto;">
+            <ul style="list-style: none; max-height: 400px; overflow-y: auto;">
                 {% for p in products %}
                 <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                     <span style="{% if not p.is_active %}text-decoration: line-through; color: var(--text-light);{% endif %}">
@@ -124,6 +168,26 @@
         </div>
 
         <div class="card">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">Product Groups</h3>
+            <form onsubmit="createProductGroup(event)" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
+                <input type="text" id="newGroupName" class="form-control" placeholder="Group Name" required>
+                <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+            </form>
+            <ul style="list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                {% for g in groups %}
+                <li style="background: var(--background); padding: 0.25rem 0.75rem; border-radius: 16px; font-size: 0.875rem;">
+                    {{ g.name }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- USERS & LOGS TAB -->
+<div id="tab-users" class="tab-pane">
+    <div class="grid-2col">
+        <div class="card">
             <h3 style="margin-bottom: 1rem; color: var(--primary);">Users</h3>
             
             <form onsubmit="createUser(event)" style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
@@ -132,7 +196,7 @@
                     <input type="password" id="newPassword" class="form-control" placeholder="Password" required>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
-                    <select id="newUserRole" class="form-control" required onchange="document.getElementById('newUserRest').style.display = this.value === 'Restaurant' ? 'block' : 'none'">
+                    <select id="newUserRole" class="form-control" required onchange="document.getElementById('newUserRest').style.display = this.value === 'Restaurant' ? 'block' : 'none'; document.getElementById('newUserPlant').style.display = this.value === 'Production Plant' ? 'block' : 'none';">
                         <option value="">Select Role</option>
                         <option value="Admin">Admin</option>
                         <option value="Restaurant">Restaurant</option>
@@ -144,11 +208,17 @@
                         <option value="{{ r.id }}">{{ r.name }}</option>
                         {% endfor %}
                     </select>
+                    <select id="newUserPlant" class="form-control" style="display: none;">
+                        <option value="">Assign Plant</option>
+                        {% for p in plants %}
+                        <option value="{{ p.id }}">{{ p.name }}</option>
+                        {% endfor %}
+                    </select>
                     <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
                 </div>
             </form>
 
-            <ul style="list-style: none; max-height: 200px; overflow-y: auto;">
+            <ul style="list-style: none; max-height: 400px; overflow-y: auto;">
                 {% for u in users %}
                 <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                     <div>
@@ -158,30 +228,6 @@
                 </li>
                 {% endfor %}
             </ul>
-        </div>
-    </div>
-
-    <!-- Right Column -->
-    <div>
-        <div class="card" style="margin-bottom: 2rem;">
-            <h2>{{ _('Admin Dashboard') }}</h2>
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">{{ _('System Settings') }}</h3>
-            <form onsubmit="updateSettings(event)" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                <div>
-                    <label for="etaDays" style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem;">{{ _('Requisition ETA (Business Days)') }}:</label>
-                    <input type="number" id="etaDays" class="form-control" value="{{ eta_days }}" style="width: 100px;" min="0" required>
-                </div>
-                <div>
-                    <label for="defaultLang" style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem;">{{ _('Default Language') }}:</label>
-                    <select id="defaultLang" class="form-control" style="width: 150px;">
-                        <option value="en" {% if default_language == 'en' %}selected{% endif %}>{{ _('English') }}</option>
-                        <option value="es" {% if default_language == 'es' %}selected{% endif %}>{{ _('Spanish') }}</option>
-                    </select>
-                </div>
-                <div style="margin-top: 1.25rem;">
-                    <button type="submit" class="btn btn-primary">{{ _('Save Settings') }}</button>
-                </div>
-            </form>
         </div>
 
         <div class="card">
@@ -211,9 +257,45 @@
         </div>
     </div>
 </div>
+
+<!-- SETTINGS TAB -->
+<div id="tab-settings" class="tab-pane">
+    <div class="card" style="max-width: 600px;">
+        <h3 style="margin-bottom: 1rem; color: var(--primary);">{{ _('System Settings') }}</h3>
+        <form onsubmit="updateSettings(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+                <label for="etaDays" style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem;">{{ _('Requisition ETA (Business Days)') }}:</label>
+                <input type="number" id="etaDays" class="form-control" value="{{ eta_days }}" style="width: 100px;" min="0" required>
+            </div>
+            <div>
+                <label for="defaultLang" style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem;">{{ _('Default Language') }}:</label>
+                <select id="defaultLang" class="form-control" style="width: 150px;">
+                    <option value="en" {% if default_language == 'en' %}selected{% endif %}>{{ _('English') }}</option>
+                    <option value="es" {% if default_language == 'es' %}selected{% endif %}>{{ _('Spanish') }}</option>
+                </select>
+            </div>
+            <div style="margin-top: 0.5rem;">
+                <button type="submit" class="btn btn-primary">{{ _('Save Settings') }}</button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
 {% block scripts %}
 <script>
+    function switchTab(tabId) {
+        // Hide all panes
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+            pane.classList.remove('active');
+        });
+        // Deselect all buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        // Show selected pane and highlight button
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
     const API_URL = "{{ API_URL }}";
     const TOKEN = "{{ session.get('access_token') }}";
 
