@@ -1,15 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="card" style="max-width: 400px; margin: 5vh auto;">
-    <h2 style="margin-bottom: 1.5rem; text-align: center;">{{ _('Login') }}</h2>
+<div class="card" style="max-width: 420px; margin: 5vh auto;">
+    <h2 style="margin-bottom: 0.5rem; text-align: center;">{{ _('Login') }}</h2>
+    <p style="text-align: center; font-size: 0.85rem; color: var(--text-light); margin-bottom: 1.5rem;">
+        {{ _('Company users:') }} <code>username@domain</code> &nbsp;|&nbsp; {{ _('SuperAdmin:') }} <code>superadmin</code>
+    </p>
     <form method="POST" action="{{ url_for('login') }}">
         <div class="form-group">
             <label class="form-label" for="username">{{ _('Username') }}</label>
-            <input type="text" class="form-control" id="username" name="username" required>
+            <input type="text" class="form-control" id="username" name="username"
+                   placeholder="username@company" required autocomplete="username">
         </div>
         <div class="form-group">
             <label class="form-label" for="password">{{ _('Password') }}</label>
-            <input type="password" class="form-control" id="password" name="password" required>
+            <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%;">{{ _('Login') }}</button>
     </form>

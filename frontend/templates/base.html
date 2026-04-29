@@ -21,7 +21,10 @@
                     style="margin-left: 0; {% if session.get('lang') == 'es' %}font-weight: bold; color: var(--primary);{% endif %}">ES</a>
             </div>
             {% if session.get('access_token') %}
-            {% if session.get('role') == 'Admin' %}
+            {% if session.get('role') == 'SuperAdmin' %}
+            <a href="{{ url_for('superadmin_dashboard') }}">{{ _('SuperAdmin') }}</a>
+            <a href="{{ url_for('history') }}">{{ _('History') }}</a>
+            {% elif session.get('role') in ['CompanyAdmin', 'Admin'] %}
             <a href="{{ url_for('admin_dashboard') }}">{{ _('Admin Dashboard') }}</a>
             <a href="{{ url_for('history') }}">{{ _('History') }}</a>
             {% elif session.get('role') == 'Restaurant' %}

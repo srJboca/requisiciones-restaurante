@@ -1,14 +1,40 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Numeric, TIMESTAMP, Text, text, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Numeric, TIMESTAMP, Text, text, Boolean, UniqueConstraint
 from sqlalchemy.orm import relationship
 from database import Base
-from database import Base
 
-class SystemSetting(Base):
-    __tablename__ = "system_settings"
+# ============================================================
+# Company (tenant)
+# ============================================================
+class Company(Base):
+    __tablename__ = "companies"
 
-    setting_key = Column(String(50), primary_key=True, index=True)
-    setting_value = Column(String(255), nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    domain = Column(String(100), unique=True, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
 
+    restaurants = relationship("Restaurant", back_populates="company")
+    production_plants = relationship("ProductionPlant", back_populates="company")
+    users = relationship("User", back_populates="company")
+
+# ============================================================
+# Production Plant (per company)
+# ============================================================
+class ProductionPlant(Base):
+    __tablename__ = "production_plants"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+
+    company = relationship("Company", back_populates="production_plants")
+    restaurants = relationship("Restaurant", back_populates="production_plant")
+    users = relationship("User", back_populates="production_plant", foreign_keys="User.production_plant_id")
+
+# ============================================================
+# Restaurant (per company, assigned to a production plant)
+# ============================================================
 class Restaurant(Base):
     __tablename__ = "restaurants"
 
@@ -16,64 +42,118 @@ class Restaurant(Base):
     name = Column(String(255), nullable=False)
     location = Column(String(255))
     is_active = Column(Boolean, default=True, nullable=False)
-    
-    users = relationship("User", back_populates="restaurant")
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    production_plant_id = Column(Integer, ForeignKey("production_plants.id"), nullable=True)
+
+    company = relationship("Company", back_populates="restaurants")
+    production_plant = relationship("ProductionPlant", back_populates="restaurants")
+    users = relationship("User", back_populates="restaurant", foreign_keys="User.restaurant_id")
     orders = relationship("Order", back_populates="restaurant")
 
+# ============================================================
+# User
+# SuperAdmin: company_id=NULL, no restaurant/plant
+# CompanyAdmin: company_id set, no restaurant/plant
+# Restaurant: company_id + restaurant_id set
+# Production Plant: company_id + production_plant_id set
+# Login: "username@domain" (SuperAdmin: just "superadmin")
+# ============================================================
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(50), unique=True, index=True, nullable=False)
+    username = Column(String(50), nullable=False)
     password_hash = Column(String(255), nullable=False)
-    role = Column(Enum('Admin', 'Restaurant', 'Production Plant'), nullable=False)
+    role = Column(Enum('SuperAdmin', 'CompanyAdmin', 'Restaurant', 'Production Plant'), nullable=False)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=True)
     restaurant_id = Column(Integer, ForeignKey("restaurants.id"), nullable=True)
+    production_plant_id = Column(Integer, ForeignKey("production_plants.id"), nullable=True)
 
-    restaurant = relationship("Restaurant", back_populates="users")
+    __table_args__ = (
+        UniqueConstraint('username', 'company_id', name='uq_username_company'),
+    )
+
+    company = relationship("Company", back_populates="users")
+    restaurant = relationship("Restaurant", back_populates="users", foreign_keys=[restaurant_id])
+    production_plant = relationship("ProductionPlant", back_populates="users", foreign_keys=[production_plant_id])
     audit_logs = relationship("AuditLog", back_populates="user")
 
+# ============================================================
+# Product Group (per company)
+# ============================================================
 class ProductGroup(Base):
     __tablename__ = "product_groups"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
 
+    company = relationship("Company")
     products = relationship("Product", back_populates="group")
 
+# ============================================================
+# Product (per company; SKU unique within a company)
+# ============================================================
 class Product(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
-    sku = Column(String(100), unique=True, nullable=False)
+    sku = Column(String(100), nullable=False)
     unit_measure = Column(String(50), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
-    group_id = Column(Integer, ForeignKey("product_groups.id"))
+    group_id = Column(Integer, ForeignKey("product_groups.id"), nullable=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint('sku', 'company_id', name='uq_sku_company'),
+    )
 
     group = relationship("ProductGroup", back_populates="products")
+    company = relationship("Company")
 
+# ============================================================
+# System Setting (company_id NULL = global default)
+# ============================================================
+class SystemSetting(Base):
+    __tablename__ = "system_settings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=True)
+    setting_key = Column(String(50), nullable=False)
+    setting_value = Column(String(255), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint('company_id', 'setting_key', name='uq_company_setting'),
+    )
+
+# ============================================================
+# Order
+# ============================================================
 class Order(Base):
     __tablename__ = "orders"
 
     id = Column(Integer, primary_key=True, index=True)
     restaurant_id = Column(Integer, ForeignKey("restaurants.id"), nullable=False)
-    order_date = Column(String(10), nullable=False)  # Storing date as string for simplicity 'YYYY-MM-DD'
-    delivery_date = Column(String(10), nullable=True) # ETA date
+    order_date = Column(String(10), nullable=False)
+    delivery_date = Column(String(10), nullable=True)
     status = Column(Enum('Draft', 'Submitted', 'Shipped', 'Closed'), default='Draft', nullable=False)
     created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
     updated_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
-    
+
     submitted_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     shipped_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     received_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
     restaurant = relationship("Restaurant", back_populates="orders")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
-    
     submitted_by = relationship("User", foreign_keys=[submitted_by_id])
     shipped_by = relationship("User", foreign_keys=[shipped_by_id])
     received_by = relationship("User", foreign_keys=[received_by_id])
 
+# ============================================================
+# Order Item
+# ============================================================
 class OrderItem(Base):
     __tablename__ = "order_items"
 
@@ -90,6 +170,9 @@ class OrderItem(Base):
     product = relationship("Product")
     edited_by = relationship("User", foreign_keys=[edited_by_id])
 
+# ============================================================
+# Audit Log
+# ============================================================
 class AuditLog(Base):
     __tablename__ = "audit_logs"
 

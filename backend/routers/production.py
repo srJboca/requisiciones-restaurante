@@ -1,12 +1,17 @@
+"""
+Production Plant router — scoped to the current user's assigned production plant.
+Only shows orders from restaurants assigned to this production plant.
+"""
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import get_db
-from models.models import User, Order, OrderItem, Restaurant, Product, ProductGroup
-from dependencies import get_current_production, log_audit
 from pydantic import BaseModel
 from typing import List
 
-router = APIRouter(prefix="/production", tags=["production"], dependencies=[Depends(get_current_production)])
+from database import get_db
+from models.models import User, Order, OrderItem, Restaurant
+from dependencies import get_current_production, log_audit
+
+router = APIRouter(prefix="/production", tags=["production"])
 
 class OrderShipItem(BaseModel):
     order_item_id: int
@@ -15,47 +20,71 @@ class OrderShipItem(BaseModel):
 class OrderShip(BaseModel):
     items: List[OrderShipItem]
 
+def _plant_restaurant_ids(db: Session, current_user: User) -> list[int]:
+    """Return IDs of all restaurants assigned to the current user's production plant."""
+    if not current_user.production_plant_id:
+        return []
+    rests = db.query(Restaurant).filter(
+        Restaurant.production_plant_id == current_user.production_plant_id,
+        Restaurant.company_id == current_user.company_id
+    ).all()
+    return [r.id for r in rests]
+
 @router.get("/requirements")
-def get_requirements(order_date: str | None = None, restaurant_id: int | None = None, group_id: int | None = None, db: Session = Depends(get_db)):
-    query = db.query(Order).filter(Order.status == 'Submitted')
+def get_requirements(
+    order_date: str | None = None,
+    restaurant_id: int | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_production)
+):
+    """Orders in 'Submitted' status directed to this production plant."""
+    plant_rest_ids = _plant_restaurant_ids(db, current_user)
+    if not plant_rest_ids:
+        return []
+
+    query = db.query(Order).filter(
+        Order.status == 'Submitted',
+        Order.restaurant_id.in_(plant_rest_ids)
+    )
     if order_date:
         query = query.filter(Order.order_date == order_date)
-    if restaurant_id:
+    if restaurant_id and restaurant_id in plant_rest_ids:
         query = query.filter(Order.restaurant_id == restaurant_id)
-        
-    orders = query.all()
+
     result = []
-    
-    for o in orders:
-        items = []
-        for i in o.items:
-            # Only include if required_quantity > 0
-            if i.required_quantity > 0:
-                if group_id and i.product.group_id != group_id:
-                    continue
-                items.append({
-                    "item_id": i.id,
-                    "product_id": i.product_id,
-                    "product_name": i.product.name,
-                    "sku": i.product.sku,
-                    "required_quantity": float(i.required_quantity),
-                    "current_inventory": float(i.current_inventory)
-                })
+    for o in query.all():
+        items = [
+            {
+                "item_id": i.id,
+                "product_id": i.product_id,
+                "product_name": i.product.name,
+                "sku": i.product.sku,
+                "required_quantity": float(i.required_quantity),
+                "current_inventory": float(i.current_inventory),
+            }
+            for i in o.items if i.required_quantity > 0
+        ]
         if items:
             result.append({
                 "order_id": o.id,
                 "restaurant_name": o.restaurant.name,
                 "order_date": o.order_date,
                 "items": items,
-                "submitted_by_name": o.submitted_by.username if o.submitted_by else None
+                "submitted_by_name": o.submitted_by.username if o.submitted_by else None,
             })
     return result
 
 @router.post("/{order_id}/ship")
-def ship_order(order_id: int, ship_data: OrderShip, db: Session = Depends(get_db), current_user: User = Depends(get_current_production)):
-    order = db.query(Order).filter(Order.id == order_id).first()
+def ship_order(
+    order_id: int,
+    ship_data: OrderShip,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_production)
+):
+    plant_rest_ids = _plant_restaurant_ids(db, current_user)
+    order = db.query(Order).filter(Order.id == order_id, Order.restaurant_id.in_(plant_rest_ids)).first()
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        raise HTTPException(status_code=404, detail="Order not found or not assigned to your production plant")
     if order.status != 'Submitted':
         raise HTTPException(status_code=400, detail="Order is not in Submitted status")
 
@@ -71,36 +100,38 @@ def ship_order(order_id: int, ship_data: OrderShip, db: Session = Depends(get_db
     return {"message": "Order shipped successfully"}
 
 @router.get("/history")
-def get_history(order_date: str | None = None, restaurant_id: int | None = None, db: Session = Depends(get_db)):
-    # Production sees all non-draft orders
-    query = db.query(Order).filter(Order.status != 'Draft').order_by(Order.order_date.desc())
+def get_history(
+    order_date: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_production)
+):
+    """All non-draft orders for restaurants assigned to this production plant."""
+    plant_rest_ids = _plant_restaurant_ids(db, current_user)
+    if not plant_rest_ids:
+        return []
+
+    query = db.query(Order).filter(
+        Order.status != 'Draft',
+        Order.restaurant_id.in_(plant_rest_ids)
+    ).order_by(Order.order_date.desc())
     if order_date:
         query = query.filter(Order.order_date == order_date)
-    if restaurant_id:
-        query = query.filter(Order.restaurant_id == restaurant_id)
-        
-    orders = query.all()
+
     result = []
-    for o in orders:
-        items = []
-        for i in o.items:
-            items.append({
-                "item_id": i.id,
-                "product_id": i.product_id,
-                "product_name": i.product.name,
-                "sku": i.product.sku,
-                "required_quantity": float(i.required_quantity),
-                "shipped_quantity": float(i.shipped_quantity) if i.shipped_quantity is not None else 0,
-                "received_quantity": float(i.received_quantity) if i.received_quantity is not None else 0
-            })
+    for o in query.all():
         result.append({
             "order_id": o.id,
             "restaurant_name": o.restaurant.name if o.restaurant else "Unknown",
             "order_date": o.order_date,
             "status": o.status,
-            "items": items,
             "submitted_by_name": o.submitted_by.username if o.submitted_by else None,
             "shipped_by_name": o.shipped_by.username if o.shipped_by else None,
-            "received_by_name": o.received_by.username if o.received_by else None
+            "received_by_name": o.received_by.username if o.received_by else None,
+            "items": [{
+                "item_id": i.id, "product_name": i.product.name, "sku": i.product.sku,
+                "required_quantity": float(i.required_quantity),
+                "shipped_quantity": float(i.shipped_quantity) if i.shipped_quantity else 0,
+                "received_quantity": float(i.received_quantity) if i.received_quantity else 0,
+            } for i in o.items]
         })
     return result

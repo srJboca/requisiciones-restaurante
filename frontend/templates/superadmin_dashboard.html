@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>SuperAdmin Dashboard</h2>
+    <p style="color: var(--text-light); margin-bottom: 2rem;">Platform-wide management — all companies.</p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- Left: Companies -->
+        <div>
+            <div class="card">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">Companies</h3>
+                <form onsubmit="createCompany(event)" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                    <input type="text" id="newCompanyName" class="form-control" placeholder="Company Name" required>
+                    <input type="text" id="newCompanyDomain" class="form-control" placeholder="domain (e.g. lacesta)" required>
+                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+                </form>
+                <ul style="list-style: none;">
+                    {% for c in companies %}
+                    <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <strong style="{% if not c.is_active %}text-decoration: line-through; color: var(--text-light);{% endif %}">
+                                {{ c.name }}
+                            </strong>
+                            <br>
+                            <small style="color: var(--text-light);">@{{ c.domain }} &middot; {{ c.restaurant_count }} restaurants &middot; {{ c.user_count }} users</small>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
+                            <button class="btn {% if c.is_active %}btn-danger{% else %}btn-secondary{% endif %}"
+                                    style="padding: 0.25rem 0.5rem; font-size: 0.8rem;"
+                                    onclick="toggleCompany({{ c.id }})">
+                                {% if c.is_active %}Disable{% else %}Enable{% endif %}
+                            </button>
+                            <button class="btn btn-secondary"
+                                    style="padding: 0.25rem 0.5rem; font-size: 0.8rem;"
+                                    onclick="addAdmin({{ c.id }}, '{{ c.name }}')">
+                                + Admin
+                            </button>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right: Global Settings -->
+        <div>
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">{{ _('System Settings') }}</h3>
+                <form onsubmit="updateGlobalSettings(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div>
+                        <label class="form-label">{{ _('Requisition ETA (Business Days)') }}:</label>
+                        <input type="number" id="globalEtaDays" class="form-control" value="{{ settings.get('eta_days', '2') }}" style="width: 100px;" min="0" required>
+                    </div>
+                    <div>
+                        <label class="form-label">{{ _('Default Language') }}:</label>
+                        <select id="globalDefaultLang" class="form-control" style="width: 150px;">
+                            <option value="en" {% if settings.get('default_language') == 'en' %}selected{% endif %}>{{ _('English') }}</option>
+                            <option value="es" {% if settings.get('default_language') == 'es' %}selected{% endif %}>{{ _('Spanish') }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button type="submit" class="btn btn-primary">{{ _('Save Settings') }}</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Quick Links</h3>
+                <p><a href="{{ url_for('history') }}" class="btn btn-secondary">View All Order History</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Admin Modal -->
+<div class="modal-overlay" id="addAdminModal">
+    <div class="modal" style="width: 400px;">
+        <h3 style="margin-bottom: 1rem; color: var(--primary);">Add Company Admin</h3>
+        <p id="addAdminCompanyLabel" style="margin-bottom: 1rem; color: var(--text-light); font-size: 0.9rem;"></p>
+        <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" id="newAdminUsername" class="form-control" placeholder="admin">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" id="newAdminPassword" class="form-control">
+        </div>
+        <div class="modal-actions" style="margin-top: 1.5rem;">
+            <button class="btn" style="background: var(--border);" onclick="closeAddAdminModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="submitAddAdmin()">Create Admin</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+    const API_URL = "{{ API_URL }}";
+    const TOKEN = "{{ session.get('access_token') }}";
+    let _currentCompanyId = null;
+
+    async function createCompany(e) {
+        e.preventDefault();
+        const name = document.getElementById('newCompanyName').value;
+        const domain = document.getElementById('newCompanyDomain').value.toLowerCase();
+        const res = await fetch(`${API_URL}/superadmin/companies`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+            body: JSON.stringify({ name, domain })
+        });
+        if (res.ok) window.location.reload();
+        else { const d = await res.json(); alert(d.detail || 'Error'); }
+    }
+
+    async function toggleCompany(id) {
+        const res = await fetch(`${API_URL}/superadmin/companies/${id}/toggle`, {
+            method: 'POST', headers: { 'Authorization': `Bearer ${TOKEN}` }
+        });
+        if (res.ok) window.location.reload();
+        else alert('Error toggling company');
+    }
+
+    function addAdmin(companyId, companyName) {
+        _currentCompanyId = companyId;
+        document.getElementById('addAdminCompanyLabel').textContent = `Company: ${companyName}`;
+        document.getElementById('newAdminUsername').value = '';
+        document.getElementById('newAdminPassword').value = '';
+        document.getElementById('addAdminModal').classList.add('active');
+    }
+
+    function closeAddAdminModal() {
+        document.getElementById('addAdminModal').classList.remove('active');
+    }
+
+    async function submitAddAdmin() {
+        const username = document.getElementById('newAdminUsername').value;
+        const password = document.getElementById('newAdminPassword').value;
+        const res = await fetch(`${API_URL}/superadmin/companies/${_currentCompanyId}/admin`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+            body: JSON.stringify({ username, password })
+        });
+        if (res.ok) { closeAddAdminModal(); alert('Admin created successfully!'); window.location.reload(); }
+        else { const d = await res.json(); alert(d.detail || 'Error'); }
+    }
+
+    async function updateGlobalSettings(e) {
+        e.preventDefault();
+        const eta_days = parseInt(document.getElementById('globalEtaDays').value);
+        const default_language = document.getElementById('globalDefaultLang').value;
+        const res = await fetch(`${API_URL}/superadmin/settings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+            body: JSON.stringify({ eta_days, default_language })
+        });
+        if (res.ok) { alert('Global settings saved!'); window.location.reload(); }
+        else alert('Error saving settings');
+    }
+</script>
+{% endblock %}

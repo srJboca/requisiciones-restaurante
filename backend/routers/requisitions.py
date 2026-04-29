@@ -7,7 +7,7 @@ from dependencies import get_current_restaurant, log_audit
 from pydantic import BaseModel
 from typing import List
 
-router = APIRouter(prefix="/requisitions", tags=["requisitions"], dependencies=[Depends(get_current_restaurant)])
+router = APIRouter(prefix="/requisitions", tags=["requisitions"])
 
 class OrderItemCreate(BaseModel):
     product_id: int
@@ -29,12 +29,12 @@ class OrderReceive(BaseModel):
     items: List[OrderReceiveItem]
 
 @router.get("/product-groups")
-def get_product_groups(db: Session = Depends(get_db)):
-    return db.query(ProductGroup).all()
+def get_product_groups(db: Session = Depends(get_db), current_user: User = Depends(get_current_restaurant)):
+    return db.query(ProductGroup).filter(ProductGroup.company_id == current_user.company_id).all()
 
 @router.get("/products")
-def get_products(db: Session = Depends(get_db)):
-    return db.query(Product).filter(Product.is_active == True).all()
+def get_products(db: Session = Depends(get_db), current_user: User = Depends(get_current_restaurant)):
+    return db.query(Product).filter(Product.is_active == True, Product.company_id == current_user.company_id).all()
 
 def add_business_days(start_date: datetime, days: int) -> datetime:
     current_date = start_date
@@ -45,8 +45,17 @@ def add_business_days(start_date: datetime, days: int) -> datetime:
     return current_date
 
 @router.get("/eta-days")
-def get_eta_days(db: Session = Depends(get_db)):
-    setting = db.query(SystemSetting).filter(SystemSetting.setting_key == 'eta_days').first()
+def get_eta_days(db: Session = Depends(get_db), current_user: User = Depends(get_current_restaurant)):
+    # Company-specific ETA, fall back to global
+    setting = db.query(SystemSetting).filter(
+        SystemSetting.company_id == current_user.company_id,
+        SystemSetting.setting_key == 'eta_days'
+    ).first()
+    if not setting:
+        setting = db.query(SystemSetting).filter(
+            SystemSetting.company_id == None,
+            SystemSetting.setting_key == 'eta_days'
+        ).first()
     return {"eta_days": int(setting.setting_value) if setting else 2}
 
 @router.get("/active")

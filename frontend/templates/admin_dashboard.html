@@ -4,22 +4,55 @@
     <!-- Left Column -->
     <div>
         <div class="card">
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">Restaurants</h3>
-            
-            <form onsubmit="createRestaurant(event)" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
-                <input type="text" id="newRestName" class="form-control" placeholder="Name" required>
-                <input type="text" id="newRestLoc" class="form-control" placeholder="Location">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">Production Plants</h3>
+            <form onsubmit="createProductionPlant(event)" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
+                <input type="text" id="newPlantName" class="form-control" placeholder="Plant Name" required>
                 <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
             </form>
+            <ul style="list-style: none;">
+                {% for p in plants %}
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="{% if not p.is_active %}text-decoration: line-through; color: var(--text-light);{% endif %}">
+                        {{ p.name }} <small style="color: var(--text-light);">({{ p.restaurant_count }} restaurants)</small>
+                    </span>
+                    <button class="btn {% if p.is_active %}btn-danger{% else %}btn-secondary{% endif %}"
+                            style="padding: 0.25rem 0.5rem; font-size: 0.875rem;"
+                            onclick="togglePlant({{ p.id }})">
+                        {% if p.is_active %}Disable{% else %}Enable{% endif %}
+                    </button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
 
+        <div class="card">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">Restaurants</h3>
+            <form onsubmit="createRestaurant(event)" style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="newRestName" class="form-control" placeholder="Name" required>
+                    <input type="text" id="newRestLoc" class="form-control" placeholder="Location">
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <select id="newRestPlant" class="form-control">
+                        <option value="">No Production Plant</option>
+                        {% for p in plants %}
+                        <option value="{{ p.id }}">{{ p.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+                </div>
+            </form>
             <ul style="list-style: none;">
                 {% for r in restaurants %}
                 <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                    <span style="{% if not r.is_active %}text-decoration: line-through; color: var(--text-light);{% endif %}">
-                        {{ r.name }} - {{ r.location }}
-                    </span>
-                    <button class="btn {% if r.is_active %}btn-danger{% else %}btn-secondary{% endif %}" 
-                            style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" 
+                    <div>
+                        <span style="{% if not r.is_active %}text-decoration: line-through; color: var(--text-light);{% endif %}">
+                            {{ r.name }}{% if r.location %} - {{ r.location }}{% endif %}
+                        </span><br>
+                        <small style="color: var(--text-light);">🏭 {{ r.production_plant_name or 'Unassigned' }}</small>
+                    </div>
+                    <button class="btn {% if r.is_active %}btn-danger{% else %}btn-secondary{% endif %}"
+                            style="padding: 0.25rem 0.5rem; font-size: 0.875rem;"
                             onclick="toggleRestaurant({{ r.id }})">
                         {% if r.is_active %}Disable{% else %}Enable{% endif %}
                     </button>
@@ -173,18 +206,44 @@
     const API_URL = "{{ API_URL }}";
     const TOKEN = "{{ session.get('access_token') }}";
 
+    async function createProductionPlant(e) {
+        e.preventDefault();
+        const name = document.getElementById('newPlantName').value;
+        try {
+            const res = await fetch(`${API_URL}/admin/production-plants`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                body: JSON.stringify({ name })
+            });
+            if(res.ok) window.location.reload();
+            else alert('Error creating production plant');
+        } catch(err) { alert('Connection error'); }
+    }
+
+    async function togglePlant(id) {
+        try {
+            const res = await fetch(`${API_URL}/admin/production-plants/${id}/toggle`, {
+                method: 'POST', headers: { 'Authorization': `Bearer ${TOKEN}` }
+            });
+            if(res.ok) window.location.reload();
+            else alert('Error toggling production plant');
+        } catch(err) { alert('Connection error'); }
+    }
+
     async function createRestaurant(e) {
         e.preventDefault();
         const name = document.getElementById('newRestName').value;
         const location = document.getElementById('newRestLoc').value;
+        const plantStr = document.getElementById('newRestPlant').value;
+        const production_plant_id = plantStr ? parseInt(plantStr) : null;
         try {
             const res = await fetch(`${API_URL}/admin/restaurants`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
-                body: JSON.stringify({ name, location: location || null })
+                body: JSON.stringify({ name, location: location || null, production_plant_id })
             });
             if(res.ok) window.location.reload();
-            else alert('Error creating restaurant');
+            else { const d = await res.json(); alert(d.detail || 'Error creating restaurant'); }
         } catch(err) { alert('Connection error'); }
     }
 
@@ -227,17 +286,18 @@
         const password = document.getElementById('newPassword').value;
         const role = document.getElementById('newUserRole').value;
         const rest_id_str = document.getElementById('newUserRest').value;
-        
+        const plant_id_str = document.getElementById('newUserPlant') ? document.getElementById('newUserPlant').value : '';
+
         let restaurant_id = null;
-        if (role === 'Restaurant' && rest_id_str) {
-            restaurant_id = parseInt(rest_id_str);
-        }
+        if (role === 'Restaurant' && rest_id_str) restaurant_id = parseInt(rest_id_str);
+        let production_plant_id = null;
+        if (role === 'Production Plant' && plant_id_str) production_plant_id = parseInt(plant_id_str);
 
         try {
             const res = await fetch(`${API_URL}/admin/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
-                body: JSON.stringify({ username, password, role, restaurant_id })
+                body: JSON.stringify({ username, password, role, restaurant_id, production_plant_id })
             });
             if(res.ok) window.location.reload();
             else {
