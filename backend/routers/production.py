@@ -19,6 +19,7 @@ class OrderShipItem(BaseModel):
 
 class OrderShip(BaseModel):
     items: List[OrderShipItem]
+    production_notes: str | None = None
 
 def _plant_restaurant_ids(db: Session, current_user: User) -> list[int]:
     """Return IDs of all restaurants assigned to the current user's production plant."""
@@ -69,6 +70,7 @@ def get_requirements(
                 "order_id": o.id,
                 "restaurant_name": o.restaurant.name,
                 "order_date": o.order_date,
+                "restaurant_notes": o.restaurant_notes,
                 "items": items,
                 "submitted_by_name": o.submitted_by.username if o.submitted_by else None,
             })
@@ -95,6 +97,7 @@ def ship_order(
 
     order.status = 'Shipped'
     order.shipped_by_id = current_user.id
+    order.production_notes = ship_data.production_notes
     db.commit()
     log_audit(db, current_user.id, "Ship Order", "Order", order.id, f"Shipped order {order.id}")
     return {"message": "Order shipped successfully"}
@@ -127,6 +130,9 @@ def get_history(
             "submitted_by_name": o.submitted_by.username if o.submitted_by else None,
             "shipped_by_name": o.shipped_by.username if o.shipped_by else None,
             "received_by_name": o.received_by.username if o.received_by else None,
+            "restaurant_notes": o.restaurant_notes,
+            "production_notes": o.production_notes,
+            "receiving_notes": o.receiving_notes,
             "items": [{
                 "item_id": i.id, "product_name": i.product.name, "sku": i.product.sku,
                 "required_quantity": float(i.required_quantity),

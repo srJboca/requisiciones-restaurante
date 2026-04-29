@@ -48,7 +48,7 @@ window.saveOrderDraft = function(items, hasZeroInventory, orderDate, token, apiU
     }
 }
 
-window.sendOrderToProduction = function(orderDate, token, apiUrl) {
+window.sendOrderToProduction = function(orderDate, token, apiUrl, notes = null) {
     showConfirmModal("Are you sure you want to send this order to production? You will not be able to modify it afterwards.", async () => {
         try {
             const res = await fetch(`${apiUrl}/requisitions/send`, {
@@ -57,7 +57,7 @@ window.sendOrderToProduction = function(orderDate, token, apiUrl) {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ order_date: orderDate })
+                body: JSON.stringify({ order_date: orderDate, restaurant_notes: notes })
             });
             
             if (res.ok) {
@@ -73,7 +73,7 @@ window.sendOrderToProduction = function(orderDate, token, apiUrl) {
     });
 }
 
-window.processShipping = function(items, orderId, token, apiUrl) {
+window.processShipping = function(items, orderId, token, apiUrl, notes = null) {
     const submit = async () => {
         try {
             const res = await fetch(`${apiUrl}/production/${orderId}/ship`, {
@@ -82,7 +82,7 @@ window.processShipping = function(items, orderId, token, apiUrl) {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ items })
+                body: JSON.stringify({ items, production_notes: notes })
             });
             
             if (res.ok) {
@@ -99,7 +99,7 @@ window.processShipping = function(items, orderId, token, apiUrl) {
     submit();
 }
 
-window.processReceiving = function(items, orderId, token, apiUrl) {
+window.processReceiving = function(items, orderId, token, apiUrl, notes = null) {
     const submit = async () => {
         try {
             const res = await fetch(`${apiUrl}/requisitions/${orderId}/receive`, {
@@ -108,7 +108,7 @@ window.processReceiving = function(items, orderId, token, apiUrl) {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ items })
+                body: JSON.stringify({ items, receiving_notes: notes })
             });
             
             if (res.ok) {

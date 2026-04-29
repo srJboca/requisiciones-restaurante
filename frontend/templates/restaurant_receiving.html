@@ -21,6 +21,18 @@
                 {% if order.shipped_by_name %}<small>{{ _('Shipped by') }}: {{ order.shipped_by_name }}</small>{% endif %}
             </span>
         </div>
+        {% if order.restaurant_notes %}
+        <div style="background: var(--background); padding: 1rem; border-radius: 4px; margin-bottom: 0.5rem; border-left: 4px solid var(--primary);">
+            <strong>{{ _('Notes from Restaurant') }}:</strong>
+            <p style="margin: 0.5rem 0 0 0; color: var(--text);">{{ order.restaurant_notes }}</p>
+        </div>
+        {% endif %}
+        {% if order.production_notes %}
+        <div style="background: var(--background); padding: 1rem; border-radius: 4px; margin-bottom: 1rem; border-left: 4px solid #F59E0B;">
+            <strong>{{ _('Notes from Production Plant') }}:</strong>
+            <p style="margin: 0.5rem 0 0 0; color: var(--text);">{{ order.production_notes }}</p>
+        </div>
+        {% endif %}
         
         <form onsubmit="submitReceiving(event, {{ order.order_id }})" id="form-{{ order.order_id }}">
             <table class="grid-table">
@@ -45,6 +57,12 @@
                     {% endfor %}
                 </tbody>
             </table>
+            
+            <div style="margin-top: 1.5rem;">
+                <label for="receivingNotes-{{ order.order_id }}" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">{{ _('Receiving Annotations') }}</label>
+                <textarea id="receivingNotes-{{ order.order_id }}" class="form-control" rows="3" placeholder="{{ _('Optional annotations upon receipt...') }}"></textarea>
+            </div>
+
             <div style="margin-top: 1rem; text-align: right;">
                 <button type="submit" class="btn btn-primary">{{ _('Confirm Receipt') }}</button>
             </div>
@@ -74,7 +92,8 @@
             });
         });
 
-        window.processReceiving(items, orderId, TOKEN, API_URL);
+        const notes = document.getElementById(`receivingNotes-${orderId}`).value;
+        window.processReceiving(items, orderId, TOKEN, API_URL, notes);
     }
 </script>
 {% endblock %}

@@ -40,9 +40,31 @@
         </div>
 
         <details>
-            <summary style="cursor: pointer; font-weight: bold; color: var(--accent); margin-bottom: 0.5rem;">{{ _('View
-                Details') }} ({{ order['items']|length }} {{ _('items') }})</summary>
+            <summary style="cursor: pointer; font-weight: bold; color: var(--accent); margin-bottom: 0.5rem;">{{ _('View Details') }} ({{ order['items']|length }} {{ _('items') }})</summary>
             <div style="margin-top: 1rem;">
+                
+                {% if order.restaurant_notes or order.production_notes or order.receiving_notes %}
+                <div style="margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                    {% if order.restaurant_notes %}
+                    <div style="background: white; padding: 0.75rem; border-radius: 4px; border-left: 3px solid var(--primary);">
+                        <strong style="font-size: 0.85rem;">{{ _('Notes from Restaurant') }}:</strong>
+                        <p style="margin: 0.25rem 0 0 0; font-size: 0.9rem;">{{ order.restaurant_notes }}</p>
+                    </div>
+                    {% endif %}
+                    {% if order.production_notes %}
+                    <div style="background: white; padding: 0.75rem; border-radius: 4px; border-left: 3px solid #F59E0B;">
+                        <strong style="font-size: 0.85rem;">{{ _('Notes from Production Plant') }}:</strong>
+                        <p style="margin: 0.25rem 0 0 0; font-size: 0.9rem;">{{ order.production_notes }}</p>
+                    </div>
+                    {% endif %}
+                    {% if order.receiving_notes %}
+                    <div style="background: white; padding: 0.75rem; border-radius: 4px; border-left: 3px solid var(--success);">
+                        <strong style="font-size: 0.85rem;">{{ _('Receiving Annotations') }}:</strong>
+                        <p style="margin: 0.25rem 0 0 0; font-size: 0.9rem;">{{ order.receiving_notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
                 <table class="grid-table">
                     <thead>
                         <tr>

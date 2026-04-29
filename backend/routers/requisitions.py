@@ -20,6 +20,7 @@ class OrderCreate(BaseModel):
 
 class OrderSend(BaseModel):
     order_date: str
+    restaurant_notes: str | None = None
 
 class OrderReceiveItem(BaseModel):
     order_item_id: int
@@ -27,6 +28,7 @@ class OrderReceiveItem(BaseModel):
 
 class OrderReceive(BaseModel):
     items: List[OrderReceiveItem]
+    receiving_notes: str | None = None
 
 @router.get("/product-groups")
 def get_product_groups(db: Session = Depends(get_db), current_user: User = Depends(get_current_restaurant)):
@@ -152,6 +154,7 @@ def send_order(send_data: OrderSend, db: Session = Depends(get_db), current_user
     order.delivery_date = delivery_dt.strftime("%Y-%m-%d")
     order.status = 'Submitted'
     order.submitted_by_id = current_user.id
+    order.restaurant_notes = send_data.restaurant_notes
     db.commit()
     log_audit(db, current_user.id, "Send Order", "Order", order.id, f"Sent order to production for {order_date} with ETA {order.delivery_date}")
     return {"message": "Order sent to production", "delivery_date": order.delivery_date}
@@ -172,7 +175,10 @@ def get_report(db: Session = Depends(get_db), current_user: User = Depends(get_c
             "delivery_date": o.delivery_date,
             "submitted_by_name": o.submitted_by.username if o.submitted_by else None,
             "shipped_by_name": o.shipped_by.username if o.shipped_by else None,
-            "received_by_name": o.received_by.username if o.received_by else None
+            "received_by_name": o.received_by.username if o.received_by else None,
+            "restaurant_notes": o.restaurant_notes,
+            "production_notes": o.production_notes,
+            "receiving_notes": o.receiving_notes
         })
     return result
 
@@ -200,6 +206,8 @@ def get_shipped_orders(order_date: str | None = None, db: Session = Depends(get_
         result.append({
             "order_id": o.id,
             "order_date": o.order_date,
+            "restaurant_notes": o.restaurant_notes,
+            "production_notes": o.production_notes,
             "items": items,
             "shipped_by_name": o.shipped_by.username if o.shipped_by else None
         })
@@ -220,6 +228,7 @@ def receive_order(order_id: int, receive_data: OrderReceive, db: Session = Depen
 
     order.status = 'Closed'
     order.received_by_id = current_user.id
+    order.receiving_notes = receive_data.receiving_notes
     db.commit()
     log_audit(db, current_user.id, "Receive Order", "Order", order.id, f"Received order {order.id}")
     return {"message": "Order closed successfully"}
@@ -255,6 +264,9 @@ def get_history(order_date: str | None = None, db: Session = Depends(get_db), cu
             "items": items,
             "submitted_by_name": o.submitted_by.username if o.submitted_by else None,
             "shipped_by_name": o.shipped_by.username if o.shipped_by else None,
-            "received_by_name": o.received_by.username if o.received_by else None
+            "received_by_name": o.received_by.username if o.received_by else None,
+            "restaurant_notes": o.restaurant_notes,
+            "production_notes": o.production_notes,
+            "receiving_notes": o.receiving_notes
         })
     return result

@@ -73,10 +73,15 @@
             </tbody>
         </table>
         
+        <div style="margin-top: 1.5rem;">
+            <label for="restaurantNotes" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">{{ _('Notes for Production Plant') }}</label>
+            <textarea id="restaurantNotes" class="form-control" rows="3" placeholder="{{ _('Optional annotations...') }}" {% if today_order.status != 'Draft' and today_order.status != 'None' %}readonly{% endif %}>{{ today_order.restaurant_notes or '' }}</textarea>
+        </div>
+        
         <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
             {% if today_order.status == 'Draft' or today_order.status == 'None' %}
                 <button type="submit" class="btn btn-secondary">{{ _('Save Draft') }}</button>
-                <button type="button" class="btn btn-primary" onclick="window.sendOrderToProduction(document.getElementById('orderDate').value, '{{ session.get('access_token') }}', API_URL)">{{ _('Send to Production') }}</button>
+                <button type="button" class="btn btn-primary" onclick="window.sendOrderToProduction(document.getElementById('orderDate').value, '{{ session.get('access_token') }}', API_URL, document.getElementById('restaurantNotes').value)">{{ _('Send to Production') }}</button>
             {% else %}
                 <p style="color: var(--success); font-weight: 500;">{{ _('Order for') }} {{ selected_date }} {{ _('has been') }} {{ _(today_order.status) }}.</p>
             {% endif %}
@@ -111,7 +116,10 @@
                 <td style="font-size: 0.875rem;">
                     {% if o.status == 'Submitted' and o.submitted_by_name %}{{ _('Submitted by') }} {{ o.submitted_by_name }}<br>{% endif %}
                     {% if o.status == 'Shipped' and o.shipped_by_name %}{{ _('Shipped by') }} {{ o.shipped_by_name }}<br>{% endif %}
-                    {% if o.status == 'Closed' and o.received_by_name %}{{ _('Closed by') }} {{ o.received_by_name }}{% endif %}
+                    {% if o.status == 'Closed' and o.received_by_name %}{{ _('Closed by') }} {{ o.received_by_name }}<br>{% endif %}
+                    {% if o.restaurant_notes %}<div style="margin-top:0.25rem;"><strong>{{ _('Restaurant Notes') }}:</strong> {{ o.restaurant_notes }}</div>{% endif %}
+                    {% if o.production_notes %}<div style="margin-top:0.25rem;"><strong>{{ _('Production Notes') }}:</strong> {{ o.production_notes }}</div>{% endif %}
+                    {% if o.receiving_notes %}<div style="margin-top:0.25rem;"><strong>{{ _('Receiving Notes') }}:</strong> {{ o.receiving_notes }}</div>{% endif %}
                 </td>
                 <td>{{ o.total_items }}</td>
             </tr>

@@ -138,6 +138,11 @@ class Order(Base):
     order_date = Column(String(10), nullable=False)
     delivery_date = Column(String(10), nullable=True)
     status = Column(Enum('Draft', 'Submitted', 'Shipped', 'Closed'), default='Draft', nullable=False)
+    
+    restaurant_notes = Column(Text, nullable=True)
+    production_notes = Column(Text, nullable=True)
+    receiving_notes = Column(Text, nullable=True)
+
     created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
     updated_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
