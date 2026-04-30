@@ -190,3 +190,26 @@ class AuditLog(Base):
     timestamp = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
 
     user = relationship("User", back_populates="audit_logs")
+
+# ============================================================
+# POS Sale
+# ============================================================
+class POSSale(Base):
+    __tablename__ = "pos_sales"
+
+    id = Column(Integer, primary_key=True, index=True)
+    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), nullable=False)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    order_ref = Column(String(100))
+    date_open = Column(String(50))
+    date_close = Column(String(50))
+    payment_method = Column(String(100))
+    product_name = Column(String(255))
+    quantity = Column(Numeric(10, 2))
+    diners = Column(Integer)
+    price_with_tax = Column(Numeric(12, 2))
+    total_tip = Column(Numeric(12, 2))
+    created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
+
+    restaurant = relationship("Restaurant")
+    company = relationship("Company")

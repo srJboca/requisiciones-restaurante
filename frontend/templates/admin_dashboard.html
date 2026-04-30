@@ -70,6 +70,11 @@
 
 <!-- ORGANIZATION TAB -->
 <div id="tab-org" class="tab-pane active">
+    <div style="margin-bottom: 1.5rem; text-align: right;">
+        <a href="{{ url_for('admin_sales_report') }}" class="btn btn-primary" style="background-color: #15803d; border-color: #15803d;">
+            <i class="fa-solid fa-chart-line" style="margin-right: 0.5rem;"></i>{{ _('View Sales Analytics Report') }}
+        </a>
+    </div>
     <div class="grid-2col">
         <div class="card">
             <h3 style="margin-bottom: 1rem; color: var(--primary);">Production Plants</h3>

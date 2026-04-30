@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-28 13:44+0000\n"
+"POT-Creation-Date: 2026-04-30 17:25+0000\n"
 "PO-Revision-Date: 2026-04-28 01:34+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -18,80 +18,96 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: templates/admin_dashboard.html:123 templates/base.html:25
+#: app.py:97
+msgid "Passwords do not match"
+msgstr "Passwords do not match"
+
+#: app.py:103
+msgid "Setup complete. You can now log in as superadmin."
+msgstr "Setup complete. You can now log in as superadmin."
+
+#: templates/admin_dashboard.html:62 templates/base.html:29
 msgid "Admin Dashboard"
 msgstr "Panel de Administración"
 
-#: templates/admin_dashboard.html:124
+#: templates/admin_dashboard.html:75
+msgid "View Sales Analytics Report"
+msgstr "View Sales Analytics Report"
+
+#: templates/admin_dashboard.html:299 templates/superadmin_dashboard.html:48
 msgid "System Settings"
 msgstr "Configuración del Sistema"
 
-#: templates/admin_dashboard.html:127
+#: templates/admin_dashboard.html:303 templates/superadmin_dashboard.html:51
 msgid "Requisition ETA (Business Days)"
 msgstr "ETA de Requisición (Días Hábiles)"
 
-#: templates/admin_dashboard.html:131
+#: templates/admin_dashboard.html:309 templates/superadmin_dashboard.html:55
 msgid "Default Language"
 msgstr "Idioma Predeterminado"
 
-#: templates/admin_dashboard.html:133
+#: templates/admin_dashboard.html:311 templates/superadmin_dashboard.html:57
 msgid "English"
 msgstr "Inglés"
 
-#: templates/admin_dashboard.html:134
+#: templates/admin_dashboard.html:312 templates/superadmin_dashboard.html:58
 msgid "Spanish"
 msgstr "Español"
 
-#: templates/admin_dashboard.html:138
+#: templates/admin_dashboard.html:316 templates/superadmin_dashboard.html:62
 msgid "Save Settings"
 msgstr "Guardar Configuración"
 
-#: templates/base.html:26 templates/base.html:30 templates/base.html:33
-#: templates/history.html:4
+#: templates/base.html:26
+msgid "SuperAdmin"
+msgstr "SuperAdmin"
+
+#: templates/base.html:27 templates/base.html:30 templates/base.html:34
+#: templates/base.html:37 templates/history.html:4
 msgid "History"
 msgstr "Historial"
 
-#: templates/base.html:28
+#: templates/base.html:32
 msgid "Order Builder"
 msgstr "Creador de Pedidos"
 
-#: templates/base.html:29
+#: templates/base.html:33
 msgid "Receiving"
 msgstr "Recepción"
 
-#: templates/base.html:32
+#: templates/base.html:36
 msgid "Shipping"
 msgstr "Envíos"
 
-#: templates/base.html:35 templates/base.html:70
+#: templates/base.html:39 templates/base.html:74
 msgid "Change Password"
 msgstr "Cambiar Contraseña"
 
-#: templates/base.html:36
+#: templates/base.html:40
 msgid "Logout"
 msgstr "Cerrar Sesión"
 
-#: templates/base.html:38 templates/login.html:4 templates/login.html:14
+#: templates/base.html:42 templates/login.html:4 templates/login.html:18
 msgid "Login"
 msgstr "Ingresar"
 
-#: templates/base.html:73
+#: templates/base.html:77
 msgid "Current Password"
 msgstr "Contraseña Actual"
 
-#: templates/base.html:77
+#: templates/base.html:81
 msgid "New Password"
 msgstr "Nueva Contraseña"
 
-#: templates/base.html:81
+#: templates/base.html:85
 msgid "Confirm New Password"
 msgstr "Confirmar Nueva Contraseña"
 
-#: templates/base.html:86
+#: templates/base.html:90
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: templates/base.html:87
+#: templates/base.html:91
 msgid "Save Changes"
 msgstr "Guardar Cambios"
 
@@ -105,73 +121,98 @@ msgstr "Filtrar por Fecha"
 msgid "Clear Filter"
 msgstr "Limpiar Filtro"
 
-#: templates/history.html:13 templates/restaurant_order.html:120
+#: templates/history.html:13
 msgid "No past requisitions found."
 msgstr "No se encontraron requisiciones pasadas."
 
-#: templates/history.html:21 templates/production_shipping.html:18
+#: templates/history.html:21 templates/production_shipping.html:19
 #: templates/restaurant_receiving.html:18
 msgid "Order #"
 msgstr "Pedido #"
 
-#: templates/history.html:32 templates/production_shipping.html:20
+#: templates/history.html:32 templates/production_shipping.html:25
 #: templates/restaurant_receiving.html:20
 msgid "Date"
 msgstr "Fecha"
 
-#: templates/history.html:33 templates/production_shipping.html:21
-#: templates/restaurant_order.html:28 templates/restaurant_order.html:112
+#: templates/history.html:33 templates/production_shipping.html:26
+#: templates/restaurant_order.html:36 templates/restaurant_order.html:152
 msgid "Submitted by"
 msgstr "Enviado por"
 
-#: templates/history.html:35 templates/restaurant_order.html:29
-#: templates/restaurant_order.html:113 templates/restaurant_receiving.html:21
+#: templates/history.html:35 templates/restaurant_order.html:38
+#: templates/restaurant_order.html:154 templates/restaurant_receiving.html:21
 msgid "Shipped by"
 msgstr "Enviado por"
 
-#: templates/history.html:37 templates/restaurant_order.html:30
-#: templates/restaurant_order.html:114
+#: templates/history.html:37 templates/restaurant_order.html:40
+#: templates/restaurant_order.html:156
 msgid "Closed by"
 msgstr "Cerrado por"
 
 #: templates/history.html:43
-msgid ""
-"View\n"
-"                Details"
+#, fuzzy
+msgid "View Details"
 msgstr "Ver Detalles"
 
-#: templates/history.html:44
+#: templates/history.html:43
 msgid "items"
 msgstr "artículos"
 
-#: templates/history.html:49 templates/production_shipping.html:29
-#: templates/restaurant_order.html:44 templates/restaurant_receiving.html:29
+#: templates/history.html:50 templates/production_shipping.html:31
+#: templates/production_shipping.html:85
+#: templates/restaurant_receiving.html:26
+msgid "Notes from Restaurant"
+msgstr "Notes from Restaurant"
+
+#: templates/history.html:56 templates/restaurant_receiving.html:32
+#, fuzzy
+msgid "Notes from Production Plant"
+msgstr "Enviar a Producción"
+
+#: templates/history.html:62 templates/restaurant_receiving.html:62
+#, fuzzy
+msgid "Receiving Annotations"
+msgstr "Recepción"
+
+#: templates/history.html:71 templates/production_shipping.html:40
+#: templates/restaurant_order.html:71 templates/restaurant_receiving.html:41
 msgid "SKU"
 msgstr "SKU"
 
-#: templates/history.html:50 templates/production_shipping.html:30
-#: templates/restaurant_order.html:45 templates/restaurant_receiving.html:30
+#: templates/history.html:72 templates/production_shipping.html:41
+#: templates/production_shipping.html:95 templates/restaurant_order.html:72
+#: templates/restaurant_receiving.html:42
 msgid "Product Name"
 msgstr "Nombre del Producto"
 
-#: templates/history.html:51 templates/production_shipping.html:32
+#: templates/history.html:73 templates/production_shipping.html:43
+#: templates/production_shipping.html:97
 msgid "Required Qty"
 msgstr "Cant. Requerida"
 
-#: templates/history.html:52 templates/production_shipping.html:33
-#: templates/restaurant_receiving.html:31
+#: templates/history.html:74 templates/production_shipping.html:44
+#: templates/restaurant_receiving.html:43
 msgid "Shipped Qty"
 msgstr "Cant. Enviada"
 
-#: templates/history.html:53 templates/restaurant_receiving.html:32
+#: templates/history.html:75 templates/restaurant_receiving.html:44
 msgid "Received Qty"
 msgstr "Cant. Recibida"
 
-#: templates/login.html:7
+#: templates/login.html:6
+msgid "Company users:"
+msgstr "Company users:"
+
+#: templates/login.html:6
+msgid "SuperAdmin:"
+msgstr "SuperAdmin:"
+
+#: templates/login.html:10
 msgid "Username"
 msgstr "Usuario"
 
-#: templates/login.html:11
+#: templates/login.html:15
 msgid "Password"
 msgstr "Contraseña"
 
@@ -183,13 +224,190 @@ msgstr "Envíos Planta de Producción"
 msgid "No pending requirements found."
 msgstr "No se encontraron requerimientos pendientes."
 
-#: templates/production_shipping.html:31
+#: templates/production_shipping.html:21
+msgid "Print"
+msgstr "Print"
+
+#: templates/production_shipping.html:42
 msgid "Current Inv"
 msgstr "Inv. Actual"
 
-#: templates/production_shipping.html:51
+#: templates/production_shipping.html:63
+msgid "Notes for Restaurant"
+msgstr "Notes for Restaurant"
+
+#: templates/production_shipping.html:64 templates/restaurant_order.html:109
+msgid "Optional annotations..."
+msgstr "Optional annotations..."
+
+#: templates/production_shipping.html:68
 msgid "Ship Order"
 msgstr "Enviar Pedido"
+
+#: templates/production_shipping.html:75
+#, fuzzy
+msgid "Requisition Shipping Report"
+msgstr "Reporte de Requisiciones"
+
+#: templates/production_shipping.html:78
+#: templates/reporte_restaurantes.html:82
+#, fuzzy
+msgid "Restaurant"
+msgstr "Recepción de Restaurante"
+
+#: templates/production_shipping.html:79
+#, fuzzy
+msgid "Date of Requisition"
+msgstr "Constructor de Requisiciones Diarias"
+
+#: templates/production_shipping.html:80
+msgid "ETA"
+msgstr "ETA"
+
+#: templates/production_shipping.html:96
+msgid "Unit"
+msgstr "Unit"
+
+#: templates/production_shipping.html:98
+msgid "Amount to be Shipped"
+msgstr "Amount to be Shipped"
+
+#: templates/production_shipping.html:115
+msgid "Dispatched By (Signature)"
+msgstr "Dispatched By (Signature)"
+
+#: templates/production_shipping.html:118
+msgid "Received By (Signature)"
+msgstr "Received By (Signature)"
+
+#: templates/production_shipping.html:158
+#, fuzzy
+msgid "Print Requisition"
+msgstr "Fecha de Requisición"
+
+#: templates/reporte_restaurantes.html:65
+#, fuzzy
+msgid "Return to Dashboard"
+msgstr "Panel de Administración"
+
+#: templates/reporte_restaurantes.html:72
+msgid "Strategic Sales Infographic"
+msgstr "Strategic Sales Infographic"
+
+#: templates/reporte_restaurantes.html:73
+msgid "Analysis of Traffic, Pareto and Ideal Portfolio Structure"
+msgstr "Analysis of Traffic, Pareto and Ideal Portfolio Structure"
+
+#: templates/reporte_restaurantes.html:79
+msgid "Upload Sales (CSV)"
+msgstr "Upload Sales (CSV)"
+
+#: templates/reporte_restaurantes.html:84
+#, fuzzy
+msgid "Select a restaurant..."
+msgstr "Recepción de Restaurante"
+
+#: templates/reporte_restaurantes.html:91
+#, fuzzy
+msgid "CSV File"
+msgstr "Limpiar Filtro"
+
+#: templates/reporte_restaurantes.html:95
+#: templates/reporte_restaurantes.html:396
+msgid "Upload Data"
+msgstr "Upload Data"
+
+#: templates/reporte_restaurantes.html:113
+#, fuzzy
+msgid "Order Volume"
+msgstr "Pedido para"
+
+#: templates/reporte_restaurantes.html:125
+msgid "Average Ticket per Order"
+msgstr "Average Ticket per Order"
+
+#: templates/reporte_restaurantes.html:138
+msgid "Diners per Table"
+msgstr "Diners per Table"
+
+#: templates/reporte_restaurantes.html:153
+msgid "Sales Pareto (Top 10)"
+msgstr "Sales Pareto (Top 10)"
+
+#: templates/reporte_restaurantes.html:154
+#, fuzzy, python-format
+msgid "The 20%% of products that generate 80%% of monetary income."
+msgstr "The 20% of products that generate 80% of monetary income."
+
+#: templates/reporte_restaurantes.html:163
+#, fuzzy
+msgid "Anchor Products"
+msgstr "Enviar a Producción"
+
+#: templates/reporte_restaurantes.html:164
+msgid "Traffic generators (Highest quantity sold)."
+msgstr "Traffic generators (Highest quantity sold)."
+
+#: templates/reporte_restaurantes.html:174
+msgid "Strategy: The Ideal Portfolio (Realistic Scenario)"
+msgstr "Strategy: The Ideal Portfolio (Realistic Scenario)"
+
+#: templates/reporte_restaurantes.html:175
+msgid ""
+"Based on sales correlation and the 80/20 rule, it is recommended to adopt a "
+"Realistic Portfolio. This model balances variety for the customer with "
+"operational profitability, eliminating \"dead weight\" from the menu."
+msgstr ""
+"Based on sales correlation and the 80/20 rule, it is recommended to adopt a "
+"Realistic Portfolio. This model balances variety for the customer with "
+"operational profitability, eliminating \"dead weight\" from the menu."
+
+#: templates/reporte_restaurantes.html:184
+#, fuzzy, python-format
+msgid "Category A (Keep 100%%)"
+msgstr "Category A (Keep 100%)"
+
+#: templates/reporte_restaurantes.html:185
+msgid "High rotation and high margin. They are the core of the business."
+msgstr "High rotation and high margin. They are the core of the business."
+
+#: templates/reporte_restaurantes.html:196
+msgid "Category B (Cross-Selling)"
+msgstr "Category B (Cross-Selling)"
+
+#: templates/reporte_restaurantes.html:197
+msgid ""
+"Medium rotation. They have high purchasing affinity with anchor products."
+msgstr ""
+"Medium rotation. They have high purchasing affinity with anchor products."
+
+#: templates/reporte_restaurantes.html:208
+msgid "Category C (Eliminate / Simplify)"
+msgstr "Category C (Eliminate / Simplify)"
+
+#: templates/reporte_restaurantes.html:209
+msgid "Low rotation and complicate kitchen operations (waste)."
+msgstr "Low rotation and complicate kitchen operations (waste)."
+
+#: templates/reporte_restaurantes.html:244
+msgid "Income Volume (Relative)"
+msgstr "Income Volume (Relative)"
+
+#: templates/reporte_restaurantes.html:371
+msgid "Uploading..."
+msgstr "Uploading..."
+
+#: templates/reporte_restaurantes.html:373
+msgid "Processing file, please wait..."
+msgstr "Processing file, please wait..."
+
+#: templates/reporte_restaurantes.html:386
+msgid "Success! Data loaded correctly."
+msgstr "Success! Data loaded correctly."
+
+#: templates/reporte_restaurantes.html:389
+msgid "Error uploading file"
+msgstr "Error uploading file"
 
 #: templates/restaurant_order.html:4
 msgid "Daily Requisition Builder"
@@ -199,78 +417,115 @@ msgstr "Constructor de Requisiciones Diarias"
 msgid "Requisition Date"
 msgstr "Fecha de Requisición"
 
-#: templates/restaurant_order.html:14
+#: templates/restaurant_order.html:15
 msgid "Filter by Product Group"
 msgstr "Filtrar por Grupo de Producto"
 
-#: templates/restaurant_order.html:16
+#: templates/restaurant_order.html:17
 msgid "All Groups"
 msgstr "Todos los Grupos"
 
-#: templates/restaurant_order.html:26 templates/restaurant_order.html:34
-#: templates/restaurant_order.html:93
+#: templates/restaurant_order.html:26
+#, fuzzy
+msgid "Show required only"
+msgstr "Cant. Requerida"
+
+#: templates/restaurant_order.html:34 templates/restaurant_order.html:48
+#: templates/restaurant_order.html:133
 msgid "Status"
 msgstr "Estado"
 
-#: templates/restaurant_order.html:32 templates/restaurant_order.html:35
+#: templates/restaurant_order.html:43 templates/restaurant_order.html:49
 msgid "Delivery ETA"
 msgstr "Tiempo estimado de entrega"
 
-#: templates/restaurant_order.html:34
+#: templates/restaurant_order.html:48
 msgid "Draft"
 msgstr "Borrador"
 
-#: templates/restaurant_order.html:35
+#: templates/restaurant_order.html:50
 msgid "Calculating..."
 msgstr "Calculando..."
 
-#: templates/restaurant_order.html:46
-msgid "Unit Measure"
-msgstr "Unidad de Medida"
-
-#: templates/restaurant_order.html:47
-msgid "Current Inventory"
-msgstr "Inventario Actual"
-
-#: templates/restaurant_order.html:48
-msgid "Required Quantity"
-msgstr "Cantidad Requerida"
-
-#: templates/restaurant_order.html:49
-msgid "Edited By"
-msgstr "Editado Por"
-
-#: templates/restaurant_order.html:78
+#: templates/restaurant_order.html:58 templates/restaurant_order.html:115
 msgid "Save Draft"
 msgstr "Guardar Borrador"
 
-#: templates/restaurant_order.html:79
+#: templates/restaurant_order.html:61 templates/restaurant_order.html:118
 msgid "Send to Production"
 msgstr "Enviar a Producción"
 
-#: templates/restaurant_order.html:81
+#: templates/restaurant_order.html:63 templates/restaurant_order.html:120
 msgid "Order for"
 msgstr "Pedido para"
 
-#: templates/restaurant_order.html:81
-msgid "has been"
-msgstr "ha sido"
+#: templates/restaurant_order.html:63 templates/restaurant_order.html:120
+#, fuzzy
+msgid ""
+"has\n"
+"                been"
+msgstr "Ver Detalles"
 
-#: templates/restaurant_order.html:88
+#: templates/restaurant_order.html:73
+msgid "Unit Measure"
+msgstr "Unidad de Medida"
+
+#: templates/restaurant_order.html:74
+msgid "Current Inventory"
+msgstr "Inventario Actual"
+
+#: templates/restaurant_order.html:75
+msgid "Required Quantity"
+msgstr "Cantidad Requerida"
+
+#: templates/restaurant_order.html:76
+msgid "Edited By"
+msgstr "Editado Por"
+
+#: templates/restaurant_order.html:106
+#, fuzzy
+msgid ""
+"Notes\n"
+"                for Production Plant"
+msgstr "Ver Detalles"
+
+#: templates/restaurant_order.html:128
 msgid "Requisitions Report"
 msgstr "Reporte de Requisiciones"
 
-#: templates/restaurant_order.html:92
+#: templates/restaurant_order.html:132
 msgid "Order Date"
 msgstr "Fecha de Pedido"
 
-#: templates/restaurant_order.html:94
+#: templates/restaurant_order.html:134
 msgid "Action By"
 msgstr "Acción por"
 
-#: templates/restaurant_order.html:95
+#: templates/restaurant_order.html:135
 msgid "Total Items"
 msgstr "Total de Artículos"
+
+#: templates/restaurant_order.html:158
+#, fuzzy
+msgid "Restaurant Notes"
+msgstr "Recepción de Restaurante"
+
+#: templates/restaurant_order.html:160
+#, fuzzy
+msgid "Production Notes"
+msgstr "Nombre del Producto"
+
+#: templates/restaurant_order.html:162
+#, fuzzy
+msgid "Receiving Notes"
+msgstr "Recepción"
+
+#: templates/restaurant_order.html:169
+#, fuzzy
+msgid ""
+"No past\n"
+"                    requisitions found."
+msgstr "No se encontraron requisiciones pasadas."
 
 #: templates/restaurant_receiving.html:4
 msgid "Restaurant Receiving"
@@ -280,9 +535,40 @@ msgstr "Recepción de Restaurante"
 msgid "No shipped orders found for receiving."
 msgstr "No se encontraron pedidos enviados para recepción."
 
-#: templates/restaurant_receiving.html:49
+#: templates/restaurant_receiving.html:63
+msgid "Optional annotations upon receipt..."
+msgstr "Optional annotations upon receipt..."
+
+#: templates/restaurant_receiving.html:67
 msgid "Confirm Receipt"
 msgstr "Confirmar Recepción"
+
+#: templates/setup.html:4
+#, fuzzy
+msgid "System Setup Wizard"
+msgstr "Configuración del Sistema"
+
+#: templates/setup.html:6
+msgid ""
+"Welcome! Since this is the first run, please set the password for the "
+"SuperAdmin account to get started."
+msgstr ""
+"Welcome! Since this is the first run, please set the password for the "
+"SuperAdmin account to get started."
+
+#: templates/setup.html:10
+#, fuzzy
+msgid "SuperAdmin Password"
+msgstr "Contraseña Actual"
+
+#: templates/setup.html:14
+#, fuzzy
+msgid "Confirm Password"
+msgstr "Confirmar Nueva Contraseña"
+
+#: templates/setup.html:17
+msgid "Complete Setup"
+msgstr "Complete Setup"
 
 #: templates/welcome.html:4
 msgid "La Cesta - Café Local"
@@ -301,3 +587,6 @@ msgstr "Ingresar"
 
 #~ msgid "Welcome to ReqSys"
 #~ msgstr "Bienvenido a ReqSys"
+
+#~ msgid "has been"
+#~ msgstr "ha sido"

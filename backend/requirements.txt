@@ -7,3 +7,5 @@ python-jose[cryptography]
 pydantic
 python-dotenv
 python-multipart
+pandas
+numpy

@@ -3,6 +3,7 @@ CompanyAdmin router — all operations scoped to the current user's company.
 """
 import csv
 import io
+import logging
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
@@ -13,6 +14,8 @@ from database import get_db
 from models.models import User, Restaurant, ProductGroup, Product, AuditLog, SystemSetting, Order, ProductionPlant
 from dependencies import get_current_company_admin, log_audit
 from routers.auth import get_password_hash
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -439,3 +442,196 @@ def get_history(order_date: str | None = None, restaurant_id: int | None = None,
             } for i in o.items]
         })
     return result
+
+# ── Sales & Analytics Helpers ───────────────────────────────
+
+def parse_colombian_float(val) -> float:
+    if not val:
+        return 0.0
+    if isinstance(val, (int, float)):
+        return float(val)
+    try:
+        s = str(val).strip()
+        # If it has both . and , it's definitely 1.234,56 or 1,234.56
+        # If it only has one, it could be decimal or thousands.
+        # Sample CSV 8000 is easy. 8.000 could be 8 or 8000.
+        # Standard cleaning: remove common thousands separators if it looks like Colombian format
+        if "," in s and "." in s:
+            if s.find(".") < s.find(","): # 1.234,56
+                s = s.replace(".", "").replace(",", ".")
+            else: # 1,234.56
+                s = s.replace(",", "")
+        elif "," in s: # Assume it's decimal separator 8,5
+            s = s.replace(",", ".")
+        return float(s)
+    except Exception:
+        return 0.0
+
+# ── Sales & Analytics ────────────────────────────────────────
+
+@router.post("/sales/upload")
+async def upload_sales(
+    restaurant_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_company_admin),
+):
+    logger.info(f"Uploading sales for restaurant {restaurant_id} by user {current_user.username}")
+    rest = db.query(Restaurant).filter(Restaurant.id == restaurant_id, Restaurant.company_id == current_user.company_id).first()
+    if not rest:
+        logger.error(f"Restaurant {restaurant_id} not found or doesn't belong to company {current_user.company_id}")
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+
+    try:
+        raw = await file.read()
+        content = raw.decode("utf-8-sig")
+        logger.info(f"File read successfully, size: {len(raw)} bytes")
+    except Exception as e:
+        logger.error(f"Error reading file: {e}")
+        raise HTTPException(status_code=400, detail="Could not read file. Ensure valid CSV.")
+
+    sniffer = csv.Sniffer()
+    try:
+        dialect = sniffer.sniff(content[:1024])
+        reader = csv.DictReader(io.StringIO(content), dialect=dialect)
+        logger.info(f"Detected CSV dialect: {dialect.delimiter}")
+    except Exception as e:
+        logger.warning(f"Sniffer failed, falling back to default CSV reader: {e}")
+        reader = csv.DictReader(io.StringIO(content))
+
+    from models.models import POSSale
+    imported = 0
+    for row in reader:
+        clean_row = {k.strip(): v.strip() for k, v in row.items() if k and v}
+        
+        # Skip separators or empty product names
+        product_name = clean_row.get("PRODUCTO", "").strip().title()
+        if "===" in product_name or not product_name:
+            continue
+            
+        pos_sale = POSSale(
+            restaurant_id=restaurant_id,
+            company_id=current_user.company_id,
+            order_ref=clean_row.get("ORDEN", ""),
+            date_open=clean_row.get("FECHA_APERTURA", ""),
+            date_close=clean_row.get("FECHA_CIERRE", ""),
+            payment_method=clean_row.get("MEDIODEPAGO", ""),
+            product_name=product_name,
+            quantity=parse_colombian_float(clean_row.get("CANTIDAD", 0)),
+            diners=int(parse_colombian_float(clean_row.get("COMENSALES", 0))),
+            price_with_tax=parse_colombian_float(clean_row.get("PrecioConImpuesto", 0)),
+            total_tip=parse_colombian_float(clean_row.get("TotalPropina", 0)),
+        )
+        db.add(pos_sale)
+        imported += 1
+        
+    db.commit()
+    logger.info(f"Imported {imported} records for restaurant {restaurant_id}")
+    log_audit(db, current_user.id, "Upload Sales CSV", "POSSale", details=f"Imported {imported} sales records for restaurant {restaurant_id}")
+    return {"message": f"Successfully imported {imported} sales records."}
+
+@router.get("/sales/abc-report")
+def get_abc_report(db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
+    from models.models import POSSale
+    import pandas as pd
+    
+    sales = db.query(POSSale).filter(POSSale.company_id == current_user.company_id).all()
+    if not sales:
+        return {
+            "total": {
+                "kpi": {"orders": "0", "ticket": "$0", "diners": "0"},
+                "pareto": {"labels": [], "data": []},
+                "anclas": [],
+                "portafolio": {"catA": [], "catB": [], "catC": []}
+            }
+        }
+
+    data = []
+    for s in sales:
+        data.append({
+            "SUCURSAL": str(s.restaurant_id),
+            "ORDEN": s.order_ref,
+            "PRODUCTO": s.product_name,
+            "CANTIDAD": float(s.quantity),
+            "COMENSALES": s.diners,
+            "Venta_Total_Linea": float(s.quantity * s.price_with_tax) if s.price_with_tax else 0
+        })
+        
+    df = pd.DataFrame(data)
+    if df.empty:
+        return {}
+        
+    def analizar_sucursal(df_filtrado):
+        # 1. KPIs
+        ordenes = df_filtrado.groupby('ORDEN').agg({
+            'Venta_Total_Linea': 'sum',
+            'COMENSALES': 'max'
+        })
+        total_ordenes = len(ordenes)
+        ticket_promedio = ordenes['Venta_Total_Linea'].mean() if total_ordenes > 0 else 0
+        comensales_promedio = ordenes['COMENSALES'].mean() if total_ordenes > 0 else 0
+        
+        kpi = {
+            "orders": f"{total_ordenes:,.0f}",
+            "ticket": f"${ticket_promedio:,.0f}",
+            "diners": f"{comensales_promedio:.1f}"
+        }
+        
+        # 2. PARETO
+        ventas_prod = df_filtrado.groupby('PRODUCTO')['Venta_Total_Linea'].sum().sort_values(ascending=False)
+        top_pareto = ventas_prod.head(6)
+        pareto = {
+            "labels": top_pareto.index.tolist(),
+            "data": top_pareto.values.tolist()
+        }
+        
+        # 3. ANCLAS
+        cantidades_prod = df_filtrado.groupby('PRODUCTO')['CANTIDAD'].sum().sort_values(ascending=False)
+        top_anclas = cantidades_prod.head(3)
+        anclas = []
+        iconos = ['fa-star', 'fa-fire', 'fa-bolt']
+        for i, (prod, cant) in enumerate(top_anclas.items()):
+            anclas.append({
+                "name": prod,
+                "icon": iconos[i] if i < len(iconos) else 'fa-star',
+                "qty": f"{cant:,.0f} und",
+                "mix": "Producto de alta tracción"
+            })
+            
+        # 4. PORTAFOLIO
+        total_prods = len(ventas_prod)
+        if total_prods == 0:
+            portafolio = {"catA": [], "catB": [], "catC": []}
+        else:
+            lim_a = int(total_prods * 0.20)
+            lim_b = int(total_prods * 0.50)
+            
+            cat_A = ventas_prod.iloc[:lim_a].index.tolist()[:5]
+            cat_B = ventas_prod.iloc[lim_a:lim_b].index.tolist()[:5]
+            cat_C_raw = ventas_prod.iloc[lim_b:].tail(5).index.tolist()
+            cat_C = [{"name": prod, "reason": "Baja rotación o nula contribución."} for prod in cat_C_raw]
+            
+            portafolio = {
+                "catA": cat_A,
+                "catB": cat_B,
+                "catC": cat_C
+            }
+            
+        return {
+            "kpi": kpi,
+            "pareto": pareto,
+            "anclas": anclas,
+            "portafolio": portafolio
+        }
+
+    data_store = {}
+    data_store['total'] = analizar_sucursal(df)
+    
+    # Analyze by individual restaurant id
+    restaurants = db.query(Restaurant).filter(Restaurant.company_id == current_user.company_id).all()
+    for rest in restaurants:
+        df_sucursal = df[df['SUCURSAL'] == str(rest.id)]
+        if not df_sucursal.empty:
+            data_store[str(rest.id)] = analizar_sucursal(df_sucursal)
+            
+    return data_store

@@ -1,0 +1,404 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            700: '#15803d',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .tab-active {
+            background-color: #15803d;
+            color: white;
+            border-color: #15803d;
+        }
+
+        .tab-inactive {
+            background-color: white;
+            color: #475569;
+            border-color: #cbd5e1;
+            hover: bg-gray-50;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="max-w-6xl mx-auto px-4 mt-4">
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="{{ url_for('admin_dashboard') }}" class="inline-flex items-center text-brand-700 hover:text-brand-900 font-semibold transition-colors">
+                <i class="fa-solid fa-arrow-left mr-2"></i> {{ _('Return to Dashboard') }}
+            </a>
+        </div>
+
+        <!-- Header -->
+        <header class="bg-brand-900 text-white py-8 shadow-lg rounded-xl mb-8">
+            <div class="px-8">
+                <h1 class="text-3xl md:text-4xl font-bold mb-2"><i class="fa-solid fa-chart-pie mr-3"></i>{{ _('Strategic Sales Infographic') }}</h1>
+                <p class="text-brand-100 text-lg">{{ _('Analysis of Traffic, Pareto and Ideal Portfolio Structure') }}</p>
+            </div>
+        </header>
+
+        <!-- Upload Section -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-8 border border-slate-200">
+            <h3 class="text-xl font-bold mb-4 text-slate-800"><i class="fa-solid fa-upload text-brand-500 mr-2"></i>{{ _('Upload Sales (CSV)') }}</h3>
+            <form id="uploadForm" class="flex flex-wrap items-end gap-4">
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Restaurant') }}</label>
+                    <select id="uploadRestaurant" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 p-2 border" required>
+                        <option value="">{{ _('Select a restaurant...') }}</option>
+                        {% for rest in restaurants %}
+                        <option value="{{ rest.id }}">{{ rest.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[250px]">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('CSV File') }}</label>
+                    <input type="file" id="uploadFile" accept=".csv" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" required>
+                </div>
+                <button type="submit" id="uploadBtn" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-lg font-semibold transition-all shadow-md">
+                    <i class="fa-solid fa-cloud-arrow-up mr-2"></i>{{ _('Upload Data') }}
+                </button>
+            </form>
+            <div id="uploadStatus" class="mt-4 hidden p-3 rounded-lg text-sm"></div>
+        </div>
+
+        <!-- Navegación de Sucursales -->
+        <div class="flex flex-wrap gap-3 mb-8" id="tabs-container">
+            <button onclick="changeData('total')" id="btn-total"
+                class="px-6 py-2 rounded-full border font-semibold transition-colors tab-active">Total
+                Organización</button>
+        </div>
+
+        <!-- KPIs Principales -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 fade-in" id="kpi-section">
+            <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-brand-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500 uppercase font-bold tracking-wider">{{ _('Order Volume') }}</p>
+                        <h2 class="text-3xl font-black text-slate-800 mt-1" id="kpi-orders">---</h2>
+                    </div>
+                    <div class="p-3 bg-brand-50 rounded-full text-brand-500">
+                        <i class="fa-solid fa-receipt text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500 uppercase font-bold tracking-wider">{{ _('Average Ticket per Order') }}
+                        </p>
+                        <h2 class="text-3xl font-black text-slate-800 mt-1" id="kpi-ticket">---</h2>
+                    </div>
+                    <div class="p-3 bg-blue-50 rounded-full text-blue-500">
+                        <i class="fa-solid fa-money-bill-wave text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-orange-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500 uppercase font-bold tracking-wider">{{ _('Diners per Table') }}</p>
+                        <h2 class="text-3xl font-black text-slate-800 mt-1" id="kpi-diners">---</h2>
+                    </div>
+                    <div class="p-3 bg-orange-50 rounded-full text-orange-500">
+                        <i class="fa-solid fa-users text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos y Anclas -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 fade-in">
+            <!-- Chart Pareto -->
+            <div class="bg-white p-6 rounded-xl shadow-sm lg:col-span-2">
+                <h3 class="text-xl font-bold mb-1 text-slate-800"><i
+                        class="fa-solid fa-chart-column text-brand-500 mr-2"></i>{{ _('Sales Pareto (Top 10)') }}</h3>
+                <p class="text-sm text-slate-500 mb-4">{{ _('The 20%% of products that generate 80%% of monetary income.') }}</p>
+                <div class="relative h-64 w-full">
+                    <canvas id="paretoChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Productos Ancla -->
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h3 class="text-xl font-bold mb-1 text-slate-800"><i
+                        class="fa-solid fa-anchor text-blue-500 mr-2"></i>{{ _('Anchor Products') }}</h3>
+                <p class="text-sm text-slate-500 mb-4">{{ _('Traffic generators (Highest quantity sold).') }}</p>
+                <ul class="space-y-4" id="anchor-list">
+                    <!-- Inyectado por JS -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- EL PORTAFOLIO RECOMENDADO -->
+        <div class="bg-slate-800 text-white rounded-xl shadow-lg p-1 overflow-hidden fade-in mb-12">
+            <div class="bg-slate-900 p-6 rounded-t-lg border-b border-slate-700">
+                <h2 class="text-2xl font-bold text-brand-500"><i class="fa-solid fa-chess-knight mr-2"></i>{{ _('Strategy: The Ideal Portfolio (Realistic Scenario)') }}</h2>
+                <p class="text-slate-300 mt-2">{{ _('Based on sales correlation and the 80/20 rule, it is recommended to adopt a Realistic Portfolio. This model balances variety for the customer with operational profitability, eliminating "dead weight" from the menu.') }}</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-1">
+                <!-- Columna 1: Mantener Intacto -->
+                <div class="bg-slate-800 p-6">
+                    <div class="inline-block p-2 bg-green-500/20 text-green-400 rounded-lg mb-3">
+                        <i class="fa-solid fa-star text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-green-400 mb-2">{{ _('Category A (Keep 100%%)') }}</h3>
+                    <p class="text-sm text-slate-400 mb-4">{{ _('High rotation and high margin. They are the core of the business.') }}</p>
+                    <ul class="text-sm space-y-2 text-slate-200 font-medium" id="port-cat-a">
+                        <!-- Inyectado via JS -->
+                    </ul>
+                </div>
+
+                <!-- Columna 2: Venta Cruzada -->
+                <div class="bg-slate-800 p-6 border-t md:border-t-0 md:border-l border-slate-700">
+                    <div class="inline-block p-2 bg-blue-500/20 text-blue-400 rounded-lg mb-3">
+                        <i class="fa-solid fa-link text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-blue-400 mb-2">{{ _('Category B (Cross-Selling)') }}</h3>
+                    <p class="text-sm text-slate-400 mb-4">{{ _('Medium rotation. They have high purchasing affinity with anchor products.') }}</p>
+                    <ul class="text-sm space-y-2 text-slate-200 font-medium" id="port-cat-b">
+                        <!-- Inyectado via JS -->
+                    </ul>
+                </div>
+
+                <!-- Columna 3: Eliminar/Reducir -->
+                <div class="bg-slate-800 p-6 border-t md:border-t-0 md:border-l border-slate-700">
+                    <div class="inline-block p-2 bg-red-500/20 text-red-400 rounded-lg mb-3">
+                        <i class="fa-solid fa-scissors text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-red-400 mb-2">{{ _('Category C (Eliminate / Simplify)') }}</h3>
+                    <p class="text-sm text-slate-400 mb-4">{{ _('Low rotation and complicate kitchen operations (waste).') }}</p>
+                    <ul class="text-sm text-slate-200 font-medium" id="port-cat-c">
+                        <!-- Inyectado via JS -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const PUBLIC_API_URL = "{{ API_URL }}";
+        const AUTH_TOKEN = "{{ token }}";
+        let dataStore = {};
+        const restaurantNames = {
+            {% for rest in restaurants %}
+            "{{ rest.id }}": "{{ rest.name }}",
+            {% endfor %}
+        };
+
+        let paretoChartInstance = null;
+
+        function renderChart(labels, data) {
+            const ctx = document.getElementById('paretoChart').getContext('2d');
+
+            if (paretoChartInstance) {
+                paretoChartInstance.destroy();
+            }
+
+            paretoChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '{{ _("Income Volume (Relative)") }}',
+                        data: data,
+                        backgroundColor: '#22c55e',
+                        borderRadius: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, display: false },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function changeData(locationKey) {
+            if (!dataStore[locationKey]) return;
+
+            const activeClass = 'tab-active';
+            const inactiveClass = 'tab-inactive';
+            
+            document.querySelectorAll('#tabs-container button').forEach(btn => {
+                const isThisOne = btn.id === `btn-${locationKey}`;
+                if (isThisOne) {
+                    btn.classList.remove(inactiveClass);
+                    btn.classList.add(activeClass);
+                } else {
+                    btn.classList.remove(activeClass);
+                    btn.classList.add(inactiveClass);
+                }
+            });
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                el.style.animation = 'none';
+                el.offsetHeight; 
+                el.style.animation = null;
+            });
+
+            const data = dataStore[locationKey];
+
+            document.getElementById('kpi-orders').innerText = data.kpi.orders;
+            document.getElementById('kpi-ticket').innerText = data.kpi.ticket;
+            document.getElementById('kpi-diners').innerText = data.kpi.diners;
+
+            renderChart(data.pareto.labels, data.pareto.data);
+
+            const anclasHtml = data.anclas.map(ancla => `
+                <li class="flex items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                    <div class="h-10 w-10 rounded-full bg-white shadow-sm flex items-center justify-center text-blue-500 mr-4 shrink-0">
+                        <i class="fa-solid ${ancla.icon}"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-800">${ancla.name}</p>
+                        <p class="text-xs text-slate-500"><span class="font-semibold text-brand-600">${ancla.qty}</span> | ${ancla.mix}</p>
+                    </div>
+                </li>
+            `).join('');
+            document.getElementById('anchor-list').innerHTML = anclasHtml;
+
+            document.getElementById('port-cat-a').innerHTML = data.portafolio.catA.map(item => `<li><i class="fa-solid fa-check text-green-500 mr-2"></i> ${item}</li>`).join('');
+            document.getElementById('port-cat-b').innerHTML = data.portafolio.catB.map(item => `<li><i class="fa-solid fa-plus text-blue-500 mr-2"></i> ${item}</li>`).join('');
+            document.getElementById('port-cat-c').innerHTML = data.portafolio.catC.map(item => `
+                <li class="mb-3 pb-2 border-b border-slate-700/50 last:border-0">
+                    <div class="flex items-start">
+                        <i class="fa-solid fa-xmark text-red-500 mt-1 mr-2"></i>
+                        <div>
+                            <span class="line-through text-slate-300 font-medium">${item.name}</span>
+                            <p class="text-xs text-red-400 mt-0.5 opacity-90"><i class="fa-solid fa-circle-info mr-1"></i>${item.reason}</p>
+                        </div>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        async function fetchData() {
+            try {
+                const response = await fetch(`${PUBLIC_API_URL}/admin/sales/abc-report`, {
+                    headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
+                });
+                if (!response.ok) throw new Error('Error fetching report data');
+                dataStore = await response.json();
+                
+                updateTabs();
+                if (dataStore.total) {
+                    changeData('total');
+                }
+            } catch (error) {
+                console.warn('No sales data to show yet.');
+            }
+        }
+
+        function updateTabs() {
+            const container = document.getElementById('tabs-container');
+            const totalBtn = document.getElementById('btn-total');
+            container.innerHTML = '';
+            container.appendChild(totalBtn);
+
+            Object.keys(dataStore).forEach(key => {
+                if (key === 'total') return;
+                const name = restaurantNames[key] || `Sede ${key}`;
+                const btn = document.createElement('button');
+                btn.id = `btn-${key}`;
+                btn.onclick = () => changeData(key);
+                btn.innerText = name;
+                btn.className = "px-6 py-2 rounded-full border font-semibold transition-colors tab-inactive";
+                container.appendChild(btn);
+            });
+        }
+
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const restaurantId = document.getElementById('uploadRestaurant').value;
+            const fileInput = document.getElementById('uploadFile');
+            const statusEl = document.getElementById('uploadStatus');
+            const btn = document.getElementById('uploadBtn');
+
+            if (!restaurantId || !fileInput.files[0]) return;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>{{ _("Uploading...") }}';
+            statusEl.className = "mt-4 p-3 rounded-lg text-sm bg-blue-50 text-blue-700";
+            statusEl.innerText = "{{ _('Processing file, please wait...') }}";
+            statusEl.classList.remove('hidden');
+
+            try {
+                const res = await fetch(`${PUBLIC_API_URL}/admin/sales/upload?restaurant_id=${restaurantId}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` },
+                    body: formData
+                });
+
+                const result = await res.json();
+                if (res.ok) {
+                    statusEl.className = "mt-4 p-3 rounded-lg text-sm bg-green-50 text-green-700";
+                    statusEl.innerText = result.message || "{{ _('Success! Data loaded correctly.') }}";
+                    fetchData(); 
+                } else {
+                    throw new Error(result.detail || "{{ _('Error uploading file') }}");
+                }
+            } catch (err) {
+                statusEl.className = "mt-4 p-3 rounded-lg text-sm bg-red-50 text-red-700";
+                statusEl.innerText = err.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-2"></i>{{ _("Upload Data") }}';
+            }
+        });
+
+        window.onload = () => {
+            fetchData();
+        };
+    </script>
+{% endblock %}
