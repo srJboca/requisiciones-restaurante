@@ -118,7 +118,7 @@
   },
 
   "variables": {
-    "mysqlFqdn": "[concat(parameters('mysqlServerName'), '.mysql.database.azure.com')]",
+    "mysqlFqdn": "[parameters('existingMysqlFqdn')]",
     "actualAppServicePlanId": "[if(parameters('createAppServicePlan'), resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName')), parameters('existingAppServicePlanId'))]",
     "backendDatabaseUrl": "[concat('mysql+pymysql://', parameters('dbAppUser'), ':', parameters('dbAppPassword'), '@', variables('mysqlFqdn'), ':3306/', parameters('databaseName'), '?ssl_ca=/etc/ssl/certs/ca-certificates.crt')]",
     "backendPublicUrl": "[concat('https://', parameters('backendAppName'), '.azurewebsites.net')]",
@@ -127,62 +127,6 @@
 
   "resources": [
 
-    {
-      "comments": "MySQL Flexible Server",
-      "type": "Microsoft.DBforMySQL/flexibleServers",
-      "apiVersion": "2021-05-01",
-      "name": "[parameters('mysqlServerName')]",
-      "location": "[parameters('location')]",
-      "sku": {
-        "name": "[parameters('mysqlSkuName')]",
-        "tier": "[parameters('mysqlSkuTier')]"
-      },
-      "properties": {
-        "createMode": "Default",
-        "version": "[parameters('mysqlVersion')]",
-        "administratorLogin": "[parameters('mysqlAdminLogin')]",
-        "administratorLoginPassword": "[parameters('mysqlAdminPassword')]",
-        "storage": {
-          "storageSizeGB": "[parameters('mysqlStorageSizeGB')]",
-          "autoGrow": "Enabled"
-        },
-        "backup": {
-          "backupRetentionDays": "[parameters('mysqlBackupRetentionDays')]",
-          "geoRedundantBackup": "Disabled"
-        },
-        "highAvailability": {
-          "mode": "Disabled"
-        }
-      }
-    },
-
-    {
-      "comments": "Allow Azure services to reach MySQL",
-      "type": "Microsoft.DBforMySQL/flexibleServers/firewallRules",
-      "apiVersion": "2022-01-01",
-      "name": "[concat(parameters('mysqlServerName'), '/AllowAzureServices')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('mysqlServerName'))]"
-      ],
-      "properties": {
-        "startIpAddress": "0.0.0.0",
-        "endIpAddress": "0.0.0.0"
-      }
-    },
-
-    {
-      "comments": "MySQL database",
-      "type": "Microsoft.DBforMySQL/flexibleServers/databases",
-      "apiVersion": "2021-05-01",
-      "name": "[concat(parameters('mysqlServerName'), '/', parameters('databaseName'))]",
-      "dependsOn": [
-        "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('mysqlServerName'))]"
-      ],
-      "properties": {
-        "charset": "utf8mb4",
-        "collation": "utf8mb4_unicode_ci"
-      }
-    },
 
     {
       "comments": "Shared Linux App Service Plan",
@@ -208,8 +152,7 @@
       "location": "[parameters('location')]",
       "kind": "app,linux",
       "dependsOn": [
-        "[variables('actualAppServicePlanId')]",
-        "[resourceId('Microsoft.DBforMySQL/flexibleServers/databases', parameters('mysqlServerName'), parameters('databaseName'))]"
+        "[variables('actualAppServicePlanId')]"
       ],
       "properties": {
         "serverFarmId": "[variables('actualAppServicePlanId')]",

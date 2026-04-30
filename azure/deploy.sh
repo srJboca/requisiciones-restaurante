@@ -91,7 +91,12 @@ if [[ "$reuse_mysql" =~ ^[Yy]$ ]]; then
 fi
 
 info "Step 2 — Deploying infrastructure (MySQL + App Service Plan + Web Apps)..."
-info "  This can take 5–10 minutes for MySQL provisioning..."
+if [[ "$CREATE_MYSQL" == "false" ]]; then
+    info "  Skipping MySQL creation. Using existing database..."
+    TEMPLATE_FILE="$SCRIPT_DIR/arm-template-nodb.json"
+else
+    info "  This can take 5–10 minutes for MySQL provisioning..."
+fi
 
 az deployment group create \
   --resource-group "$RESOURCE_GROUP" \
