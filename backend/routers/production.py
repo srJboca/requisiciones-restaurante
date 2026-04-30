@@ -60,6 +60,7 @@ def get_requirements(
                 "product_id": i.product_id,
                 "product_name": i.product.name,
                 "sku": i.product.sku,
+                "unit_measure": i.product.unit_measure,
                 "required_quantity": float(i.required_quantity),
                 "current_inventory": float(i.current_inventory),
             }

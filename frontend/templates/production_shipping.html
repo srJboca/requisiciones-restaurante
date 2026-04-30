@@ -15,7 +15,12 @@
     {% for order in orders %}
     <div class="card" style="background: #F9FAFB; box-shadow: none; border: 1px solid var(--border);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="color: var(--primary);">{{ _('Order #') }}{{ order.order_id }} - {{ order.restaurant_name }}</h3>
+            <div>
+                <h3 style="color: var(--primary); display: inline-block; margin-right: 1rem;">{{ _('Order #') }}{{ order.order_id }} - {{ order.restaurant_name }}</h3>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="printOrder({{ order.order_id }})" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                    🖨️ {{ _('Print') }}
+                </button>
+            </div>
             <span style="color: var(--text-light); text-align: right;">
                 {{ _('Date') }}: {{ order.order_date }}<br>
                 {% if order.submitted_by_name %}<small>{{ _('Submitted by') }}: {{ order.submitted_by_name }}</small>{% endif %}
@@ -63,6 +68,59 @@
                 <button type="submit" class="btn btn-primary">{{ _('Ship Order') }}</button>
             </div>
         </form>
+
+        <!-- Hidden Print Layout -->
+        <div id="print-layout-{{ order.order_id }}" style="display: none;">
+            <div style="font-family: Arial, sans-serif; color: #000;">
+                <h1 style="text-align: center; margin-bottom: 20px;">{{ _('Requisition Shipping Report') }}</h1>
+                
+                <div style="margin-bottom: 20px;">
+                    <p style="margin: 5px 0;"><strong>{{ _('Restaurant') }}:</strong> {{ order.restaurant_name }}</p>
+                    <p style="margin: 5px 0;"><strong>{{ _('Date of Requisition') }}:</strong> {{ order.order_date }}</p>
+                    <p style="margin: 5px 0;"><strong>{{ _('ETA') }}:</strong> _________________________</p>
+                </div>
+                
+                {% if order.restaurant_notes %}
+                <div style="margin-bottom: 20px;">
+                    <p style="margin: 5px 0;"><strong>{{ _('Notes from Restaurant') }}:</strong></p>
+                    <div style="border: 1px solid #ccc; padding: 10px; border-radius: 4px; min-height: 40px;">
+                        {{ order.restaurant_notes }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                    <thead>
+                        <tr>
+                            <th style="border: 1px solid #000; padding: 10px; text-align: left; background-color: #f8f9fa;">{{ _('Product Name') }}</th>
+                            <th style="border: 1px solid #000; padding: 10px; text-align: center; background-color: #f8f9fa;">{{ _('Unit') }}</th>
+                            <th style="border: 1px solid #000; padding: 10px; text-align: right; background-color: #f8f9fa;">{{ _('Required Qty') }}</th>
+                            <th style="border: 1px solid #000; padding: 10px; text-align: center; background-color: #f8f9fa; width: 180px;">{{ _('Amount to be Shipped') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order['items'] %}
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 10px;">{{ item.product_name }}</td>
+                            <td style="border: 1px solid #000; padding: 10px; text-align: center;">{{ item.unit_measure }}</td>
+                            <td style="border: 1px solid #000; padding: 10px; text-align: right;">{{ item.required_quantity }}</td>
+                            <td style="border: 1px solid #000; padding: 10px;"></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+                <div style="margin-top: 50px; display: flex; justify-content: space-between;">
+                    <div style="width: 45%; border-top: 1px solid #000; text-align: center; padding-top: 5px;">
+                        {{ _('Dispatched By (Signature)') }}
+                    </div>
+                    <div style="width: 45%; border-top: 1px solid #000; text-align: center; padding-top: 5px;">
+                        {{ _('Received By (Signature)') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Hidden Print Layout -->
     </div>
     {% endfor %}
 </div>
@@ -90,6 +148,27 @@
 
         const notes = document.getElementById(`productionNotes-${orderId}`).value;
         window.processShipping(items, orderId, TOKEN, API_URL, notes);
+    }
+
+    function printOrder(orderId) {
+        const printContent = document.getElementById('print-layout-' + orderId).innerHTML;
+        const printWindow = window.open('', '_blank');
+        
+        printWindow.document.write('<!DOCTYPE html>');
+        printWindow.document.write('<html><head><title>{{ _("Print Requisition") }}</title>');
+        printWindow.document.write('<style>@media print { body { -webkit-print-color-adjust: exact; } }</style>');
+        printWindow.document.write('</head><body>');
+        printWindow.document.write(printContent);
+        printWindow.document.write('</body></html>');
+        
+        printWindow.document.close();
+        printWindow.focus();
+        
+        // Wait a small delay to ensure rendering is complete before printing
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 250);
     }
 </script>
 {% endblock %}
