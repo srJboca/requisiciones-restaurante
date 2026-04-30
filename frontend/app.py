@@ -55,6 +55,13 @@ def welcome():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    try:
+        res_setup = requests.get(f"{API_URL}/auth/setup-status", timeout=2)
+        if res_setup.status_code == 200 and res_setup.json().get("setup_required"):
+            return redirect(url_for("setup_wizard"))
+    except:
+        pass  # If backend unreachable, fall through to show login error
+
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
@@ -77,6 +84,27 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for("welcome"))
+
+@app.route("/setup", methods=["GET", "POST"])
+def setup_wizard():
+    if request.method == "POST":
+        password = request.form.get("password", "")
+        confirm = request.form.get("confirm", "")
+        if password != confirm:
+            flash(_("Passwords do not match"), "danger")
+            return render_template("setup.html")
+        
+        try:
+            res = requests.post(f"{API_URL}/auth/setup", json={"password": password})
+            if res.status_code == 200:
+                flash(_("Setup complete. You can now log in as superadmin."), "success")
+                return redirect(url_for("login"))
+            else:
+                flash(res.json().get("detail", "Error during setup"), "danger")
+        except Exception as e:
+            flash(f"Connection error: {e}", "danger")
+            
+    return render_template("setup.html")
 
 # ── SuperAdmin ───────────────────────────────────────────────
 

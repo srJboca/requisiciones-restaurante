@@ -16,6 +16,9 @@ class PasswordChange(BaseModel):
     old_password: str
     new_password: str
 
+class SetupRequest(BaseModel):
+    password: str
+
 def verify_password(plain_password, hashed_password):
     if isinstance(plain_password, str):
         plain_password = plain_password.encode('utf-8')
@@ -33,6 +36,32 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=1440))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+@router.get("/setup-status")
+def check_setup_status(db: Session = Depends(get_db)):
+    """Check if the system requires first-time setup (i.e. no SuperAdmin exists)"""
+    superadmin = db.query(User).filter(User.role == 'SuperAdmin').first()
+    return {"setup_required": superadmin is None}
+
+@router.post("/setup")
+def run_setup(setup_data: SetupRequest, db: Session = Depends(get_db)):
+    """Create the initial SuperAdmin user on first run"""
+    superadmin = db.query(User).filter(User.role == 'SuperAdmin').first()
+    if superadmin:
+        raise HTTPException(status_code=400, detail="Setup already completed")
+    
+    hashed_pw = get_password_hash(setup_data.password)
+    new_superadmin = User(
+        username="superadmin",
+        password_hash=hashed_pw,
+        role="SuperAdmin",
+        company_id=None
+    )
+    db.add(new_superadmin)
+    db.commit()
+    db.refresh(new_superadmin)
+    log_audit(db, new_superadmin.id, "System Setup", "User", new_superadmin.id, "Created SuperAdmin via wizard")
+    return {"message": "SuperAdmin created successfully"}
 
 @router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):

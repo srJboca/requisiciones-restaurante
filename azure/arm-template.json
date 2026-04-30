@@ -8,6 +8,27 @@
       "metadata": { "description": "Azure region for all resources." }
     },
 
+    "createMySql": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": { "description": "Set to false to reuse an existing MySQL server." }
+    },
+    "existingMysqlFqdn": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": { "description": "FQDN of existing MySQL server if createMySql is false." }
+    },
+    "createAppServicePlan": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": { "description": "Set to false to reuse an existing App Service Plan." }
+    },
+    "existingAppServicePlanId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": { "description": "Resource ID of existing ASP if createAppServicePlan is false." }
+    },
+
     "mysqlServerName": {
       "type": "string",
       "metadata": { "description": "Name of the MySQL Flexible Server (must be globally unique)." }
@@ -97,7 +118,8 @@
   },
 
   "variables": {
-    "mysqlFqdn": "[concat(parameters('mysqlServerName'), '.mysql.database.azure.com')]",
+    "mysqlFqdn": "[if(parameters('createMySql'), concat(parameters('mysqlServerName'), '.mysql.database.azure.com'), parameters('existingMysqlFqdn'))]",
+    "actualAppServicePlanId": "[if(parameters('createAppServicePlan'), resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName')), parameters('existingAppServicePlanId'))]",
     "backendDatabaseUrl": "[concat('mysql+pymysql://', parameters('dbAppUser'), ':', parameters('dbAppPassword'), '@', variables('mysqlFqdn'), ':3306/', parameters('databaseName'), '?ssl_ca=/etc/ssl/certs/ca-certificates.crt')]",
     "backendPublicUrl": "[concat('https://', parameters('backendAppName'), '.azurewebsites.net')]",
     "frontendPublicUrl": "[concat('https://', parameters('frontendAppName'), '.azurewebsites.net')]"
@@ -107,6 +129,7 @@
 
     {
       "comments": "MySQL Flexible Server",
+      "condition": "[parameters('createMySql')]",
       "type": "Microsoft.DBforMySQL/flexibleServers",
       "apiVersion": "2021-05-01",
       "name": "[parameters('mysqlServerName')]",
@@ -151,6 +174,7 @@
 
     {
       "comments": "MySQL database",
+      "condition": "[parameters('createMySql')]",
       "type": "Microsoft.DBforMySQL/flexibleServers/databases",
       "apiVersion": "2021-05-01",
       "name": "[concat(parameters('mysqlServerName'), '/', parameters('databaseName'))]",
@@ -165,6 +189,7 @@
 
     {
       "comments": "Shared Linux App Service Plan",
+      "condition": "[parameters('createAppServicePlan')]",
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2022-03-01",
       "name": "[parameters('appServicePlanName')]",
@@ -186,11 +211,10 @@
       "location": "[parameters('location')]",
       "kind": "app,linux",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
-        "[resourceId('Microsoft.DBforMySQL/flexibleServers/databases', parameters('mysqlServerName'), parameters('databaseName'))]"
+        "[variables('actualAppServicePlanId')]"
       ],
       "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "serverFarmId": "[variables('actualAppServicePlanId')]",
         "siteConfig": {
           "linuxFxVersion": "PYTHON|3.11",
           "startupCommand": "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000",
@@ -238,11 +262,11 @@
       "location": "[parameters('location')]",
       "kind": "app,linux",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "[variables('actualAppServicePlanId')]",
         "[resourceId('Microsoft.Web/sites', parameters('backendAppName'))]"
       ],
       "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "serverFarmId": "[variables('actualAppServicePlanId')]",
         "siteConfig": {
           "linuxFxVersion": "PYTHON|3.11",
           "startupCommand": "pip install -r requirements.txt && gunicorn -w 2 -b 0.0.0.0:8000 app:app",

@@ -1,4 +1,6 @@
 Admin MySQL
+iw-explora.mysql.database.azure.com
+admin:iwco
 Server:xknipfrv
 Admin:restadmin
 Pass:Ef4A7cvqX3gwwch6t4d2ZUMxP5n0CX

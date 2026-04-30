@@ -145,22 +145,3 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
-
--- ============================================================
--- Seed Data
--- password hash = bcrypt("admin123")
--- ============================================================
--- SuperAdmin (platform-wide, no company)
-INSERT INTO users (username, password_hash, role, company_id)
-VALUES ('superadmin', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPIAp.32q', 'SuperAdmin', NULL)
-ON DUPLICATE KEY UPDATE id=id;
-
--- Sample company: La Cesta
-INSERT INTO companies (name, domain, is_active) VALUES ('La Cesta', 'lacesta', TRUE)
-ON DUPLICATE KEY UPDATE id=id;
-
--- CompanyAdmin for La Cesta  (login: admin@lacesta / admin123)
-INSERT INTO users (username, password_hash, role, company_id)
-SELECT 'admin', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPIAp.32q', 'CompanyAdmin', c.id
-FROM companies c WHERE c.domain='lacesta'
-ON DUPLICATE KEY UPDATE username=username;

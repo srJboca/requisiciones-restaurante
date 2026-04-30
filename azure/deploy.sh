@@ -70,6 +70,26 @@ ok "Resource group ready."
 # ---------------------------------------------------------------------------
 # Step 2 — Deploy ARM Template (infrastructure)
 # ---------------------------------------------------------------------------
+
+CREATE_ASP="true"
+ASP_ID=""
+read -p "Do you want to reuse an existing App Service Plan? (y/N): " reuse_asp
+if [[ "$reuse_asp" =~ ^[Yy]$ ]]; then
+    CREATE_ASP="false"
+    read -p "Enter the full resource ID of the existing App Service Plan: " ASP_ID
+fi
+
+CREATE_MYSQL="true"
+EXISTING_MYSQL_FQDN=""
+read -p "Do you want to reuse an existing MySQL Flexible Server? (y/N): " reuse_mysql
+if [[ "$reuse_mysql" =~ ^[Yy]$ ]]; then
+    CREATE_MYSQL="false"
+    read -p "Enter the existing MySQL FQDN (e.g. myserver.mysql.database.azure.com): " EXISTING_MYSQL_FQDN
+    read -p "Enter the MySQL Admin username (e.g. admin_user): " MYSQL_ADMIN
+    read -sp "Enter the MySQL Admin password: " MYSQL_PASSWORD
+    echo "" # To ensure the next output is on a new line after the silent password prompt
+fi
+
 info "Step 2 — Deploying infrastructure (MySQL + App Service Plan + Web Apps)..."
 info "  This can take 5–10 minutes for MySQL provisioning..."
 
@@ -78,6 +98,10 @@ az deployment group create \
   --name "lacesta-deploy" \
   --template-file "$TEMPLATE_FILE" \
   --parameters "@$PARAMETERS_FILE" \
+  --parameters createMySql="$CREATE_MYSQL" \
+  --parameters existingMysqlFqdn="$EXISTING_MYSQL_FQDN" \
+  --parameters createAppServicePlan="$CREATE_ASP" \
+  --parameters existingAppServicePlanId="$ASP_ID" \
   --output table
 
 MYSQL_FQDN=$(az deployment group show \
