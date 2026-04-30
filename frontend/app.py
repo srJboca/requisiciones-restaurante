@@ -74,7 +74,10 @@ def login():
                 session["company_id"] = data.get("company_id")
                 return redirect(url_for("welcome"))
             else:
-                detail = res.json().get("detail", "Invalid credentials")
+                try:
+                    detail = res.json().get("detail", "Invalid credentials")
+                except ValueError:
+                    detail = f"Server error ({res.status_code}): Backend is currently unavailable."
                 flash(detail, "danger")
         except Exception as e:
             flash(f"Connection error: {e}", "danger")

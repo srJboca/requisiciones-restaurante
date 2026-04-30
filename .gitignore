@@ -35,6 +35,8 @@ MANIFEST
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+backend-logs/
+frontend-logs/
 
 # Unit test / coverage reports
 htmlcov/

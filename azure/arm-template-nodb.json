@@ -159,7 +159,7 @@
         "siteConfig": {
           "linuxFxVersion": "PYTHON|3.11",
           "startupCommand": "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000",
-          "appCommandFile": "startup.sh",
+          "appCommandLine": "startup.sh",
           "alwaysOn": true,
           "appSettings": [
             {
@@ -211,7 +211,7 @@
         "siteConfig": {
           "linuxFxVersion": "PYTHON|3.11",
           "startupCommand": "pip install -r requirements.txt && gunicorn -w 2 -b 0.0.0.0:8000 app:app",
-          "appCommandFile": "startup.sh",
+          "appCommandLine": "startup.sh",
           "alwaysOn": true,
           "appSettings": [
             {

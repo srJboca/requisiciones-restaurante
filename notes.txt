@@ -6,3 +6,7 @@ Admin:restadmin
 Pass:Ef4A7cvqX3gwwch6t4d2ZUMxP5n0CX
 
 
+    "value": "mysql+pymysql://api_user:0GCmfi5GpBsmZRTWKkTVI4BvSNW7NYcS@iw-explora.mysql.database.azure.com:3306/requisitions_db?ssl_ca=/etc/ssl/certs/ca-certificates.crt",
+
+
+
