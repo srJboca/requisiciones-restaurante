@@ -367,6 +367,72 @@
         </div>
     </div>
 
+    <!-- Interactive Portfolio Simulation -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden mb-12 fade-in">
+        <div class="p-6 border-b border-slate-100 bg-slate-50 flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-flask-vial text-brand-500 mr-2"></i>{{ _('Interactive Portfolio Analysis') }}</h2>
+                <p class="text-sm text-slate-500">{{ _('Simulate demand changes and filter by business contribution (ABC).') }}</p>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <!-- Multi-select Filters -->
+                <div class="flex items-center gap-3 bg-white p-2 rounded-lg border border-slate-200 shadow-sm">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider px-2 border-r border-slate-100">{{ _('Filter ABC') }}:</span>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" checked value="A" onchange="filterPortfolio()" class="abc-filter rounded border-slate-300 text-green-600 focus:ring-green-500">
+                        <span class="text-xs font-bold text-slate-600 group-hover:text-green-600">A</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" checked value="B" onchange="filterPortfolio()" class="abc-filter rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                        <span class="text-xs font-bold text-slate-600 group-hover:text-blue-600">B</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" checked value="C" onchange="filterPortfolio()" class="abc-filter rounded border-slate-300 text-red-600 focus:ring-red-500">
+                        <span class="text-xs font-bold text-slate-600 group-hover:text-red-600">C</span>
+                    </label>
+                </div>
+
+                <!-- Global Simulation Slicer -->
+                <div class="flex items-center gap-4 bg-brand-50 p-2 px-4 rounded-lg border border-brand-100">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-black text-brand-700 uppercase tracking-tighter">{{ _('Demand Simulation') }}</span>
+                        <span id="simulationValue" class="text-lg font-black text-brand-600 leading-none">100%</span>
+                    </div>
+                    <input type="range" id="demandSlicer" min="50" max="200" value="100" 
+                        oninput="simulateDemand(this.value)"
+                        class="w-32 h-2 bg-brand-200 rounded-lg appearance-none cursor-pointer accent-brand-600">
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="text-xs uppercase text-slate-400 font-bold tracking-wider border-b border-slate-100 bg-slate-50/50">
+                        <th class="px-6 py-4">{{ _('Item Name') }}</th>
+                        <th class="px-6 py-4 text-center">{{ _('ABC Class') }}</th>
+                        <th class="px-6 py-4 text-right">{{ _('Actual Revenue') }}</th>
+                        <th class="px-6 py-4 text-right">{{ _('Simulated Revenue') }}</th>
+                        <th class="px-6 py-4 text-right">{{ _('Share %%') }}</th>
+                        <th class="px-6 py-4 text-right">{{ _('Cumulative %%') }}</th>
+                    </tr>
+                </thead>
+                <tbody id="portfolioTableBody" class="text-sm text-slate-700">
+                    <!-- Loaded via JS -->
+                </tbody>
+                <tfoot class="bg-slate-50 font-bold text-slate-800 border-t-2 border-slate-200">
+                    <tr>
+                        <td colspan="2" class="px-6 py-4 text-right">{{ _('TOTAL') }}</td>
+                        <td id="totalActualRevenue" class="px-6 py-4 text-right">$0</td>
+                        <td id="totalSimulatedRevenue" class="px-6 py-4 text-right text-brand-600">$0</td>
+                        <td colspan="2" class="px-6 py-4"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
     <!-- EL PORTAFOLIO RECOMENDADO -->
     <div class="bg-slate-800 text-white rounded-xl shadow-lg p-1 overflow-hidden fade-in mb-12">
         <div class="bg-slate-900 p-6 rounded-t-lg border-b border-slate-700">
@@ -621,6 +687,63 @@
                     </div>
                 </li>
             `).join('');
+
+        // Portfolio Interactive Table
+        renderPortfolioTable();
+    }
+
+    let currentDemandFactor = 1.0;
+    function simulateDemand(value) {
+        currentDemandFactor = parseInt(value) / 100;
+        document.getElementById('simulationValue').innerText = `${value}%`;
+        renderPortfolioTable();
+    }
+
+    function filterPortfolio() {
+        renderPortfolioTable();
+    }
+
+    function renderPortfolioTable() {
+        const locationKey = currentTab;
+        const data = dataStore[locationKey];
+        if (!data || !data.portafolio.full) return;
+
+        const activeAbc = Array.from(document.querySelectorAll('.abc-filter:checked')).map(el => el.value);
+        const filtered = data.portafolio.full.filter(item => activeAbc.includes(item.abc));
+        
+        const body = document.getElementById('portfolioTableBody');
+        let totalActual = 0;
+        let totalSimulated = 0;
+
+        const rowsHtml = filtered.map(item => {
+            const simulatedRev = item.revenue * currentDemandFactor;
+            totalActual += item.revenue;
+            totalSimulated += simulatedRev;
+            
+            const abcColors = {
+                'A': 'bg-green-100 text-green-700',
+                'B': 'bg-blue-100 text-blue-700',
+                'C': 'bg-red-100 text-red-700'
+            };
+
+            return `
+                <tr class="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 font-bold text-slate-800">${item.name}</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-3 py-1 rounded-full text-[10px] font-black ${abcColors[item.abc]}">${item.abc}</span>
+                    </td>
+                    <td class="px-6 py-4 text-right font-medium text-slate-500">$${item.revenue.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
+                    <td class="px-6 py-4 text-right font-black text-brand-600">$${simulatedRev.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
+                    <td class="px-6 py-4 text-right text-xs font-bold text-slate-400">${(item.share * 100).toFixed(1)}%</td>
+                    <td class="px-6 py-4 text-right text-xs font-bold text-slate-400">${(item.cumulative * 100).toFixed(1)}%</td>
+                </tr>
+            `;
+        }).join('');
+
+        body.innerHTML = rowsHtml || `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">{{ _('No items match the selected filters.') }}</td></tr>`;
+        
+        document.getElementById('totalActualRevenue').innerText = `$${totalActual.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+        document.getElementById('totalSimulatedRevenue').innerText = `$${totalSimulated.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
     }
 
     async function fetchData() {

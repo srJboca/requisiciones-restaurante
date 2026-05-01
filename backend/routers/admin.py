@@ -644,24 +644,45 @@ def get_abc_report(view_type: str = "product", db: Session = Depends(get_db), cu
                 "mix": "Alta tracción"
             })
             
-        # 4. PORTAFOLIO
-        total_prods = len(ventas_prod)
-        if total_prods == 0:
-            portafolio = {"catA": [], "catB": [], "catC": []}
-        else:
-            lim_a = int(total_prods * 0.20) or 1
-            lim_b = int(total_prods * 0.50) or 2
+        # 4. PORTAFOLIO (Revenue-based ABC)
+        total_revenue = ventas_prod.sum()
+        cumulative_revenue = ventas_prod.cumsum() / total_revenue if total_revenue > 0 else ventas_prod
+        
+        full_portfolio = []
+        cat_A = []
+        cat_B = []
+        cat_C = []
+        
+        for name, cum_pct in cumulative_revenue.items():
+            rev = float(ventas_prod[name])
+            qty = float(df_filtrado[df_filtrado[group_key] == name]['CANTIDAD'].sum())
             
-            cat_A = ventas_prod.iloc[:lim_a].index.tolist()[:5]
-            cat_B = ventas_prod.iloc[lim_a:lim_b].index.tolist()[:5]
-            cat_C_raw = ventas_prod.iloc[lim_b:].tail(5).index.tolist()
-            cat_C = [{"name": prod, "reason": "Baja rotación."} for prod in cat_C_raw]
+            # Standard ABC 80/15/5 rule
+            if cum_pct <= 0.80:
+                abc_class = 'A'
+                if len(cat_A) < 5: cat_A.append(name)
+            elif cum_pct <= 0.95:
+                abc_class = 'B'
+                if len(cat_B) < 5: cat_B.append(name)
+            else:
+                abc_class = 'C'
+                if len(cat_C) < 5: cat_C.append({"name": name, "reason": "Baja rotación."})
             
-            portafolio = {
-                "catA": cat_A,
-                "catB": cat_B,
-                "catC": cat_C
-            }
+            full_portfolio.append({
+                "name": name,
+                "revenue": rev,
+                "quantity": qty,
+                "share": float(rev / total_revenue) if total_revenue > 0 else 0,
+                "cumulative": float(cum_pct),
+                "abc": abc_class
+            })
+            
+        portafolio = {
+            "catA": cat_A,
+            "catB": cat_B,
+            "catC": cat_C,
+            "full": full_portfolio
+        }
             
         # 5. CORRELACION (Only makes sense for products usually, but we keep it generic)
         from collections import Counter
