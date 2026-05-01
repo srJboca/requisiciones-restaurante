@@ -213,3 +213,13 @@ class POSSale(Base):
 
     restaurant = relationship("Restaurant")
     company = relationship("Company")
+
+class IgnoredPOSProduct(Base):
+    __tablename__ = "ignored_pos_products"
+
+    id = Column(Integer, primary_key=True, index=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    product_name = Column(String(255), nullable=False)
+    created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
+
+    company = relationship("Company")

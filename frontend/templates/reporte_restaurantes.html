@@ -74,28 +74,76 @@
             </div>
         </header>
 
-        <!-- Upload Section -->
-        <div class="bg-white rounded-xl shadow-sm p-6 mb-8 border border-slate-200">
-            <h3 class="text-xl font-bold mb-4 text-slate-800"><i class="fa-solid fa-upload text-brand-500 mr-2"></i>{{ _('Upload Sales (CSV)') }}</h3>
-            <form id="uploadForm" class="flex flex-wrap items-end gap-4">
-                <div class="flex-1 min-w-[200px]">
-                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Restaurant') }}</label>
-                    <select id="uploadRestaurant" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 p-2 border" required>
-                        <option value="">{{ _('Select a restaurant...') }}</option>
-                        {% for rest in restaurants %}
-                        <option value="{{ rest.id }}">{{ rest.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="flex-1 min-w-[250px]">
-                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('CSV File') }}</label>
-                    <input type="file" id="uploadFile" accept=".csv" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" required>
-                </div>
-                <button type="submit" id="uploadBtn" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-lg font-semibold transition-all shadow-md">
-                    <i class="fa-solid fa-cloud-arrow-up mr-2"></i>{{ _('Upload Data') }}
+        <!-- Actions Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Upload Section -->
+            <div class="lg:col-span-3 bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                <h3 class="text-xl font-bold mb-4 text-slate-800"><i class="fa-solid fa-upload text-brand-500 mr-2"></i>{{ _('Upload Sales (CSV)') }}</h3>
+                <form id="uploadForm" class="flex flex-wrap items-end gap-4">
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Restaurant') }}</label>
+                        <select id="uploadRestaurant" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 p-2 border" required>
+                            <option value="">{{ _('Select a restaurant...') }}</option>
+                            {% for rest in restaurants %}
+                            <option value="{{ rest.id }}">{{ rest.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="flex-1 min-w-[250px]">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('CSV File') }}</label>
+                        <input type="file" id="uploadFile" accept=".csv" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" required>
+                    </div>
+                    <button type="submit" id="uploadBtn" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-lg font-semibold transition-all shadow-md">
+                        <i class="fa-solid fa-cloud-arrow-up mr-2"></i>{{ _('Upload Data') }}
+                    </button>
+                </form>
+                <div id="uploadStatus" class="mt-4 hidden p-3 rounded-lg text-sm"></div>
+            </div>
+
+            <!-- Manage Products Section -->
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200 flex flex-col items-center justify-center text-center">
+                <p class="text-xs text-slate-500 uppercase font-bold mb-3 tracking-wider">{{ _('Data Refinement') }}</p>
+                <button onclick="openProductModal()" class="w-full bg-slate-800 hover:bg-slate-900 text-white p-4 rounded-xl font-bold transition-all shadow-md group">
+                    <i class="fa-solid fa-filter text-2xl mb-2 group-hover:scale-110 transition-transform block"></i>
+                    {{ _('Exclude Products') }}
                 </button>
-            </form>
-            <div id="uploadStatus" class="mt-4 hidden p-3 rounded-lg text-sm"></div>
+            </div>
+        </div>
+
+        <!-- Product Management Modal -->
+        <div id="productModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">{{ _('Manage POS Products') }}</h3>
+                        <p class="text-sm text-slate-500">{{ _('Disable products to hide them from all reports.') }}</p>
+                    </div>
+                    <button onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600 p-2">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="p-4 bg-white border-b border-slate-100">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="productSearch" onkeyup="filterProducts()" placeholder="{{ _('Search products...') }}" 
+                               class="w-full pl-10 pr-4 py-2 rounded-lg border-slate-200 focus:ring-brand-500 focus:border-brand-500 border">
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-4" id="productList">
+                    <!-- Products will be loaded here -->
+                    <div class="flex justify-center p-12">
+                        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-brand-500"></i>
+                    </div>
+                </div>
+
+                <div class="p-6 border-t border-slate-100 bg-slate-50 text-right">
+                    <button onclick="closeProductModal()" class="bg-brand-600 hover:bg-brand-700 text-white px-8 py-2 rounded-lg font-bold transition-all shadow-md">
+                        {{ _('Done') }}
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Navegación de Sucursales -->
@@ -396,6 +444,75 @@
                 btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-2"></i>{{ _("Upload Data") }}';
             }
         });
+
+        let allProducts = [];
+
+        function openProductModal() {
+            document.getElementById('productModal').classList.remove('hidden');
+            loadProducts();
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        async function loadProducts() {
+            const listEl = document.getElementById('productList');
+            try {
+                const res = await fetch(`${PUBLIC_API_URL}/admin/sales/products`, {
+                    headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
+                });
+                allProducts = await res.json();
+                renderProductList(allProducts);
+            } catch (err) {
+                listEl.innerHTML = `<div class="text-red-500 text-center p-4">${err.message}</div>`;
+            }
+        }
+
+        function renderProductList(products) {
+            const listEl = document.getElementById('productList');
+            if (products.length === 0) {
+                listEl.innerHTML = `<div class="text-slate-400 text-center p-8 italic">{{ _('No products found.') }}</div>`;
+                return;
+            }
+
+            listEl.innerHTML = products.map(p => `
+                <div class="flex items-center justify-between p-3 border-b border-slate-50 last:border-0 hover:bg-slate-50 rounded-lg transition-colors product-item" data-name="${p.name.toLowerCase()}">
+                    <span class="font-medium ${p.ignored ? 'text-slate-400 line-through' : 'text-slate-700'}">${p.name}</span>
+                    <button onclick="toggleProduct('${p.name.replace(/'/g, "\\'")}')" 
+                            class="px-4 py-1.5 rounded-full text-xs font-bold transition-all ${p.ignored ? 'bg-slate-200 text-slate-600 hover:bg-slate-300' : 'bg-brand-100 text-brand-700 hover:bg-brand-200'}">
+                        ${p.ignored ? '{{ _("Show") }}' : '{{ _("Hide") }}'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function filterProducts() {
+            const term = document.getElementById('productSearch').value.toLowerCase();
+            document.querySelectorAll('.product-item').forEach(el => {
+                const name = el.getAttribute('data-name');
+                el.style.display = name.includes(term) ? 'flex' : 'none';
+            });
+        }
+
+        async function toggleProduct(name) {
+            try {
+                const res = await fetch(`${PUBLIC_API_URL}/admin/sales/products/toggle-ignore`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${AUTH_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ product_name: name })
+                });
+                if (res.ok) {
+                    loadProducts();
+                    fetchData(); // Refresh report data
+                }
+            } catch (err) {
+                console.error('Error toggling product:', err);
+            }
+        }
 
         window.onload = () => {
             fetchData();

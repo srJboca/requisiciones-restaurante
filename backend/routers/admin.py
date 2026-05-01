@@ -547,10 +547,18 @@ async def upload_sales(
 
 @router.get("/sales/abc-report")
 def get_abc_report(db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
-    from models.models import POSSale
+    from models.models import POSSale, IgnoredPOSProduct
     import pandas as pd
     
-    sales = db.query(POSSale).filter(POSSale.company_id == current_user.company_id).all()
+    # Get ignored products
+    ignored = db.query(IgnoredPOSProduct.product_name).filter(IgnoredPOSProduct.company_id == current_user.company_id).all()
+    ignored_names = [i.product_name for i in ignored]
+    
+    query = db.query(POSSale).filter(POSSale.company_id == current_user.company_id)
+    if ignored_names:
+        query = query.filter(~POSSale.product_name.in_(ignored_names))
+        
+    sales = query.all()
     if not sales:
         return {
             "total": {
@@ -650,3 +658,45 @@ def get_abc_report(db: Session = Depends(get_db), current_user: User = Depends(g
             data_store[str(rest.id)] = analizar_sucursal(df_sucursal)
             
     return data_store
+
+@router.get("/sales/products")
+def get_sales_products(db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
+    from models.models import POSSale, IgnoredPOSProduct
+    
+    # Unique product names for the company
+    products = db.query(POSSale.product_name).filter(POSSale.company_id == current_user.company_id).distinct().all()
+    ignored = db.query(IgnoredPOSProduct.product_name).filter(IgnoredPOSProduct.company_id == current_user.company_id).all()
+    ignored_set = {i.product_name for i in ignored}
+    
+    result = []
+    for p in products:
+        name = p.product_name
+        if not name: continue
+        result.append({
+            "name": name,
+            "ignored": name in ignored_set
+        })
+    return sorted(result, key=lambda x: x["name"])
+
+@router.post("/sales/products/toggle-ignore")
+def toggle_ignore_product(data: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
+    from models.models import IgnoredPOSProduct
+    product_name = data.get("product_name")
+    if not product_name:
+        raise HTTPException(status_code=400, detail="Product name required")
+        
+    existing = db.query(IgnoredPOSProduct).filter(
+        IgnoredPOSProduct.company_id == current_user.company_id,
+        IgnoredPOSProduct.product_name == product_name
+    ).first()
+    
+    if existing:
+        db.delete(existing)
+        message = "Product restored"
+    else:
+        new_ignore = IgnoredPOSProduct(company_id=current_user.company_id, product_name=product_name)
+        db.add(new_ignore)
+        message = "Product ignored"
+        
+    db.commit()
+    return {"message": message}
