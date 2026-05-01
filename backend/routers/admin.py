@@ -31,6 +31,7 @@ class RestaurantUpdate(BaseModel):
 
 class POSMappingBulkUpdate(BaseModel):
     product_name: str
+    alternative_name: Optional[str] = None
     category_name: Optional[str] = "Uncategorized"
     is_ignored: bool = False
 
@@ -575,7 +576,7 @@ def get_abc_report(view_type: str = "product", db: Session = Depends(get_db), cu
     
     # Get all mappings
     mappings = db.query(POSProductMapping).filter(POSProductMapping.company_id == current_user.company_id).all()
-    mapping_dict = {m.product_name: {"category": m.category_name, "ignored": m.is_ignored} for m in mappings}
+    mapping_dict = {m.product_name: {"category": m.category_name, "ignored": m.is_ignored, "alt_name": m.alternative_name} for m in mappings}
     
     sales = db.query(POSSale).filter(POSSale.company_id == current_user.company_id).all()
     if not sales:
@@ -584,16 +585,19 @@ def get_abc_report(view_type: str = "product", db: Session = Depends(get_db), cu
     data = []
     for s in sales:
         # Resolve mapping
-        m = mapping_dict.get(s.product_name, {"category": "Uncategorized", "ignored": False})
+        m = mapping_dict.get(s.product_name, {"category": "Uncategorized", "ignored": False, "alt_name": None})
         
         # Skip ignored products
         if m["ignored"]:
             continue
             
+        # Use alternative name if defined, otherwise original POS name
+        display_name = m["alt_name"] if m.get("alt_name") else s.product_name
+            
         data.append({
             "SUCURSAL": str(s.restaurant_id),
             "ORDEN": s.order_ref,
-            "PRODUCTO": s.product_name,
+            "PRODUCTO": display_name,
             "CATEGORIA": m["category"],
             "CANTIDAD": float(s.quantity),
             "COMENSALES": s.diners,
@@ -763,6 +767,7 @@ def get_sales_mappings(db: Session = Depends(get_db), current_user: User = Depen
         m = mapping_dict.get(name)
         result.append({
             "product_name": name,
+            "alternative_name": m.alternative_name if m else None,
             "category_name": m.category_name if m else "Uncategorized",
             "is_ignored": m.is_ignored if m else False
         })
@@ -782,12 +787,14 @@ def update_sales_mappings(data: List[POSMappingBulkUpdate], db: Session = Depend
         ).first()
         
         if mapping:
+            mapping.alternative_name = item.alternative_name
             mapping.category_name = item.category_name or "Uncategorized"
             mapping.is_ignored = item.is_ignored
         else:
             mapping = POSProductMapping(
                 company_id=current_user.company_id,
                 product_name=product_name,
+                alternative_name=item.alternative_name,
                 category_name=item.category_name or "Uncategorized",
                 is_ignored=item.is_ignored
             )

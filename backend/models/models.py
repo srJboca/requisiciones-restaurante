@@ -232,6 +232,7 @@ class POSProductMapping(Base):
     product_name = Column(String(255), nullable=False)
     category_name = Column(String(100), default="Uncategorized")
     is_ignored = Column(Boolean, default=False)
+    alternative_name = Column(String(255), nullable=True)
     created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
 
     company = relationship("Company")
