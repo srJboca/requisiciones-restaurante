@@ -681,8 +681,29 @@ def get_abc_report(view_type: str = "product", db: Session = Depends(get_db), cu
             "catA": cat_A,
             "catB": cat_B,
             "catC": cat_C,
-            "full": full_portfolio
+            "full": full_portfolio,
+            "quantity_full": [] # Will populate below
         }
+        
+        # 4b. QUANTITY PORTAFOLIO (Quantity-based ABC)
+        total_qty = cantidades_prod.sum()
+        cumulative_qty = cantidades_prod.cumsum() / total_qty if total_qty > 0 else cantidades_prod
+        for name, cum_pct in cumulative_qty.items():
+            qty = float(cantidades_prod[name])
+            rev = float(df_filtrado[df_filtrado[group_key] == name]['Venta_Total_Linea'].sum())
+            
+            if cum_pct <= 0.80: abc_class = 'A'
+            elif cum_pct <= 0.95: abc_class = 'B'
+            else: abc_class = 'C'
+            
+            portafolio["quantity_full"].append({
+                "name": name,
+                "revenue": rev,
+                "quantity": qty,
+                "share": float(qty / total_qty) if total_qty > 0 else 0,
+                "cumulative": float(cum_pct),
+                "abc": abc_class
+            })
             
         # 5. CORRELACION (Only makes sense for products usually, but we keep it generic)
         from collections import Counter

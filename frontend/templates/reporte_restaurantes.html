@@ -433,6 +433,72 @@
         </div>
     </div>
 
+    <!-- Interactive Portfolio Volume Simulation (Quantity) -->
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden mb-12 fade-in">
+        <div class="p-6 border-b border-slate-100 bg-slate-50 flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-boxes-stacked text-indigo-500 mr-2"></i>{{ _('Interactive Volume Analysis') }}</h2>
+                <p class="text-sm text-slate-500">{{ _('Simulate demand changes based on total units sold (Quantity ABC).') }}</p>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <!-- Multi-select Filters -->
+                <div class="flex items-center gap-3 bg-white p-2 rounded-lg border border-slate-200 shadow-sm">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider px-2 border-r border-slate-100">{{ _('Filter ABC') }}:</span>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" checked value="A" onchange="filterPortfolioQty()" class="abc-filter-qty rounded border-slate-300 text-green-600 focus:ring-green-500">
+                        <span class="text-xs font-bold text-slate-600 group-hover:text-green-600">A</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" checked value="B" onchange="filterPortfolioQty()" class="abc-filter-qty rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                        <span class="text-xs font-bold text-slate-600 group-hover:text-blue-600">B</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" checked value="C" onchange="filterPortfolioQty()" class="abc-filter-qty rounded border-slate-300 text-red-600 focus:ring-red-500">
+                        <span class="text-xs font-bold text-slate-600 group-hover:text-red-600">C</span>
+                    </label>
+                </div>
+
+                <!-- Global Simulation Slicer -->
+                <div class="flex items-center gap-4 bg-indigo-50 p-2 px-4 rounded-lg border border-indigo-100">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-black text-indigo-700 uppercase tracking-tighter">{{ _('Volume Simulation') }}</span>
+                        <span id="simulationValueQty" class="text-lg font-black text-indigo-600 leading-none">100%</span>
+                    </div>
+                    <input type="range" id="demandSlicerQty" min="50" max="200" value="100" 
+                        oninput="simulateDemandQty(this.value)"
+                        class="w-32 h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="text-xs uppercase text-slate-400 font-bold tracking-wider border-b border-slate-100 bg-slate-50/50">
+                        <th class="px-6 py-4">{{ _('Item Name') }}</th>
+                        <th class="px-6 py-4 text-center">{{ _('ABC Class') }}</th>
+                        <th class="px-6 py-4 text-right">{{ _('Actual Quantity') }}</th>
+                        <th class="px-6 py-4 text-right">{{ _('Simulated Quantity') }}</th>
+                        <th class="px-6 py-4 text-right">{{ _('Share %%') }}</th>
+                        <th class="px-6 py-4 text-right">{{ _('Cumulative %%') }}</th>
+                    </tr>
+                </thead>
+                <tbody id="portfolioTableBodyQty" class="text-sm text-slate-700">
+                    <!-- Loaded via JS -->
+                </tbody>
+                <tfoot class="bg-slate-50 font-bold text-slate-800 border-t-2 border-slate-200">
+                    <tr>
+                        <td colspan="2" class="px-6 py-4 text-right">{{ _('TOTAL UNITS') }}</td>
+                        <td id="totalActualQty" class="px-6 py-4 text-right">0</td>
+                        <td id="totalSimulatedQty" class="px-6 py-4 text-right text-indigo-600">0</td>
+                        <td colspan="2" class="px-6 py-4"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
     <!-- EL PORTAFOLIO RECOMENDADO -->
     <div class="bg-slate-800 text-white rounded-xl shadow-lg p-1 overflow-hidden fade-in mb-12">
         <div class="bg-slate-900 p-6 rounded-t-lg border-b border-slate-700">
@@ -688,8 +754,9 @@
                 </li>
             `).join('');
 
-        // Portfolio Interactive Table
+        // Portfolio Interactive Tables
         renderPortfolioTable();
+        renderPortfolioTableQty();
     }
 
     let currentDemandFactor = 1.0;
@@ -699,8 +766,19 @@
         renderPortfolioTable();
     }
 
+    let currentDemandFactorQty = 1.0;
+    function simulateDemandQty(value) {
+        currentDemandFactorQty = parseInt(value) / 100;
+        document.getElementById('simulationValueQty').innerText = `${value}%`;
+        renderPortfolioTableQty();
+    }
+
     function filterPortfolio() {
         renderPortfolioTable();
+    }
+
+    function filterPortfolioQty() {
+        renderPortfolioTableQty();
     }
 
     function renderPortfolioTable() {
@@ -744,6 +822,49 @@
         
         document.getElementById('totalActualRevenue').innerText = `$${totalActual.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
         document.getElementById('totalSimulatedRevenue').innerText = `$${totalSimulated.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+    }
+
+    function renderPortfolioTableQty() {
+        const locationKey = currentTab;
+        const data = dataStore[locationKey];
+        if (!data || !data.portafolio.quantity_full) return;
+
+        const activeAbc = Array.from(document.querySelectorAll('.abc-filter-qty:checked')).map(el => el.value);
+        const filtered = data.portafolio.quantity_full.filter(item => activeAbc.includes(item.abc));
+        
+        const body = document.getElementById('portfolioTableBodyQty');
+        let totalActual = 0;
+        let totalSimulated = 0;
+
+        const rowsHtml = filtered.map(item => {
+            const simulatedQty = item.quantity * currentDemandFactorQty;
+            totalActual += item.quantity;
+            totalSimulated += simulatedQty;
+            
+            const abcColors = {
+                'A': 'bg-green-100 text-green-700',
+                'B': 'bg-blue-100 text-blue-700',
+                'C': 'bg-red-100 text-red-700'
+            };
+
+            return `
+                <tr class="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 font-bold text-slate-800">${item.name}</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-3 py-1 rounded-full text-[10px] font-black ${abcColors[item.abc]}">${item.abc}</span>
+                    </td>
+                    <td class="px-6 py-4 text-right font-medium text-slate-500">${item.quantity.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
+                    <td class="px-6 py-4 text-right font-black text-indigo-600">${simulatedQty.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}</td>
+                    <td class="px-6 py-4 text-right text-xs font-bold text-slate-400">${(item.share * 100).toFixed(1)}%</td>
+                    <td class="px-6 py-4 text-right text-xs font-bold text-slate-400">${(item.cumulative * 100).toFixed(1)}%</td>
+                </tr>
+            `;
+        }).join('');
+
+        body.innerHTML = rowsHtml || `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">{{ _('No items match the selected filters.') }}</td></tr>`;
+        
+        document.getElementById('totalActualQty').innerText = totalActual.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+        document.getElementById('totalSimulatedQty').innerText = totalSimulated.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
     }
 
     async function fetchData() {
