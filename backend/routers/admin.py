@@ -492,35 +492,50 @@ async def upload_sales(
 
     sniffer = csv.Sniffer()
     try:
-        dialect = sniffer.sniff(content[:1024])
+        # Try to detect the dialect
+        dialect = sniffer.sniff(content[:4096], delimiters=',;|')
         reader = csv.DictReader(io.StringIO(content), dialect=dialect)
-        logger.info(f"Detected CSV dialect: {dialect.delimiter}")
+        logger.info(f"Detected CSV dialect: '{dialect.delimiter}'")
     except Exception as e:
-        logger.warning(f"Sniffer failed, falling back to default CSV reader: {e}")
-        reader = csv.DictReader(io.StringIO(content))
+        logger.warning(f"Sniffer failed, trying manual detection: {e}")
+        # Manual fallback for common delimiters
+        first_line = content.split('\n')[0]
+        if '|' in first_line:
+            reader = csv.DictReader(io.StringIO(content), delimiter='|')
+        elif ';' in first_line:
+            reader = csv.DictReader(io.StringIO(content), delimiter=';')
+        else:
+            reader = csv.DictReader(io.StringIO(content))
 
     from models.models import POSSale
     imported = 0
+    
+    # Try to find the correct keys by matching common names
+    # PARKWAY.csv has |ORDEN|FECHA_APERTURA|... which results in an empty first key
+    
     for row in reader:
-        clean_row = {k.strip(): v.strip() for k, v in row.items() if k and v}
+        # Normalize keys (strip whitespace, upper case for matching)
+        norm_row = { (k.strip().upper() if k else ""): (v.strip() if v else "") for k, v in row.items() }
+        
+        # Match columns case-insensitively
+        product_name = norm_row.get("PRODUCTO", "").title()
         
         # Skip separators or empty product names
-        product_name = clean_row.get("PRODUCTO", "").strip().title()
         if "===" in product_name or not product_name:
             continue
             
         pos_sale = POSSale(
             restaurant_id=restaurant_id,
             company_id=current_user.company_id,
-            order_ref=clean_row.get("ORDEN", ""),
-            date_open=clean_row.get("FECHA_APERTURA", ""),
-            date_close=clean_row.get("FECHA_CIERRE", ""),
-            payment_method=clean_row.get("MEDIODEPAGO", ""),
+            order_ref=norm_row.get("ORDEN", ""),
+            date_open=norm_row.get("FECHA_APERTURA", ""),
+            date_close=norm_row.get("FECHA_CIERRE", ""),
+            payment_method=norm_row.get("MEDIODEPAGO", ""),
             product_name=product_name,
-            quantity=parse_colombian_float(clean_row.get("CANTIDAD", 0)),
-            diners=int(parse_colombian_float(clean_row.get("COMENSALES", 0))),
-            price_with_tax=parse_colombian_float(clean_row.get("PrecioConImpuesto", 0)),
-            total_tip=parse_colombian_float(clean_row.get("TotalPropina", 0)),
+            quantity=parse_colombian_float(norm_row.get("CANTIDAD", 0)),
+            diners=int(parse_colombian_float(norm_row.get("COMENSALES", 0))),
+            price_with_tax=parse_colombian_float(norm_row.get("PRECIOCONIMPUESTO", 0)),
+            total_tip=parse_colombian_float(norm_row.get("TOTALPROPINA", 0)),
         )
         db.add(pos_sale)
         imported += 1
