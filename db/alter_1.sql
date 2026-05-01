@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS pos_sales (
+CREATE TABLE IF NOT EXISTS requisitions_db.pos_sales (
     id INT AUTO_INCREMENT PRIMARY KEY,
     restaurant_id INT NOT NULL,
     company_id INT NOT NULL,

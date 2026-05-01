@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 from database import get_db
 from models.models import User, Restaurant, ProductGroup, Product, AuditLog, SystemSetting, Order, ProductionPlant
@@ -28,6 +28,11 @@ class RestaurantCreate(BaseModel):
 
 class RestaurantUpdate(BaseModel):
     production_plant_id: Optional[int] = None
+
+class POSMappingBulkUpdate(BaseModel):
+    product_name: str
+    category_name: Optional[str] = "Uncategorized"
+    is_ignored: bool = False
 
 class ProductionPlantCreate(BaseModel):
     name: str
@@ -564,35 +569,32 @@ async def upload_sales(
     return {"message": f"Successfully imported {imported} sales records."}
 
 @router.get("/sales/abc-report")
-def get_abc_report(db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
-    from models.models import POSSale, IgnoredPOSProduct
+def get_abc_report(view_type: str = "product", db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
+    from models.models import POSSale, POSProductMapping
     import pandas as pd
     
-    # Get ignored products
-    ignored = db.query(IgnoredPOSProduct.product_name).filter(IgnoredPOSProduct.company_id == current_user.company_id).all()
-    ignored_names = [i.product_name for i in ignored]
+    # Get all mappings
+    mappings = db.query(POSProductMapping).filter(POSProductMapping.company_id == current_user.company_id).all()
+    mapping_dict = {m.product_name: {"category": m.category_name, "ignored": m.is_ignored} for m in mappings}
     
-    query = db.query(POSSale).filter(POSSale.company_id == current_user.company_id)
-    if ignored_names:
-        query = query.filter(~POSSale.product_name.in_(ignored_names))
-        
-    sales = query.all()
+    sales = db.query(POSSale).filter(POSSale.company_id == current_user.company_id).all()
     if not sales:
-        return {
-            "total": {
-                "kpi": {"orders": "0", "ticket": "$0", "diners": "0"},
-                "pareto": {"labels": [], "data": []},
-                "anclas": [],
-                "portafolio": {"catA": [], "catB": [], "catC": []}
-            }
-        }
+        return {}
 
     data = []
     for s in sales:
+        # Resolve mapping
+        m = mapping_dict.get(s.product_name, {"category": "Uncategorized", "ignored": False})
+        
+        # Skip ignored products
+        if m["ignored"]:
+            continue
+            
         data.append({
             "SUCURSAL": str(s.restaurant_id),
             "ORDEN": s.order_ref,
             "PRODUCTO": s.product_name,
+            "CATEGORIA": m["category"],
             "CANTIDAD": float(s.quantity),
             "COMENSALES": s.diners,
             "Venta_Total_Linea": float(s.quantity * s.price_with_tax) if s.price_with_tax else 0
@@ -601,6 +603,9 @@ def get_abc_report(db: Session = Depends(get_db), current_user: User = Depends(g
     df = pd.DataFrame(data)
     if df.empty:
         return {}
+        
+    # Determine the grouping key for analysis
+    group_key = "CATEGORIA" if view_type == "category" else "PRODUCTO"
         
     def analizar_sucursal(df_filtrado):
         # 1. KPIs
@@ -619,15 +624,15 @@ def get_abc_report(db: Session = Depends(get_db), current_user: User = Depends(g
         }
         
         # 2. PARETO
-        ventas_prod = df_filtrado.groupby('PRODUCTO')['Venta_Total_Linea'].sum().sort_values(ascending=False)
-        top_pareto = ventas_prod.head(6)
+        ventas_prod = df_filtrado.groupby(group_key)['Venta_Total_Linea'].sum().sort_values(ascending=False)
+        top_pareto = ventas_prod.head(10)
         pareto = {
             "labels": top_pareto.index.tolist(),
             "data": top_pareto.values.tolist()
         }
         
         # 3. ANCLAS
-        cantidades_prod = df_filtrado.groupby('PRODUCTO')['CANTIDAD'].sum().sort_values(ascending=False)
+        cantidades_prod = df_filtrado.groupby(group_key)['CANTIDAD'].sum().sort_values(ascending=False)
         top_anclas = cantidades_prod.head(3)
         anclas = []
         iconos = ['fa-star', 'fa-fire', 'fa-bolt']
@@ -636,7 +641,7 @@ def get_abc_report(db: Session = Depends(get_db), current_user: User = Depends(g
                 "name": prod,
                 "icon": iconos[i] if i < len(iconos) else 'fa-star',
                 "qty": f"{cant:,.0f} und",
-                "mix": "Producto de alta tracción"
+                "mix": "Alta tracción"
             })
             
         # 4. PORTAFOLIO
@@ -644,13 +649,13 @@ def get_abc_report(db: Session = Depends(get_db), current_user: User = Depends(g
         if total_prods == 0:
             portafolio = {"catA": [], "catB": [], "catC": []}
         else:
-            lim_a = int(total_prods * 0.20)
-            lim_b = int(total_prods * 0.50)
+            lim_a = int(total_prods * 0.20) or 1
+            lim_b = int(total_prods * 0.50) or 2
             
             cat_A = ventas_prod.iloc[:lim_a].index.tolist()[:5]
             cat_B = ventas_prod.iloc[lim_a:lim_b].index.tolist()[:5]
             cat_C_raw = ventas_prod.iloc[lim_b:].tail(5).index.tolist()
-            cat_C = [{"name": prod, "reason": "Baja rotación o nula contribución."} for prod in cat_C_raw]
+            cat_C = [{"name": prod, "reason": "Baja rotación."} for prod in cat_C_raw]
             
             portafolio = {
                 "catA": cat_A,
@@ -658,16 +663,14 @@ def get_abc_report(db: Session = Depends(get_db), current_user: User = Depends(g
                 "catC": cat_C
             }
             
-        # 5. CORRELACION (Frequently Bought Together)
+        # 5. CORRELACION (Only makes sense for products usually, but we keep it generic)
         from collections import Counter
         from itertools import combinations
         
-        # Group by order and get unique products per order
-        ordenes_con_prods = df_filtrado.groupby('ORDEN')['PRODUCTO'].apply(set)
+        ordenes_con_prods = df_filtrado.groupby('ORDEN')[group_key].apply(set)
         coocurrencias = Counter()
         for prods in ordenes_con_prods:
             if len(prods) > 1:
-                # Combinations of 2 products
                 for combo in combinations(sorted(prods), 2):
                     coocurrencias[combo] += 1
         
@@ -700,44 +703,53 @@ def get_abc_report(db: Session = Depends(get_db), current_user: User = Depends(g
             
     return data_store
 
-@router.get("/sales/products")
-def get_sales_products(db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
-    from models.models import POSSale, IgnoredPOSProduct
+@router.get("/sales/mappings")
+def get_sales_mappings(db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
+    from models.models import POSSale, POSProductMapping
     
-    # Unique product names for the company
-    products = db.query(POSSale.product_name).filter(POSSale.company_id == current_user.company_id).distinct().all()
-    ignored = db.query(IgnoredPOSProduct.product_name).filter(IgnoredPOSProduct.company_id == current_user.company_id).all()
-    ignored_set = {i.product_name for i in ignored}
+    # Distinct products from sales
+    distinct_products = db.query(POSSale.product_name).filter(POSSale.company_id == current_user.company_id).distinct().all()
+    
+    # Current mappings
+    mappings = db.query(POSProductMapping).filter(POSProductMapping.company_id == current_user.company_id).all()
+    mapping_dict = {m.product_name: m for m in mappings}
     
     result = []
-    for p in products:
+    for p in distinct_products:
         name = p.product_name
         if not name: continue
+        m = mapping_dict.get(name)
         result.append({
-            "name": name,
-            "ignored": name in ignored_set
+            "product_name": name,
+            "category_name": m.category_name if m else "Uncategorized",
+            "is_ignored": m.is_ignored if m else False
         })
-    return sorted(result, key=lambda x: x["name"])
+    return sorted(result, key=lambda x: x["product_name"])
 
-@router.post("/sales/products/toggle-ignore")
-def toggle_ignore_product(data: dict, db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
-    from models.models import IgnoredPOSProduct
-    product_name = data.get("product_name")
-    if not product_name:
-        raise HTTPException(status_code=400, detail="Product name required")
-        
-    existing = db.query(IgnoredPOSProduct).filter(
-        IgnoredPOSProduct.company_id == current_user.company_id,
-        IgnoredPOSProduct.product_name == product_name
-    ).first()
+@router.post("/sales/mappings/bulk")
+def update_sales_mappings(data: List[POSMappingBulkUpdate], db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
+    from models.models import POSProductMapping
     
-    if existing:
-        db.delete(existing)
-        message = "Product restored"
-    else:
-        new_ignore = IgnoredPOSProduct(company_id=current_user.company_id, product_name=product_name)
-        db.add(new_ignore)
-        message = "Product ignored"
+    for item in data:
+        product_name = item.product_name
+        if not product_name: continue
         
+        mapping = db.query(POSProductMapping).filter(
+            POSProductMapping.company_id == current_user.company_id,
+            POSProductMapping.product_name == product_name
+        ).first()
+        
+        if mapping:
+            mapping.category_name = item.category_name or "Uncategorized"
+            mapping.is_ignored = item.is_ignored
+        else:
+            mapping = POSProductMapping(
+                company_id=current_user.company_id,
+                product_name=product_name,
+                category_name=item.category_name or "Uncategorized",
+                is_ignored=item.is_ignored
+            )
+            db.add(mapping)
+            
     db.commit()
-    return {"message": message}
+    return {"message": "Mappings updated successfully"}

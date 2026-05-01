@@ -108,14 +108,16 @@
             <div id="uploadStatus" class="mt-4 hidden p-3 rounded-lg text-sm"></div>
         </div>
 
-        <!-- Manage Products Section -->
-        <div
-            class="bg-white rounded-xl shadow-sm p-6 border border-slate-200 flex flex-col items-center justify-center text-center">
-            <p class="text-xs text-slate-500 uppercase font-bold mb-3 tracking-wider">{{ _('Data Refinement') }}</p>
+        <!-- Strategic Management Section -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200 flex flex-col gap-3">
+            <p class="text-xs text-slate-500 uppercase font-bold tracking-wider text-center">{{ _('Strategic Management') }}</p>
             <button onclick="openProductModal()"
-                class="w-full bg-slate-800 hover:bg-slate-900 text-white p-4 rounded-xl font-bold transition-all shadow-md group">
-                <i class="fa-solid fa-filter text-2xl mb-2 group-hover:scale-110 transition-transform block"></i>
-                {{ _('Exclude Products') }}
+                class="w-full bg-slate-800 hover:bg-slate-900 text-white p-3 rounded-lg font-bold transition-all shadow-md text-sm flex items-center justify-center gap-2">
+                <i class="fa-solid fa-filter"></i> {{ _('Exclude Products') }}
+            </button>
+            <button onclick="openMappingModal()"
+                class="w-full bg-brand-600 hover:bg-brand-700 text-white p-3 rounded-lg font-bold transition-all shadow-md text-sm flex items-center justify-center gap-2">
+                <i class="fa-solid fa-table-cells"></i> {{ _('Categorize Items') }}
             </button>
         </div>
     </div>
@@ -160,6 +162,64 @@
         </div>
     </div>
 
+    <!-- Product Mapping Modal (Spreadsheet style) -->
+    <div id="mappingModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-brand-50">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800">{{ _('Strategic Categorization') }}</h3>
+                    <p class="text-sm text-brand-600 font-medium">{{ _('Group products into categories and manage exclusions in bulk.') }}</p>
+                </div>
+                <button onclick="closeMappingModal()" class="text-slate-400 hover:text-slate-600 p-2">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-4 bg-slate-50 border-b border-slate-200 flex gap-4">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="mappingSearch" onkeyup="filterMappings()"
+                        placeholder="{{ _('Search by product or category...') }}"
+                        class="w-full pl-10 pr-4 py-2 rounded-lg border-slate-300 focus:ring-brand-500 focus:border-brand-500 border text-sm">
+                </div>
+                <button onclick="saveMappings()" id="saveMappingsBtn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold shadow-md transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> {{ _('Save Changes') }}
+                </button>
+            </div>
+
+            <div id="categoryExclusionBar" class="p-4 bg-slate-100 border-b border-slate-200 hidden">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group"></i> {{ _('Exclude Entire Category') }}
+                </p>
+                <div id="categoryToggleList" class="flex flex-wrap gap-2">
+                    <!-- Categories will be listed here -->
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 bg-white shadow-sm z-10">
+                        <tr class="text-xs uppercase text-slate-500 font-bold tracking-wider border-b border-slate-100">
+                            <th class="px-6 py-4 w-1/2">{{ _('Product Name (POS)') }}</th>
+                            <th class="px-6 py-4">{{ _('Strategic Category') }}</th>
+                            <th class="px-6 py-4 w-32 text-center">{{ _('Status') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mappingTableBody" class="text-sm text-slate-700">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+                <p class="text-xs text-slate-500"><i class="fa-solid fa-circle-info mr-1"></i> {{ _('Uncategorized products default to "Uncategorized" and are included in reports.') }}</p>
+                <button onclick="closeMappingModal()" class="text-slate-600 font-bold px-4 py-2 hover:bg-slate-200 rounded-lg transition-colors">
+                    {{ _('Cancel') }}
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Correlation Management Modal -->
     <div id="correlationModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
@@ -192,11 +252,22 @@
         </div>
     </div>
 
-    <!-- Navegación de Sucursales -->
-    <div class="flex flex-wrap gap-3 mb-8" id="tabs-container">
-        <button onclick="changeData('total')" id="btn-total"
-            class="px-6 py-2 rounded-full border font-semibold transition-colors tab-active">Total
-            Organización</button>
+    <!-- Navegación de Sucursales y Tipo de Vista -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div class="flex flex-wrap gap-3" id="tabs-container">
+            <button onclick="changeData('total')" id="btn-total"
+                class="px-6 py-2 rounded-full border font-semibold transition-colors tab-active">Total
+                Organización</button>
+        </div>
+        
+        <div class="bg-slate-100 p-1 rounded-xl flex gap-1 border border-slate-200">
+            <button onclick="setViewType('product')" id="view-product" class="px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-sm bg-white text-slate-800 border-slate-200">
+                <i class="fa-solid fa-tag mr-1"></i> {{ _('Product View') }}
+            </button>
+            <button onclick="setViewType('category')" id="view-category" class="px-4 py-2 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-800">
+                <i class="fa-solid fa-layer-group mr-1"></i> {{ _('Category View') }}
+            </button>
+        </div>
     </div>
 
     <!-- KPIs Principales -->
@@ -355,13 +426,30 @@
     const PUBLIC_API_URL = "{{ API_URL }}";
     const AUTH_TOKEN = "{{ token }}";
     let dataStore = {};
+    let currentViewType = 'product';
+    let currentTab = 'total';
     const restaurantNames = {
-            {% for rest in restaurants %}
-    "{{ rest.id }}": "{{ rest.name }}",
+        {% for rest in restaurants %}
+        "{{ rest.id }}": "{{ rest.name }}",
         {% endfor %}
-        };
+    };
 
     let paretoChartInstance = null;
+
+    function setViewType(type) {
+        currentViewType = type;
+        const prodBtn = document.getElementById('view-product');
+        const catBtn = document.getElementById('view-category');
+        
+        if (type === 'product') {
+            prodBtn.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-sm bg-white text-slate-800 border border-slate-200";
+            catBtn.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-800";
+        } else {
+            catBtn.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-sm bg-white text-slate-800 border border-slate-200";
+            prodBtn.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-800";
+        }
+        fetchData();
+    }
 
     function renderChart(labels, data) {
         const ctx = document.getElementById('paretoChart').getContext('2d');
@@ -396,6 +484,7 @@
     }
 
     function changeData(locationKey) {
+        currentTab = locationKey;
         if (!dataStore[locationKey]) return;
 
         const activeClass = 'tab-active';
@@ -536,14 +625,16 @@
 
     async function fetchData() {
         try {
-            const response = await fetch(`${PUBLIC_API_URL}/admin/sales/abc-report`, {
+            const response = await fetch(`${PUBLIC_API_URL}/admin/sales/abc-report?view_type=${currentViewType}`, {
                 headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
             });
             if (!response.ok) throw new Error('Error fetching report data');
             dataStore = await response.json();
 
             updateTabs();
-            if (dataStore.total) {
+            if (dataStore[currentTab]) {
+                changeData(currentTab);
+            } else if (dataStore.total) {
                 changeData('total');
             }
         } catch (error) {
@@ -662,22 +753,151 @@
     }
 
     async function toggleProduct(name) {
+        // Toggle ignore status using the bulk mapping logic for consistency
         try {
-            const res = await fetch(`${PUBLIC_API_URL}/admin/sales/products/toggle-ignore`, {
+            // Find current mapping
+            const res = await fetch(`${PUBLIC_API_URL}/admin/sales/mappings`, {
+                headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
+            });
+            const mappings = await res.json();
+            const m = mappings.find(item => item.product_name === name);
+            if (m) {
+                m.is_ignored = !m.is_ignored;
+                const updateRes = await fetch(`${PUBLIC_API_URL}/admin/sales/mappings/bulk`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${AUTH_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify([m])
+                });
+                if (updateRes.ok) {
+                    loadProducts();
+                    fetchData();
+                }
+            }
+        } catch (err) {
+            console.error('Error toggling product:', err);
+        }
+    }
+
+    let allMappings = [];
+    function openMappingModal() {
+        document.getElementById('mappingModal').classList.remove('hidden');
+        loadMappings();
+    }
+    function closeMappingModal() {
+        document.getElementById('mappingModal').classList.add('hidden');
+    }
+    async function loadMappings() {
+        const body = document.getElementById('mappingTableBody');
+        body.innerHTML = `<tr><td colspan="3" class="p-12 text-center"><i class="fa-solid fa-circle-notch fa-spin text-2xl text-brand-500"></i></td></tr>`;
+        try {
+            const res = await fetch(`${PUBLIC_API_URL}/admin/sales/mappings`, {
+                headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
+            });
+            allMappings = await res.json();
+            renderMappingTable(allMappings);
+            renderCategoryToggles();
+        } catch (err) {
+            body.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-red-500">${err.message}</td></tr>`;
+        }
+    }
+    function renderMappingTable(mappings) {
+        const body = document.getElementById('mappingTableBody');
+        body.innerHTML = mappings.map((m, idx) => `
+            <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors mapping-row" data-search="${m.product_name.toLowerCase()} ${m.category_name.toLowerCase()}">
+                <td class="px-6 py-4 font-medium text-slate-700">${m.product_name}</td>
+                <td class="px-6 py-4">
+                    <input type="text" value="${m.category_name}" 
+                        onchange="updateMappingValue(${idx}, 'category_name', this.value)"
+                        class="w-full bg-transparent border-none focus:ring-2 focus:ring-brand-500 rounded px-2 py-1 hover:bg-white hover:border-slate-200 border transition-all text-sm"
+                        placeholder="Uncategorized">
+                </td>
+                <td class="px-6 py-4 text-center">
+                    <button onclick="toggleMappingIgnore(${idx})" 
+                        class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all ${m.is_ignored ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}">
+                        ${m.is_ignored ? '{{ _("Ignored") }}' : '{{ _("Active") }}'}
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderCategoryToggles() {
+        const bar = document.getElementById('categoryExclusionBar');
+        const list = document.getElementById('categoryToggleList');
+        const categories = [...new Set(allMappings.map(m => m.category_name))].sort();
+        
+        if (categories.length === 0) {
+            bar.classList.add('hidden');
+            return;
+        }
+        
+        bar.classList.remove('hidden');
+        list.innerHTML = categories.map(cat => {
+            const allIgnored = allMappings.filter(m => m.category_name === cat).every(m => m.is_ignored);
+            return `
+                <button onclick="toggleCategoryExclusion('${cat.replace(/'/g, "\\'")}', ${!allIgnored})" 
+                    class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all border ${allIgnored ? 'bg-red-500 text-white border-red-600 shadow-inner' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}">
+                    <i class="fa-solid ${allIgnored ? 'fa-eye-slash' : 'fa-eye'} mr-1"></i> ${cat}
+                </button>
+            `;
+        }).join('');
+    }
+
+    function toggleCategoryExclusion(categoryName, shouldIgnore) {
+        allMappings.forEach(m => {
+            if (m.category_name === categoryName) {
+                m.is_ignored = shouldIgnore;
+            }
+        });
+        renderMappingTable(allMappings);
+        renderCategoryToggles();
+    }
+
+    function updateMappingValue(idx, key, val) {
+        allMappings[idx][key] = val;
+        renderCategoryToggles();
+    }
+    function toggleMappingIgnore(idx) {
+        allMappings[idx].is_ignored = !allMappings[idx].is_ignored;
+        renderMappingTable(allMappings);
+    }
+    async function saveMappings() {
+        const btn = document.getElementById('saveMappingsBtn');
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> {{ _("Saving...") }}`;
+        
+        try {
+            const res = await fetch(`${PUBLIC_API_URL}/admin/sales/mappings/bulk`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${AUTH_TOKEN}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ product_name: name })
+                body: JSON.stringify(allMappings)
             });
             if (res.ok) {
-                loadProducts();
-                fetchData(); // Refresh report data
+                fetchData();
+                closeMappingModal();
+            } else {
+                alert("Error saving mappings");
             }
         } catch (err) {
-            console.error('Error toggling product:', err);
+            console.error(err);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
         }
+    }
+    function filterMappings() {
+        const term = document.getElementById('mappingSearch').value.toLowerCase();
+        document.querySelectorAll('.mapping-row').forEach(row => {
+            const search = row.getAttribute('data-search');
+            row.style.display = search.includes(term) ? 'table-row' : 'none';
+        });
     }
 
     function openCorrelationModal() {

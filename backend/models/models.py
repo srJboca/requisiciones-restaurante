@@ -223,3 +223,15 @@ class IgnoredPOSProduct(Base):
     created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
 
     company = relationship("Company")
+
+class POSProductMapping(Base):
+    __tablename__ = "pos_product_mappings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    product_name = Column(String(255), nullable=False)
+    category_name = Column(String(100), default="Uncategorized")
+    is_ignored = Column(Boolean, default=False)
+    created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
+
+    company = relationship("Company")

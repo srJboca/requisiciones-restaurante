@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-01 14:01+0000\n"
+"POT-Creation-Date: 2026-05-01 14:23+0000\n"
 "PO-Revision-Date: 2026-04-28 01:34+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -103,11 +103,11 @@ msgstr "Nueva Contraseña"
 msgid "Confirm New Password"
 msgstr "Confirmar Nueva Contraseña"
 
-#: templates/base.html:90
+#: templates/base.html:90 templates/reporte_restaurantes.html:217
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: templates/base.html:91
+#: templates/base.html:91 templates/reporte_restaurantes.html:186
 msgid "Save Changes"
 msgstr "Guardar Cambios"
 
@@ -316,111 +316,163 @@ msgid "CSV File"
 msgstr "Limpiar Filtro"
 
 #: templates/reporte_restaurantes.html:105
-#: templates/reporte_restaurantes.html:610
+#: templates/reporte_restaurantes.html:701
 msgid "Upload Data"
 msgstr "Upload Data"
 
-#: templates/reporte_restaurantes.html:114
-msgid "Data Refinement"
-msgstr "Data Refinement"
+#: templates/reporte_restaurantes.html:113
+msgid "Strategic Management"
+msgstr "Strategic Management"
 
-#: templates/reporte_restaurantes.html:118
+#: templates/reporte_restaurantes.html:116
 #, fuzzy
 msgid "Exclude Products"
 msgstr "Enviar a Producción"
 
-#: templates/reporte_restaurantes.html:130
+#: templates/reporte_restaurantes.html:120
+msgid "Categorize Items"
+msgstr "Categorize Items"
+
+#: templates/reporte_restaurantes.html:132
 #, fuzzy
 msgid "Manage POS Products"
 msgstr "Enviar a Producción"
 
-#: templates/reporte_restaurantes.html:131
+#: templates/reporte_restaurantes.html:133
 msgid "Disable products to hide them from all reports."
 msgstr "Disable products to hide them from all reports."
 
-#: templates/reporte_restaurantes.html:142
+#: templates/reporte_restaurantes.html:144
 #, fuzzy
 msgid "Search products..."
 msgstr "Enviar a Producción"
 
-#: templates/reporte_restaurantes.html:157
+#: templates/reporte_restaurantes.html:159
 msgid "Done"
 msgstr "Done"
 
-#: templates/reporte_restaurantes.html:168
+#: templates/reporte_restaurantes.html:170
+msgid "Strategic Categorization"
+msgstr "Strategic Categorization"
+
+#: templates/reporte_restaurantes.html:171
+msgid "Group products into categories and manage exclusions in bulk."
+msgstr "Group products into categories and manage exclusions in bulk."
+
+#: templates/reporte_restaurantes.html:182
+#, fuzzy
+msgid "Search by product or category..."
+msgstr "Enviar a Producción"
+
+#: templates/reporte_restaurantes.html:192
+msgid "Exclude Entire Category"
+msgstr "Exclude Entire Category"
+
+#: templates/reporte_restaurantes.html:203
+#, fuzzy
+msgid "Product Name (POS)"
+msgstr "Nombre del Producto"
+
+#: templates/reporte_restaurantes.html:204
+msgid "Strategic Category"
+msgstr "Strategic Category"
+
+#: templates/reporte_restaurantes.html:205 templates/restaurant_order.html:34
+#: templates/restaurant_order.html:48 templates/restaurant_order.html:133
+msgid "Status"
+msgstr "Estado"
+
+#: templates/reporte_restaurantes.html:215
+msgid ""
+"Uncategorized products default to \"Uncategorized\" and are included in "
+"reports."
+msgstr ""
+"Uncategorized products default to \"Uncategorized\" and are included in "
+"reports."
+
+#: templates/reporte_restaurantes.html:228
 msgid "Market Basket Analysis"
 msgstr "Market Basket Analysis"
 
-#: templates/reporte_restaurantes.html:169
+#: templates/reporte_restaurantes.html:229
 msgid "Complete list of product correlations detected in your orders."
 msgstr "Complete list of product correlations detected in your orders."
 
-#: templates/reporte_restaurantes.html:178
+#: templates/reporte_restaurantes.html:238
 #, fuzzy
 msgid "Product Pair"
 msgstr "Nombre del Producto"
 
-#: templates/reporte_restaurantes.html:179
+#: templates/reporte_restaurantes.html:239
 msgid "Frequency"
 msgstr "Frequency"
 
-#: templates/reporte_restaurantes.html:189
+#: templates/reporte_restaurantes.html:249
 #, fuzzy
 msgid "Close"
 msgstr "Cerrado por"
 
-#: templates/reporte_restaurantes.html:207
+#: templates/reporte_restaurantes.html:265
+#, fuzzy
+msgid "Product View"
+msgstr "Nombre del Producto"
+
+#: templates/reporte_restaurantes.html:268
+msgid "Category View"
+msgstr "Category View"
+
+#: templates/reporte_restaurantes.html:278
 #, fuzzy
 msgid "Order Volume"
 msgstr "Pedido para"
 
-#: templates/reporte_restaurantes.html:219
+#: templates/reporte_restaurantes.html:290
 #, fuzzy
 msgid ""
 "Average Ticket per\n"
 "                        Order"
 msgstr "Average Ticket per Order"
 
-#: templates/reporte_restaurantes.html:233
+#: templates/reporte_restaurantes.html:304
 msgid "Diners per Table"
 msgstr "Diners per Table"
 
-#: templates/reporte_restaurantes.html:248
+#: templates/reporte_restaurantes.html:319
 msgid "Sales Pareto (Top 10)"
 msgstr "Sales Pareto (Top 10)"
 
-#: templates/reporte_restaurantes.html:249
+#: templates/reporte_restaurantes.html:320
 #, fuzzy, python-format
 msgid "The 20%% of products that generate 80%% of monetary income."
 msgstr "The 20% of products that generate 80% of monetary income."
 
-#: templates/reporte_restaurantes.html:259
+#: templates/reporte_restaurantes.html:330
 #, fuzzy
 msgid "Anchor Products"
 msgstr "Enviar a Producción"
 
-#: templates/reporte_restaurantes.html:260
+#: templates/reporte_restaurantes.html:331
 msgid "Traffic generators (Highest quantity sold)."
 msgstr "Traffic generators (Highest quantity sold)."
 
-#: templates/reporte_restaurantes.html:273
+#: templates/reporte_restaurantes.html:344
 msgid "Frequently Bought Together"
 msgstr "Frequently Bought Together"
 
-#: templates/reporte_restaurantes.html:275
+#: templates/reporte_restaurantes.html:346
 #, fuzzy
 msgid "View All"
 msgstr "Ver Detalles"
 
-#: templates/reporte_restaurantes.html:278
+#: templates/reporte_restaurantes.html:349
 msgid "Product pairs that appear most often in the same ticket."
 msgstr "Product pairs that appear most often in the same ticket."
 
-#: templates/reporte_restaurantes.html:292
+#: templates/reporte_restaurantes.html:363
 msgid "Strategy Tip"
 msgstr "Strategy Tip"
 
-#: templates/reporte_restaurantes.html:293
+#: templates/reporte_restaurantes.html:364
 #, fuzzy
 msgid ""
 "Use correlations to create \"Combos\" or\n"
@@ -431,14 +483,14 @@ msgstr ""
 "Average Ticket. Place correlated products together on your physical menu to "
 "encourage natural upsells."
 
-#: templates/reporte_restaurantes.html:302
+#: templates/reporte_restaurantes.html:373
 #, fuzzy
 msgid ""
 "Strategy:\n"
 "                The Ideal Portfolio (Realistic Scenario)"
 msgstr "Strategy: The Ideal Portfolio (Realistic Scenario)"
 
-#: templates/reporte_restaurantes.html:304
+#: templates/reporte_restaurantes.html:375
 #, fuzzy
 msgid ""
 "Based on sales correlation and the 80/20 rule, it is recommended to\n"
@@ -449,23 +501,23 @@ msgstr ""
 "Realistic Portfolio. This model balances variety for the customer with "
 "operational profitability, eliminating \"dead weight\" from the menu."
 
-#: templates/reporte_restaurantes.html:315
+#: templates/reporte_restaurantes.html:386
 #, fuzzy, python-format
 msgid "Category A (Keep 100%%)"
 msgstr "Category A (Keep 100%)"
 
-#: templates/reporte_restaurantes.html:316
+#: templates/reporte_restaurantes.html:387
 #, fuzzy
 msgid ""
 "High rotation and high margin. They are the core of the\n"
 "                    business."
 msgstr "High rotation and high margin. They are the core of the business."
 
-#: templates/reporte_restaurantes.html:328
+#: templates/reporte_restaurantes.html:399
 msgid "Category B (Cross-Selling)"
 msgstr "Category B (Cross-Selling)"
 
-#: templates/reporte_restaurantes.html:329
+#: templates/reporte_restaurantes.html:400
 #, fuzzy
 msgid ""
 "Medium rotation. They have high purchasing affinity with\n"
@@ -473,69 +525,83 @@ msgid ""
 msgstr ""
 "Medium rotation. They have high purchasing affinity with anchor products."
 
-#: templates/reporte_restaurantes.html:341
+#: templates/reporte_restaurantes.html:412
 msgid "Category C (Eliminate / Simplify)"
 msgstr "Category C (Eliminate / Simplify)"
 
-#: templates/reporte_restaurantes.html:342
+#: templates/reporte_restaurantes.html:413
 msgid "Low rotation and complicate kitchen operations (waste)."
 msgstr "Low rotation and complicate kitchen operations (waste)."
 
-#: templates/reporte_restaurantes.html:378
+#: templates/reporte_restaurantes.html:466
 msgid "Income Volume (Relative)"
 msgstr "Income Volume (Relative)"
 
-#: templates/reporte_restaurantes.html:467
+#: templates/reporte_restaurantes.html:556
 #, fuzzy
 msgid "Orders"
 msgstr "Pedido #"
 
-#: templates/reporte_restaurantes.html:473
+#: templates/reporte_restaurantes.html:562
 #, fuzzy
 msgid "No correlations found yet."
 msgstr "No se encontraron requisiciones pasadas."
 
-#: templates/reporte_restaurantes.html:482
+#: templates/reporte_restaurantes.html:571
 msgid "Expand List"
 msgstr "Expand List"
 
-#: templates/reporte_restaurantes.html:492
+#: templates/reporte_restaurantes.html:581
 msgid "Collapse List"
 msgstr "Collapse List"
 
-#: templates/reporte_restaurantes.html:520
+#: templates/reporte_restaurantes.html:609
 #, fuzzy
 msgid "No significant correlations found."
 msgstr "No se encontraron requisiciones pasadas."
 
-#: templates/reporte_restaurantes.html:585
+#: templates/reporte_restaurantes.html:676
 msgid "Uploading..."
 msgstr "Uploading..."
 
-#: templates/reporte_restaurantes.html:587
+#: templates/reporte_restaurantes.html:678
 msgid "Processing file, please wait..."
 msgstr "Processing file, please wait..."
 
-#: templates/reporte_restaurantes.html:600
+#: templates/reporte_restaurantes.html:691
 msgid "Success! Data loaded correctly."
 msgstr "Success! Data loaded correctly."
 
-#: templates/reporte_restaurantes.html:603
+#: templates/reporte_restaurantes.html:694
 msgid "Error uploading file"
 msgstr "Error uploading file"
 
-#: templates/reporte_restaurantes.html:641
+#: templates/reporte_restaurantes.html:732
 #, fuzzy
 msgid "No products found."
 msgstr "Enviar a Producción"
 
-#: templates/reporte_restaurantes.html:650
+#: templates/reporte_restaurantes.html:741
 msgid "Show"
 msgstr "Show"
 
-#: templates/reporte_restaurantes.html:650
+#: templates/reporte_restaurantes.html:741
 msgid "Hide"
 msgstr "Hide"
+
+#: templates/reporte_restaurantes.html:820
+msgid "Ignored"
+msgstr "Ignored"
+
+#: templates/reporte_restaurantes.html:820
+#, fuzzy
+msgid "Active"
+msgstr "Fecha"
+
+#: templates/reporte_restaurantes.html:871
+#, fuzzy
+msgid "Saving..."
+msgstr "Uploading..."
 
 #: templates/restaurant_order.html:4
 msgid "Daily Requisition Builder"
@@ -557,11 +623,6 @@ msgstr "Todos los Grupos"
 #, fuzzy
 msgid "Show required only"
 msgstr "Cant. Requerida"
-
-#: templates/restaurant_order.html:34 templates/restaurant_order.html:48
-#: templates/restaurant_order.html:133
-msgid "Status"
-msgstr "Estado"
 
 #: templates/restaurant_order.html:43 templates/restaurant_order.html:49
 msgid "Delivery ETA"
@@ -718,3 +779,6 @@ msgstr "Ingresar"
 
 #~ msgid "has been"
 #~ msgstr "ha sido"
+
+#~ msgid "Data Refinement"
+#~ msgstr "Data Refinement"
