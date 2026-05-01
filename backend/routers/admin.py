@@ -510,8 +510,9 @@ async def upload_sales(
     from models.models import POSSale
     imported = 0
     
-    # Try to find the correct keys by matching common names
-    # PARKWAY.csv has |ORDEN|FECHA_APERTURA|... which results in an empty first key
+    # We'll store records in a list first to identify which orders to clear
+    new_records = []
+    order_refs_to_clear = set()
     
     for row in reader:
         # Normalize keys (strip whitespace, upper case for matching)
@@ -524,10 +525,14 @@ async def upload_sales(
         if "===" in product_name or not product_name:
             continue
             
+        order_ref = norm_row.get("ORDEN", "")
+        if order_ref:
+            order_refs_to_clear.add(order_ref)
+
         pos_sale = POSSale(
             restaurant_id=restaurant_id,
             company_id=current_user.company_id,
-            order_ref=norm_row.get("ORDEN", ""),
+            order_ref=order_ref,
             date_open=norm_row.get("FECHA_APERTURA", ""),
             date_close=norm_row.get("FECHA_CIERRE", ""),
             payment_method=norm_row.get("MEDIODEPAGO", ""),
@@ -537,12 +542,25 @@ async def upload_sales(
             price_with_tax=parse_colombian_float(norm_row.get("PRECIOCONIMPUESTO", 0)),
             total_tip=parse_colombian_float(norm_row.get("TOTALPROPINA", 0)),
         )
-        db.add(pos_sale)
+        new_records.append(pos_sale)
         imported += 1
         
+    # Atomic replace: Clear existing orders found in this batch for this specific restaurant
+    if order_refs_to_clear:
+        # Convert set to list for SQLAlchemy IN clause
+        # We limit the batch size if needed, but for a single CSV it should be fine
+        db.query(POSSale).filter(
+            POSSale.restaurant_id == restaurant_id,
+            POSSale.order_ref.in_(list(order_refs_to_clear))
+        ).delete(synchronize_session=False)
+
+    # Insert new records
+    for record in new_records:
+        db.add(record)
+        
     db.commit()
-    logger.info(f"Imported {imported} records for restaurant {restaurant_id}")
-    log_audit(db, current_user.id, "Upload Sales CSV", "POSSale", details=f"Imported {imported} sales records for restaurant {restaurant_id}")
+    logger.info(f"Imported {imported} records for restaurant {restaurant_id} (replaced existing orders if any)")
+    log_audit(db, current_user.id, "Upload Sales CSV", "POSSale", details=f"Imported {imported} sales records for restaurant {restaurant_id}. Replaced overlapping order references.")
     return {"message": f"Successfully imported {imported} sales records."}
 
 @router.get("/sales/abc-report")
