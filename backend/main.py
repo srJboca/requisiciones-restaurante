@@ -45,3 +45,6 @@ app.include_router(production.router)
 @app.get("/")
 def read_root():
     return {"message": "Restaurant Requisitions API v2.0 — Multi-Company. See /docs for Swagger UI."}
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "message": "Backend is awake and ready"}

@@ -18,4 +18,52 @@
         <button type="submit" class="btn btn-primary" style="width: 100%;">{{ _('Login') }}</button>
     </form>
 </div>
+<script>
+    const API_URL = "{{ API_URL }}";
+    const loginForm = document.querySelector('form');
+    const submitBtn = loginForm.querySelector('button');
+    const originalText = submitBtn.innerText;
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> {{ _("Waking up system...") }}';
+
+        let ready = false;
+        let attempts = 0;
+        const maxAttempts = 5; // Total ~10 seconds wait
+
+        while (!ready && attempts < maxAttempts) {
+            try {
+                // Try to ping the health endpoint
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000);
+                
+                const res = await fetch(`${API_URL}/health`, { 
+                    mode: 'cors',
+                    signal: controller.signal 
+                });
+                
+                if (res.ok) {
+                    ready = true;
+                }
+            } catch (err) {
+                console.log("System sleeping, retrying...");
+                attempts++;
+                if (attempts < maxAttempts) {
+                    await new Promise(r => setTimeout(r, 2000));
+                }
+            }
+        }
+
+        if (ready) {
+            loginForm.submit();
+        } else {
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalText;
+            alert("{{ _('System is still sleeping. Please try again in a moment.') }}");
+        }
+    });
+</script>
 {% endblock %}

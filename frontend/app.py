@@ -81,7 +81,7 @@ def login():
                 flash(detail, "danger")
         except Exception as e:
             flash(f"Connection error: {e}", "danger")
-    return render_template("login.html")
+    return render_template("login.html", API_URL=PUBLIC_API_URL)
 
 @app.route("/logout")
 def logout():

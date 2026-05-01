@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-01 17:06+0000\n"
+"POT-Creation-Date: 2026-05-01 17:13+0000\n"
 "PO-Revision-Date: 2026-04-28 01:34+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -215,6 +215,14 @@ msgstr "Usuario"
 #: templates/login.html:15
 msgid "Password"
 msgstr "Contraseña"
+
+#: templates/login.html:31
+msgid "Waking up system..."
+msgstr "Waking up system..."
+
+#: templates/login.html:65
+msgid "System is still sleeping. Please try again in a moment."
+msgstr "System is still sleeping. Please try again in a moment."
 
 #: templates/production_shipping.html:4
 msgid "Production Plant Shipping"
