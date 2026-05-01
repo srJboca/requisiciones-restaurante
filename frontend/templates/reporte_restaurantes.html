@@ -1,346 +1,432 @@
 {% extends "base.html" %}
 
 {% block head %}
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            700: '#15803d',
-                            900: '#14532d',
-                        }
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    brand: {
+                        50: '#f0fdf4',
+                        100: '#dcfce7',
+                        500: '#22c55e',
+                        700: '#15803d',
+                        900: '#14532d',
                     }
                 }
             }
         }
-    </script>
-    <style>
-        .tab-active {
-            background-color: #15803d;
-            color: white;
-            border-color: #15803d;
+    }
+</script>
+<style>
+    .tab-active {
+        background-color: #15803d;
+        color: white;
+        border-color: #15803d;
+    }
+
+    .tab-inactive {
+        background-color: white;
+        color: #475569;
+        border-color: #cbd5e1;
+        hover: bg-gray-50;
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
         }
 
-        .tab-inactive {
-            background-color: white;
-            color: #475569;
-            border-color: #cbd5e1;
-            hover: bg-gray-50;
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-    <div class="max-w-6xl mx-auto px-4 mt-4">
-        <!-- Back Button -->
-        <div class="mb-6">
-            <a href="{{ url_for('admin_dashboard') }}" class="inline-flex items-center text-brand-700 hover:text-brand-900 font-semibold transition-colors">
-                <i class="fa-solid fa-arrow-left mr-2"></i> {{ _('Return to Dashboard') }}
-            </a>
+<div class="max-w-6xl mx-auto px-4 mt-4">
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="{{ url_for('admin_dashboard') }}"
+            class="inline-flex items-center text-brand-700 hover:text-brand-900 font-semibold transition-colors">
+            <i class="fa-solid fa-arrow-left mr-2"></i> {{ _('Return to Dashboard') }}
+        </a>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-brand-900 text-white py-8 shadow-lg rounded-xl mb-8">
+        <div class="px-8">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2"><i class="fa-solid fa-chart-pie mr-3"></i>{{ _('Strategic
+                Sales Infographic') }}</h1>
+            <p class="text-brand-100 text-lg">{{ _('Analysis of Traffic, Pareto and Ideal Portfolio Structure') }}</p>
+        </div>
+    </header>
+
+    <!-- Actions Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Upload Section -->
+        <div class="lg:col-span-3 bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+            <h3 class="text-xl font-bold mb-4 text-slate-800"><i class="fa-solid fa-upload text-brand-500 mr-2"></i>{{
+                _('Upload Sales (CSV)') }}</h3>
+            <form id="uploadForm" class="flex flex-wrap items-end gap-4">
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Restaurant') }}</label>
+                    <select id="uploadRestaurant"
+                        class="w-full rounded-lg border-slate-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 p-2 border"
+                        required>
+                        <option value="">{{ _('Select a restaurant...') }}</option>
+                        {% for rest in restaurants %}
+                        <option value="{{ rest.id }}">{{ rest.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[250px]">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('CSV File') }}</label>
+                    <input type="file" id="uploadFile" accept=".csv"
+                        class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100"
+                        required>
+                </div>
+                <button type="submit" id="uploadBtn"
+                    class="bg-brand-500 hover:bg-brand-700 text-white px-6 py-2 rounded-lg font-semibold transition-all shadow-md">
+                    <i class="fa-solid fa-cloud-arrow-up mr-2"></i>{{ _('Upload Data') }}
+                </button>
+            </form>
+            <div id="uploadStatus" class="mt-4 hidden p-3 rounded-lg text-sm"></div>
         </div>
 
-        <!-- Header -->
-        <header class="bg-brand-900 text-white py-8 shadow-lg rounded-xl mb-8">
-            <div class="px-8">
-                <h1 class="text-3xl md:text-4xl font-bold mb-2"><i class="fa-solid fa-chart-pie mr-3"></i>{{ _('Strategic Sales Infographic') }}</h1>
-                <p class="text-brand-100 text-lg">{{ _('Analysis of Traffic, Pareto and Ideal Portfolio Structure') }}</p>
-            </div>
-        </header>
+        <!-- Manage Products Section -->
+        <div
+            class="bg-white rounded-xl shadow-sm p-6 border border-slate-200 flex flex-col items-center justify-center text-center">
+            <p class="text-xs text-slate-500 uppercase font-bold mb-3 tracking-wider">{{ _('Data Refinement') }}</p>
+            <button onclick="openProductModal()"
+                class="w-full bg-slate-800 hover:bg-slate-900 text-white p-4 rounded-xl font-bold transition-all shadow-md group">
+                <i class="fa-solid fa-filter text-2xl mb-2 group-hover:scale-110 transition-transform block"></i>
+                {{ _('Exclude Products') }}
+            </button>
+        </div>
+    </div>
 
-        <!-- Actions Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Upload Section -->
-            <div class="lg:col-span-3 bg-white rounded-xl shadow-sm p-6 border border-slate-200">
-                <h3 class="text-xl font-bold mb-4 text-slate-800"><i class="fa-solid fa-upload text-brand-500 mr-2"></i>{{ _('Upload Sales (CSV)') }}</h3>
-                <form id="uploadForm" class="flex flex-wrap items-end gap-4">
-                    <div class="flex-1 min-w-[200px]">
-                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Restaurant') }}</label>
-                        <select id="uploadRestaurant" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-brand-500 focus:ring-brand-500 p-2 border" required>
-                            <option value="">{{ _('Select a restaurant...') }}</option>
-                            {% for rest in restaurants %}
-                            <option value="{{ rest.id }}">{{ rest.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="flex-1 min-w-[250px]">
-                        <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('CSV File') }}</label>
-                        <input type="file" id="uploadFile" accept=".csv" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" required>
-                    </div>
-                    <button type="submit" id="uploadBtn" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2 rounded-lg font-semibold transition-all shadow-md">
-                        <i class="fa-solid fa-cloud-arrow-up mr-2"></i>{{ _('Upload Data') }}
-                    </button>
-                </form>
-                <div id="uploadStatus" class="mt-4 hidden p-3 rounded-lg text-sm"></div>
+    <!-- Product Management Modal -->
+    <div id="productModal"
+        class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div
+            class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800">{{ _('Manage POS Products') }}</h3>
+                    <p class="text-sm text-slate-500">{{ _('Disable products to hide them from all reports.') }}</p>
+                </div>
+                <button onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600 p-2">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
             </div>
 
-            <!-- Manage Products Section -->
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200 flex flex-col items-center justify-center text-center">
-                <p class="text-xs text-slate-500 uppercase font-bold mb-3 tracking-wider">{{ _('Data Refinement') }}</p>
-                <button onclick="openProductModal()" class="w-full bg-slate-800 hover:bg-slate-900 text-white p-4 rounded-xl font-bold transition-all shadow-md group">
-                    <i class="fa-solid fa-filter text-2xl mb-2 group-hover:scale-110 transition-transform block"></i>
-                    {{ _('Exclude Products') }}
+            <div class="p-4 bg-white border-b border-slate-100">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="productSearch" onkeyup="filterProducts()"
+                        placeholder="{{ _('Search products...') }}"
+                        class="w-full pl-10 pr-4 py-2 rounded-lg border-slate-200 focus:ring-brand-500 focus:border-brand-500 border">
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4" id="productList">
+                <!-- Products will be loaded here -->
+                <div class="flex justify-center p-12">
+                    <i class="fa-solid fa-circle-notch fa-spin text-4xl text-brand-500"></i>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-slate-100 bg-slate-50 text-right">
+                <button onclick="closeProductModal()"
+                    class="bg-brand-600 hover:bg-brand-700 text-white px-8 py-2 rounded-lg font-bold transition-all shadow-md">
+                    {{ _('Done') }}
                 </button>
             </div>
         </div>
+    </div>
 
-        <!-- Product Management Modal -->
-        <div id="productModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
-                <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-                    <div>
-                        <h3 class="text-xl font-bold text-slate-800">{{ _('Manage POS Products') }}</h3>
-                        <p class="text-sm text-slate-500">{{ _('Disable products to hide them from all reports.') }}</p>
-                    </div>
-                    <button onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600 p-2">
-                        <i class="fa-solid fa-xmark text-xl"></i>
-                    </button>
+    <!-- Correlation Management Modal -->
+    <div id="correlationModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-indigo-50">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800">{{ _('Market Basket Analysis') }}</h3>
+                    <p class="text-sm text-indigo-600 font-medium">{{ _('Complete list of product correlations detected in your orders.') }}</p>
                 </div>
-                
-                <div class="p-4 bg-white border-b border-slate-100">
-                    <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" id="productSearch" onkeyup="filterProducts()" placeholder="{{ _('Search products...') }}" 
-                               class="w-full pl-10 pr-4 py-2 rounded-lg border-slate-200 focus:ring-brand-500 focus:border-brand-500 border">
-                    </div>
+                <button onclick="closeCorrelationModal()" class="text-slate-400 hover:text-slate-600 p-2">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-4 bg-white border-b border-slate-100">
+                <div class="flex items-center gap-4 text-xs text-slate-500 uppercase font-bold tracking-wider px-4">
+                   <span class="flex-1">{{ _('Product Pair') }}</span>
+                   <span class="w-24 text-right">{{ _('Frequency') }}</span>
                 </div>
+            </div>
 
-                <div class="flex-1 overflow-y-auto p-4" id="productList">
-                    <!-- Products will be loaded here -->
-                    <div class="flex justify-center p-12">
-                        <i class="fa-solid fa-circle-notch fa-spin text-4xl text-brand-500"></i>
-                    </div>
-                </div>
+            <div class="flex-1 overflow-y-auto" id="fullCorrelationList">
+                <!-- Correlations will be loaded here -->
+            </div>
 
-                <div class="p-6 border-t border-slate-100 bg-slate-50 text-right">
-                    <button onclick="closeProductModal()" class="bg-brand-600 hover:bg-brand-700 text-white px-8 py-2 rounded-lg font-bold transition-all shadow-md">
-                        {{ _('Done') }}
-                    </button>
+            <div class="p-6 border-t border-slate-100 bg-slate-50 text-right">
+                <button onclick="closeCorrelationModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-2 rounded-lg font-bold transition-all shadow-md">
+                    {{ _('Close') }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación de Sucursales -->
+    <div class="flex flex-wrap gap-3 mb-8" id="tabs-container">
+        <button onclick="changeData('total')" id="btn-total"
+            class="px-6 py-2 rounded-full border font-semibold transition-colors tab-active">Total
+            Organización</button>
+    </div>
+
+    <!-- KPIs Principales -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 fade-in" id="kpi-section">
+        <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-brand-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500 uppercase font-bold tracking-wider">{{ _('Order Volume') }}</p>
+                    <h2 class="text-3xl font-black text-slate-800 mt-1" id="kpi-orders">---</h2>
+                </div>
+                <div class="p-3 bg-brand-50 rounded-full text-brand-500">
+                    <i class="fa-solid fa-receipt text-2xl"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Navegación de Sucursales -->
-        <div class="flex flex-wrap gap-3 mb-8" id="tabs-container">
-            <button onclick="changeData('total')" id="btn-total"
-                class="px-6 py-2 rounded-full border font-semibold transition-colors tab-active">Total
-                Organización</button>
-        </div>
-
-        <!-- KPIs Principales -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 fade-in" id="kpi-section">
-            <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-brand-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-slate-500 uppercase font-bold tracking-wider">{{ _('Order Volume') }}</p>
-                        <h2 class="text-3xl font-black text-slate-800 mt-1" id="kpi-orders">---</h2>
-                    </div>
-                    <div class="p-3 bg-brand-50 rounded-full text-brand-500">
-                        <i class="fa-solid fa-receipt text-2xl"></i>
-                    </div>
+        <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500 uppercase font-bold tracking-wider">{{ _('Average Ticket per
+                        Order') }}
+                    </p>
+                    <h2 class="text-3xl font-black text-slate-800 mt-1" id="kpi-ticket">---</h2>
                 </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-slate-500 uppercase font-bold tracking-wider">{{ _('Average Ticket per Order') }}
-                        </p>
-                        <h2 class="text-3xl font-black text-slate-800 mt-1" id="kpi-ticket">---</h2>
-                    </div>
-                    <div class="p-3 bg-blue-50 rounded-full text-blue-500">
-                        <i class="fa-solid fa-money-bill-wave text-2xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-orange-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-slate-500 uppercase font-bold tracking-wider">{{ _('Diners per Table') }}</p>
-                        <h2 class="text-3xl font-black text-slate-800 mt-1" id="kpi-diners">---</h2>
-                    </div>
-                    <div class="p-3 bg-orange-50 rounded-full text-orange-500">
-                        <i class="fa-solid fa-users text-2xl"></i>
-                    </div>
+                <div class="p-3 bg-blue-50 rounded-full text-blue-500">
+                    <i class="fa-solid fa-money-bill-wave text-2xl"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Gráficos y Anclas -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 fade-in">
-            <!-- Chart Pareto -->
-            <div class="bg-white p-6 rounded-xl shadow-sm lg:col-span-2">
-                <h3 class="text-xl font-bold mb-1 text-slate-800"><i
-                        class="fa-solid fa-chart-column text-brand-500 mr-2"></i>{{ _('Sales Pareto (Top 10)') }}</h3>
-                <p class="text-sm text-slate-500 mb-4">{{ _('The 20%% of products that generate 80%% of monetary income.') }}</p>
-                <div class="relative h-64 w-full">
-                    <canvas id="paretoChart"></canvas>
+        <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-orange-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500 uppercase font-bold tracking-wider">{{ _('Diners per Table') }}</p>
+                    <h2 class="text-3xl font-black text-slate-800 mt-1" id="kpi-diners">---</h2>
                 </div>
-            </div>
-
-            <!-- Productos Ancla -->
-            <div class="bg-white p-6 rounded-xl shadow-sm">
-                <h3 class="text-xl font-bold mb-1 text-slate-800"><i
-                        class="fa-solid fa-anchor text-blue-500 mr-2"></i>{{ _('Anchor Products') }}</h3>
-                <p class="text-sm text-slate-500 mb-4">{{ _('Traffic generators (Highest quantity sold).') }}</p>
-                <ul class="space-y-4" id="anchor-list">
-                    <!-- Inyectado por JS -->
-                </ul>
-            </div>
-        </div>
-
-        <!-- EL PORTAFOLIO RECOMENDADO -->
-        <div class="bg-slate-800 text-white rounded-xl shadow-lg p-1 overflow-hidden fade-in mb-12">
-            <div class="bg-slate-900 p-6 rounded-t-lg border-b border-slate-700">
-                <h2 class="text-2xl font-bold text-brand-500"><i class="fa-solid fa-chess-knight mr-2"></i>{{ _('Strategy: The Ideal Portfolio (Realistic Scenario)') }}</h2>
-                <p class="text-slate-300 mt-2">{{ _('Based on sales correlation and the 80/20 rule, it is recommended to adopt a Realistic Portfolio. This model balances variety for the customer with operational profitability, eliminating "dead weight" from the menu.') }}</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-1">
-                <!-- Columna 1: Mantener Intacto -->
-                <div class="bg-slate-800 p-6">
-                    <div class="inline-block p-2 bg-green-500/20 text-green-400 rounded-lg mb-3">
-                        <i class="fa-solid fa-star text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-green-400 mb-2">{{ _('Category A (Keep 100%%)') }}</h3>
-                    <p class="text-sm text-slate-400 mb-4">{{ _('High rotation and high margin. They are the core of the business.') }}</p>
-                    <ul class="text-sm space-y-2 text-slate-200 font-medium" id="port-cat-a">
-                        <!-- Inyectado via JS -->
-                    </ul>
-                </div>
-
-                <!-- Columna 2: Venta Cruzada -->
-                <div class="bg-slate-800 p-6 border-t md:border-t-0 md:border-l border-slate-700">
-                    <div class="inline-block p-2 bg-blue-500/20 text-blue-400 rounded-lg mb-3">
-                        <i class="fa-solid fa-link text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-blue-400 mb-2">{{ _('Category B (Cross-Selling)') }}</h3>
-                    <p class="text-sm text-slate-400 mb-4">{{ _('Medium rotation. They have high purchasing affinity with anchor products.') }}</p>
-                    <ul class="text-sm space-y-2 text-slate-200 font-medium" id="port-cat-b">
-                        <!-- Inyectado via JS -->
-                    </ul>
-                </div>
-
-                <!-- Columna 3: Eliminar/Reducir -->
-                <div class="bg-slate-800 p-6 border-t md:border-t-0 md:border-l border-slate-700">
-                    <div class="inline-block p-2 bg-red-500/20 text-red-400 rounded-lg mb-3">
-                        <i class="fa-solid fa-scissors text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-red-400 mb-2">{{ _('Category C (Eliminate / Simplify)') }}</h3>
-                    <p class="text-sm text-slate-400 mb-4">{{ _('Low rotation and complicate kitchen operations (waste).') }}</p>
-                    <ul class="text-sm text-slate-200 font-medium" id="port-cat-c">
-                        <!-- Inyectado via JS -->
-                    </ul>
+                <div class="p-3 bg-orange-50 rounded-full text-orange-500">
+                    <i class="fa-solid fa-users text-2xl"></i>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Gráficos y Anclas -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 fade-in">
+        <!-- Chart Pareto -->
+        <div class="bg-white p-6 rounded-xl shadow-sm lg:col-span-2 border border-slate-100">
+            <h3 class="text-xl font-bold mb-1 text-slate-800"><i
+                    class="fa-solid fa-chart-column text-brand-500 mr-2"></i>{{ _('Sales Pareto (Top 10)') }}</h3>
+            <p class="text-sm text-slate-500 mb-4">{{ _('The 20%% of products that generate 80%% of monetary income.')
+                }}</p>
+            <div class="relative h-64 w-full">
+                <canvas id="paretoChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Productos Ancla -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+            <h3 class="text-xl font-bold mb-1 text-slate-800"><i class="fa-solid fa-anchor text-blue-500 mr-2"></i>{{
+                _('Anchor Products') }}</h3>
+            <p class="text-sm text-slate-500 mb-4">{{ _('Traffic generators (Highest quantity sold).') }}</p>
+            <ul class="space-y-4" id="anchor-list">
+                <!-- Inyectado por JS -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Correlation Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 fade-in">
+        <!-- Frequently Bought Together -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col">
+            <div class="flex justify-between items-start mb-1">
+                <h3 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-link text-indigo-500 mr-2"></i>{{
+                    _('Frequently Bought Together') }}</h3>
+                <button onclick="openCorrelationModal()" class="text-brand-600 hover:text-brand-800 text-xs font-bold uppercase tracking-wider flex items-center gap-1 group">
+                    {{ _('View All') }} <i class="fa-solid fa-chevron-right group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+            <p class="text-sm text-slate-500 mb-6">{{ _('Product pairs that appear most often in the same ticket.') }}
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="correlation-list">
+                <!-- Inyectado via JS -->
+            </div>
+        </div>
+
+        <!-- Strategy Card -->
+        <div
+            class="bg-gradient-to-br from-indigo-600 to-slate-900 p-8 rounded-xl shadow-lg text-white flex flex-col justify-center relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10">
+                <i class="fa-solid fa-lightbulb text-8xl -rotate-12"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-4 relative z-10"><i
+                    class="fa-solid fa-wand-magic-sparkles mr-2 text-yellow-400"></i>{{ _('Strategy Tip') }}</h3>
+            <p class="text-indigo-100 leading-relaxed relative z-10">{{ _('Use correlations to create "Combos" or
+                "Packages" that increase your Average Ticket. Place correlated products together on your physical menu
+                to encourage natural upsells.') }}</p>
+        </div>
+    </div>
+
+    <!-- EL PORTAFOLIO RECOMENDADO -->
+    <div class="bg-slate-800 text-white rounded-xl shadow-lg p-1 overflow-hidden fade-in mb-12">
+        <div class="bg-slate-900 p-6 rounded-t-lg border-b border-slate-700">
+            <h2 class="text-2xl font-bold text-brand-500"><i class="fa-solid fa-chess-knight mr-2"></i>{{ _('Strategy:
+                The Ideal Portfolio (Realistic Scenario)') }}</h2>
+            <p class="text-slate-300 mt-2">{{ _('Based on sales correlation and the 80/20 rule, it is recommended to
+                adopt a Realistic Portfolio. This model balances variety for the customer with operational
+                profitability, eliminating "dead weight" from the menu.') }}</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-1">
+            <!-- Columna 1: Mantener Intacto -->
+            <div class="bg-slate-800 p-6">
+                <div class="inline-block p-2 bg-green-500/20 text-green-400 rounded-lg mb-3">
+                    <i class="fa-solid fa-star text-xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-green-400 mb-2">{{ _('Category A (Keep 100%%)') }}</h3>
+                <p class="text-sm text-slate-400 mb-4">{{ _('High rotation and high margin. They are the core of the
+                    business.') }}</p>
+                <ul class="text-sm space-y-2 text-slate-200 font-medium" id="port-cat-a">
+                    <!-- Inyectado via JS -->
+                </ul>
+            </div>
+
+            <!-- Columna 2: Venta Cruzada -->
+            <div class="bg-slate-800 p-6 border-t md:border-t-0 md:border-l border-slate-700">
+                <div class="inline-block p-2 bg-blue-500/20 text-blue-400 rounded-lg mb-3">
+                    <i class="fa-solid fa-link text-xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-blue-400 mb-2">{{ _('Category B (Cross-Selling)') }}</h3>
+                <p class="text-sm text-slate-400 mb-4">{{ _('Medium rotation. They have high purchasing affinity with
+                    anchor products.') }}</p>
+                <ul class="text-sm space-y-2 text-slate-200 font-medium" id="port-cat-b">
+                    <!-- Inyectado via JS -->
+                </ul>
+            </div>
+
+            <!-- Columna 3: Eliminar/Reducir -->
+            <div class="bg-slate-800 p-6 border-t md:border-t-0 md:border-l border-slate-700">
+                <div class="inline-block p-2 bg-red-500/20 text-red-400 rounded-lg mb-3">
+                    <i class="fa-solid fa-scissors text-xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-red-400 mb-2">{{ _('Category C (Eliminate / Simplify)') }}</h3>
+                <p class="text-sm text-slate-400 mb-4">{{ _('Low rotation and complicate kitchen operations (waste).')
+                    }}</p>
+                <ul class="text-sm text-slate-200 font-medium" id="port-cat-c">
+                    <!-- Inyectado via JS -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
-    <script>
-        const PUBLIC_API_URL = "{{ API_URL }}";
-        const AUTH_TOKEN = "{{ token }}";
-        let dataStore = {};
-        const restaurantNames = {
+<script>
+    const PUBLIC_API_URL = "{{ API_URL }}";
+    const AUTH_TOKEN = "{{ token }}";
+    let dataStore = {};
+    const restaurantNames = {
             {% for rest in restaurants %}
-            "{{ rest.id }}": "{{ rest.name }}",
-            {% endfor %}
+    "{{ rest.id }}": "{{ rest.name }}",
+        {% endfor %}
         };
 
-        let paretoChartInstance = null;
+    let paretoChartInstance = null;
 
-        function renderChart(labels, data) {
-            const ctx = document.getElementById('paretoChart').getContext('2d');
+    function renderChart(labels, data) {
+        const ctx = document.getElementById('paretoChart').getContext('2d');
 
-            if (paretoChartInstance) {
-                paretoChartInstance.destroy();
-            }
-
-            paretoChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: '{{ _("Income Volume (Relative)") }}',
-                        data: data,
-                        backgroundColor: '#22c55e',
-                        borderRadius: 4,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true, display: false },
-                        x: { grid: { display: false } }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
+        if (paretoChartInstance) {
+            paretoChartInstance.destroy();
         }
 
-        function changeData(locationKey) {
-            if (!dataStore[locationKey]) return;
-
-            const activeClass = 'tab-active';
-            const inactiveClass = 'tab-inactive';
-            
-            document.querySelectorAll('#tabs-container button').forEach(btn => {
-                const isThisOne = btn.id === `btn-${locationKey}`;
-                if (isThisOne) {
-                    btn.classList.remove(inactiveClass);
-                    btn.classList.add(activeClass);
-                } else {
-                    btn.classList.remove(activeClass);
-                    btn.classList.add(inactiveClass);
+        paretoChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '{{ _("Income Volume (Relative)") }}',
+                    data: data,
+                    backgroundColor: '#22c55e',
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, display: false },
+                    x: { grid: { display: false } }
+                },
+                plugins: {
+                    legend: { display: false }
                 }
-            });
+            }
+        });
+    }
 
-            document.querySelectorAll('.fade-in').forEach(el => {
-                el.style.animation = 'none';
-                el.offsetHeight; 
-                el.style.animation = null;
-            });
+    function changeData(locationKey) {
+        if (!dataStore[locationKey]) return;
 
-            const data = dataStore[locationKey];
+        const activeClass = 'tab-active';
+        const inactiveClass = 'tab-inactive';
 
-            document.getElementById('kpi-orders').innerText = data.kpi.orders;
-            document.getElementById('kpi-ticket').innerText = data.kpi.ticket;
-            document.getElementById('kpi-diners').innerText = data.kpi.diners;
+        document.querySelectorAll('#tabs-container button').forEach(btn => {
+            const isThisOne = btn.id === `btn-${locationKey}`;
+            if (isThisOne) {
+                btn.classList.remove(inactiveClass);
+                btn.classList.add(activeClass);
+            } else {
+                btn.classList.remove(activeClass);
+                btn.classList.add(inactiveClass);
+            }
+        });
 
-            renderChart(data.pareto.labels, data.pareto.data);
+        document.querySelectorAll('.fade-in').forEach(el => {
+            el.style.animation = 'none';
+            el.offsetHeight;
+            el.style.animation = null;
+        });
 
-            const anclasHtml = data.anclas.map(ancla => `
+        const data = dataStore[locationKey];
+
+        document.getElementById('kpi-orders').innerText = data.kpi.orders;
+        document.getElementById('kpi-ticket').innerText = data.kpi.ticket;
+        document.getElementById('kpi-diners').innerText = data.kpi.diners;
+
+        renderChart(data.pareto.labels, data.pareto.data);
+
+        const anclasHtml = data.anclas.map(ancla => `
                 <li class="flex items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
                     <div class="h-10 w-10 rounded-full bg-white shadow-sm flex items-center justify-center text-blue-500 mr-4 shrink-0">
                         <i class="fa-solid ${ancla.icon}"></i>
@@ -351,11 +437,91 @@
                     </div>
                 </li>
             `).join('');
-            document.getElementById('anchor-list').innerHTML = anclasHtml;
+        document.getElementById('anchor-list').innerHTML = anclasHtml;
 
-            document.getElementById('port-cat-a').innerHTML = data.portafolio.catA.map(item => `<li><i class="fa-solid fa-check text-green-500 mr-2"></i> ${item}</li>`).join('');
-            document.getElementById('port-cat-b').innerHTML = data.portafolio.catB.map(item => `<li><i class="fa-solid fa-plus text-blue-500 mr-2"></i> ${item}</li>`).join('');
-            document.getElementById('port-cat-c').innerHTML = data.portafolio.catC.map(item => `
+        document.getElementById('anchor-list').innerHTML = anclasHtml;
+
+        // Render main view (top 10 by default)
+        const renderMainCorrelations = (corrs, expanded = false) => {
+            const displayLimit = expanded ? corrs.length : 10;
+            const toDisplay = corrs.slice(0, displayLimit);
+            
+            const html = toDisplay.map(corr => `
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-indigo-200 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <div class="flex -space-x-2">
+                            <div class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-[10px] ring-2 ring-white">
+                                <i class="fa-solid fa-tag"></i>
+                            </div>
+                            <div class="h-8 w-8 rounded-full bg-brand-500 flex items-center justify-center text-white text-[10px] ring-2 ring-white">
+                                <i class="fa-solid fa-tag"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-800 leading-tight">${corr.p1} +</p>
+                            <p class="text-xs font-bold text-slate-800 leading-tight">${corr.p2}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-lg font-black text-indigo-600 leading-none">${corr.count}</p>
+                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-tighter">{{ _('Orders') }}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            const container = document.getElementById('correlation-list');
+            container.innerHTML = html || `<div class="col-span-full text-center py-8 text-slate-400 italic">{{ _('No correlations found yet.') }}</div>`;
+            
+            // Add expand button if needed
+            if (!expanded && corrs.length > 10) {
+                const expandBtn = document.createElement('div');
+                expandBtn.className = "col-span-full flex justify-center mt-4";
+                expandBtn.innerHTML = `
+                    <button onclick='renderMainCorrelations(dataStore["${locationKey}"].correlaciones, true)' 
+                            class="text-indigo-600 hover:text-indigo-800 text-sm font-bold flex items-center gap-2 bg-indigo-50 px-6 py-2 rounded-full transition-all">
+                        {{ _("Expand List") }} <i class="fa-solid fa-angles-down animate-bounce"></i>
+                    </button>
+                `;
+                container.appendChild(expandBtn);
+            } else if (expanded && corrs.length > 10) {
+                const collapseBtn = document.createElement('div');
+                collapseBtn.className = "col-span-full flex justify-center mt-4";
+                collapseBtn.innerHTML = `
+                    <button onclick='renderMainCorrelations(dataStore["${locationKey}"].correlaciones, false)' 
+                            class="text-slate-500 hover:text-slate-700 text-sm font-bold flex items-center gap-2 bg-slate-100 px-6 py-2 rounded-full transition-all">
+                        {{ _("Collapse List") }} <i class="fa-solid fa-angles-up"></i>
+                    </button>
+                `;
+                container.appendChild(collapseBtn);
+            }
+        };
+
+        // Initialize state
+        window.renderMainCorrelations = renderMainCorrelations;
+        renderMainCorrelations(data.correlaciones, false);
+
+        // Render modal view (all with count > 1)
+        const fullCorrelacionesHtml = data.correlaciones.map(corr => `
+            <div class="flex items-center gap-4 p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                <div class="flex-1 flex items-center gap-3">
+                    <div class="p-2 bg-indigo-50 rounded-lg text-indigo-500 text-xs">
+                        <i class="fa-solid fa-link"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-700 text-sm">${corr.p1}</p>
+                        <p class="text-xs text-slate-400 font-medium">+ ${corr.p2}</p>
+                    </div>
+                </div>
+                <div class="w-24 text-right">
+                    <span class="inline-block px-3 py-1 bg-indigo-600 text-white text-xs font-black rounded-full shadow-sm">${corr.count}</span>
+                </div>
+            </div>
+        `).join('');
+        document.getElementById('fullCorrelationList').innerHTML = fullCorrelacionesHtml || `<div class="p-12 text-center text-slate-400 italic">{{ _('No significant correlations found.') }}</div>`;
+
+        document.getElementById('port-cat-a').innerHTML = data.portafolio.catA.map(item => `<li><i class="fa-solid fa-check text-green-500 mr-2"></i> ${item}</li>`).join('');
+        document.getElementById('port-cat-b').innerHTML = data.portafolio.catB.map(item => `<li><i class="fa-solid fa-plus text-blue-500 mr-2"></i> ${item}</li>`).join('');
+        document.getElementById('port-cat-c').innerHTML = data.portafolio.catC.map(item => `
                 <li class="mb-3 pb-2 border-b border-slate-700/50 last:border-0">
                     <div class="flex items-start">
                         <i class="fa-solid fa-xmark text-red-500 mt-1 mr-2"></i>
@@ -366,117 +532,117 @@
                     </div>
                 </li>
             `).join('');
-        }
+    }
 
-        async function fetchData() {
-            try {
-                const response = await fetch(`${PUBLIC_API_URL}/admin/sales/abc-report`, {
-                    headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
-                });
-                if (!response.ok) throw new Error('Error fetching report data');
-                dataStore = await response.json();
-                
-                updateTabs();
-                if (dataStore.total) {
-                    changeData('total');
-                }
-            } catch (error) {
-                console.warn('No sales data to show yet.');
-            }
-        }
-
-        function updateTabs() {
-            const container = document.getElementById('tabs-container');
-            const totalBtn = document.getElementById('btn-total');
-            container.innerHTML = '';
-            container.appendChild(totalBtn);
-
-            Object.keys(dataStore).forEach(key => {
-                if (key === 'total') return;
-                const name = restaurantNames[key] || `Sede ${key}`;
-                const btn = document.createElement('button');
-                btn.id = `btn-${key}`;
-                btn.onclick = () => changeData(key);
-                btn.innerText = name;
-                btn.className = "px-6 py-2 rounded-full border font-semibold transition-colors tab-inactive";
-                container.appendChild(btn);
+    async function fetchData() {
+        try {
+            const response = await fetch(`${PUBLIC_API_URL}/admin/sales/abc-report`, {
+                headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
             });
-        }
+            if (!response.ok) throw new Error('Error fetching report data');
+            dataStore = await response.json();
 
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const restaurantId = document.getElementById('uploadRestaurant').value;
-            const fileInput = document.getElementById('uploadFile');
-            const statusEl = document.getElementById('uploadStatus');
-            const btn = document.getElementById('uploadBtn');
-
-            if (!restaurantId || !fileInput.files[0]) return;
-
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>{{ _("Uploading...") }}';
-            statusEl.className = "mt-4 p-3 rounded-lg text-sm bg-blue-50 text-blue-700";
-            statusEl.innerText = "{{ _('Processing file, please wait...') }}";
-            statusEl.classList.remove('hidden');
-
-            try {
-                const res = await fetch(`${PUBLIC_API_URL}/admin/sales/upload?restaurant_id=${restaurantId}`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` },
-                    body: formData
-                });
-
-                const result = await res.json();
-                if (res.ok) {
-                    statusEl.className = "mt-4 p-3 rounded-lg text-sm bg-green-50 text-green-700";
-                    statusEl.innerText = result.message || "{{ _('Success! Data loaded correctly.') }}";
-                    fetchData(); 
-                } else {
-                    throw new Error(result.detail || "{{ _('Error uploading file') }}");
-                }
-            } catch (err) {
-                statusEl.className = "mt-4 p-3 rounded-lg text-sm bg-red-50 text-red-700";
-                statusEl.innerText = err.message;
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-2"></i>{{ _("Upload Data") }}';
+            updateTabs();
+            if (dataStore.total) {
+                changeData('total');
             }
+        } catch (error) {
+            console.warn('No sales data to show yet.');
+        }
+    }
+
+    function updateTabs() {
+        const container = document.getElementById('tabs-container');
+        const totalBtn = document.getElementById('btn-total');
+        container.innerHTML = '';
+        container.appendChild(totalBtn);
+
+        Object.keys(dataStore).forEach(key => {
+            if (key === 'total') return;
+            const name = restaurantNames[key] || `Sede ${key}`;
+            const btn = document.createElement('button');
+            btn.id = `btn-${key}`;
+            btn.onclick = () => changeData(key);
+            btn.innerText = name;
+            btn.className = "px-6 py-2 rounded-full border font-semibold transition-colors tab-inactive";
+            container.appendChild(btn);
         });
+    }
 
-        let allProducts = [];
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const restaurantId = document.getElementById('uploadRestaurant').value;
+        const fileInput = document.getElementById('uploadFile');
+        const statusEl = document.getElementById('uploadStatus');
+        const btn = document.getElementById('uploadBtn');
 
-        function openProductModal() {
-            document.getElementById('productModal').classList.remove('hidden');
-            loadProducts();
-        }
+        if (!restaurantId || !fileInput.files[0]) return;
 
-        function closeProductModal() {
-            document.getElementById('productModal').classList.add('hidden');
-        }
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
 
-        async function loadProducts() {
-            const listEl = document.getElementById('productList');
-            try {
-                const res = await fetch(`${PUBLIC_API_URL}/admin/sales/products`, {
-                    headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
-                });
-                allProducts = await res.json();
-                renderProductList(allProducts);
-            } catch (err) {
-                listEl.innerHTML = `<div class="text-red-500 text-center p-4">${err.message}</div>`;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>{{ _("Uploading...") }}';
+        statusEl.className = "mt-4 p-3 rounded-lg text-sm bg-blue-50 text-blue-700";
+        statusEl.innerText = "{{ _('Processing file, please wait...') }}";
+        statusEl.classList.remove('hidden');
+
+        try {
+            const res = await fetch(`${PUBLIC_API_URL}/admin/sales/upload?restaurant_id=${restaurantId}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` },
+                body: formData
+            });
+
+            const result = await res.json();
+            if (res.ok) {
+                statusEl.className = "mt-4 p-3 rounded-lg text-sm bg-green-50 text-green-700";
+                statusEl.innerText = result.message || "{{ _('Success! Data loaded correctly.') }}";
+                fetchData();
+            } else {
+                throw new Error(result.detail || "{{ _('Error uploading file') }}");
             }
+        } catch (err) {
+            statusEl.className = "mt-4 p-3 rounded-lg text-sm bg-red-50 text-red-700";
+            statusEl.innerText = err.message;
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-2"></i>{{ _("Upload Data") }}';
+        }
+    });
+
+    let allProducts = [];
+
+    function openProductModal() {
+        document.getElementById('productModal').classList.remove('hidden');
+        loadProducts();
+    }
+
+    function closeProductModal() {
+        document.getElementById('productModal').classList.add('hidden');
+    }
+
+    async function loadProducts() {
+        const listEl = document.getElementById('productList');
+        try {
+            const res = await fetch(`${PUBLIC_API_URL}/admin/sales/products`, {
+                headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
+            });
+            allProducts = await res.json();
+            renderProductList(allProducts);
+        } catch (err) {
+            listEl.innerHTML = `<div class="text-red-500 text-center p-4">${err.message}</div>`;
+        }
+    }
+
+    function renderProductList(products) {
+        const listEl = document.getElementById('productList');
+        if (products.length === 0) {
+            listEl.innerHTML = `<div class="text-slate-400 text-center p-8 italic">{{ _('No products found.') }}</div>`;
+            return;
         }
 
-        function renderProductList(products) {
-            const listEl = document.getElementById('productList');
-            if (products.length === 0) {
-                listEl.innerHTML = `<div class="text-slate-400 text-center p-8 italic">{{ _('No products found.') }}</div>`;
-                return;
-            }
-
-            listEl.innerHTML = products.map(p => `
+        listEl.innerHTML = products.map(p => `
                 <div class="flex items-center justify-between p-3 border-b border-slate-50 last:border-0 hover:bg-slate-50 rounded-lg transition-colors product-item" data-name="${p.name.toLowerCase()}">
                     <span class="font-medium ${p.ignored ? 'text-slate-400 line-through' : 'text-slate-700'}">${p.name}</span>
                     <button onclick="toggleProduct('${p.name.replace(/'/g, "\\'")}')" 
@@ -485,37 +651,45 @@
                     </button>
                 </div>
             `).join('');
-        }
+    }
 
-        function filterProducts() {
-            const term = document.getElementById('productSearch').value.toLowerCase();
-            document.querySelectorAll('.product-item').forEach(el => {
-                const name = el.getAttribute('data-name');
-                el.style.display = name.includes(term) ? 'flex' : 'none';
+    function filterProducts() {
+        const term = document.getElementById('productSearch').value.toLowerCase();
+        document.querySelectorAll('.product-item').forEach(el => {
+            const name = el.getAttribute('data-name');
+            el.style.display = name.includes(term) ? 'flex' : 'none';
+        });
+    }
+
+    async function toggleProduct(name) {
+        try {
+            const res = await fetch(`${PUBLIC_API_URL}/admin/sales/products/toggle-ignore`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${AUTH_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ product_name: name })
             });
-        }
-
-        async function toggleProduct(name) {
-            try {
-                const res = await fetch(`${PUBLIC_API_URL}/admin/sales/products/toggle-ignore`, {
-                    method: 'POST',
-                    headers: { 
-                        'Authorization': `Bearer ${AUTH_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ product_name: name })
-                });
-                if (res.ok) {
-                    loadProducts();
-                    fetchData(); // Refresh report data
-                }
-            } catch (err) {
-                console.error('Error toggling product:', err);
+            if (res.ok) {
+                loadProducts();
+                fetchData(); // Refresh report data
             }
+        } catch (err) {
+            console.error('Error toggling product:', err);
         }
+    }
 
-        window.onload = () => {
-            fetchData();
-        };
-    </script>
+    function openCorrelationModal() {
+        document.getElementById('correlationModal').classList.remove('hidden');
+    }
+
+    function closeCorrelationModal() {
+        document.getElementById('correlationModal').classList.add('hidden');
+    }
+
+    window.onload = () => {
+        fetchData();
+    };
+</script>
 {% endblock %}

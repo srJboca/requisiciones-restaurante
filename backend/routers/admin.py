@@ -640,11 +640,34 @@ def get_abc_report(db: Session = Depends(get_db), current_user: User = Depends(g
                 "catC": cat_C
             }
             
+        # 5. CORRELACION (Frequently Bought Together)
+        from collections import Counter
+        from itertools import combinations
+        
+        # Group by order and get unique products per order
+        ordenes_con_prods = df_filtrado.groupby('ORDEN')['PRODUCTO'].apply(set)
+        coocurrencias = Counter()
+        for prods in ordenes_con_prods:
+            if len(prods) > 1:
+                # Combinations of 2 products
+                for combo in combinations(sorted(prods), 2):
+                    coocurrencias[combo] += 1
+        
+        correlaciones = []
+        for (p1, p2), count in coocurrencias.most_common():
+            if count > 1:
+                correlaciones.append({
+                    "p1": p1,
+                    "p2": p2,
+                    "count": count
+                })
+            
         return {
             "kpi": kpi,
             "pareto": pareto,
             "anclas": anclas,
-            "portafolio": portafolio
+            "portafolio": portafolio,
+            "correlaciones": correlaciones
         }
 
     data_store = {}
