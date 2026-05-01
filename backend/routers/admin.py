@@ -597,7 +597,7 @@ def get_abc_report(view_type: str = "product", db: Session = Depends(get_db), cu
             "CATEGORIA": m["category"],
             "CANTIDAD": float(s.quantity),
             "COMENSALES": s.diners,
-            "Venta_Total_Linea": float(s.quantity * s.price_with_tax) if s.price_with_tax else 0
+            "Venta_Total_Linea": float(s.price_with_tax) if s.price_with_tax else 0
         })
         
     df = pd.DataFrame(data)
