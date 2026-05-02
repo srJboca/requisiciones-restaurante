@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-02 14:51+0000\n"
+"POT-Creation-Date: 2026-05-02 15:09+0000\n"
 "PO-Revision-Date: 2026-04-28 01:34+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -39,50 +39,54 @@ msgstr "Customer Satisfaction Survey"
 msgid "View Sales Analytics Report"
 msgstr "View Sales Analytics Report"
 
-#: templates/admin_dashboard.html:360 templates/superadmin_dashboard.html:48
+#: templates/admin_dashboard.html:362 templates/superadmin_dashboard.html:48
 msgid "System Settings"
 msgstr "Configuración del Sistema"
 
-#: templates/admin_dashboard.html:364 templates/superadmin_dashboard.html:51
+#: templates/admin_dashboard.html:366 templates/superadmin_dashboard.html:51
 msgid "Requisition ETA (Business Days)"
 msgstr "ETA de Requisición (Días Hábiles)"
 
-#: templates/admin_dashboard.html:370 templates/superadmin_dashboard.html:55
+#: templates/admin_dashboard.html:372 templates/superadmin_dashboard.html:55
 msgid "Default Language"
 msgstr "Idioma Predeterminado"
 
-#: templates/admin_dashboard.html:372 templates/superadmin_dashboard.html:57
+#: templates/admin_dashboard.html:374 templates/superadmin_dashboard.html:57
 msgid "English"
 msgstr "Inglés"
 
-#: templates/admin_dashboard.html:373 templates/superadmin_dashboard.html:58
+#: templates/admin_dashboard.html:375 templates/superadmin_dashboard.html:58
 msgid "Spanish"
 msgstr "Español"
 
-#: templates/admin_dashboard.html:378
+#: templates/admin_dashboard.html:380
 msgid "NPS Thank You Message"
 msgstr "NPS Thank You Message"
 
-#: templates/admin_dashboard.html:383
+#: templates/admin_dashboard.html:385
 #, fuzzy
 msgid "Visual Identity"
 msgstr "Cantidad Requerida"
 
-#: templates/admin_dashboard.html:387
+#: templates/admin_dashboard.html:389
 #, fuzzy
 msgid "Brand Name"
 msgstr "Nombre del Producto"
 
-#: templates/admin_dashboard.html:391
+#: templates/admin_dashboard.html:393
 msgid "Primary Color"
 msgstr "Primary Color"
 
-#: templates/admin_dashboard.html:400
+#: templates/admin_dashboard.html:402
 #, fuzzy
 msgid "Logo URL"
 msgstr "Cerrar Sesión"
 
-#: templates/admin_dashboard.html:417 templates/superadmin_dashboard.html:62
+#: templates/admin_dashboard.html:419
+msgid "Terms and Conditions URL"
+msgstr "Terms and Conditions URL"
+
+#: templates/admin_dashboard.html:425 templates/superadmin_dashboard.html:62
 msgid "Save Settings"
 msgstr "Guardar Configuración"
 
@@ -328,53 +332,71 @@ msgstr "Receipt / Order Number"
 msgid "To be filled by the waiter/staff."
 msgstr "To be filled by the waiter/staff."
 
-#: templates/nps_survey.html:144 templates/nps_survey.html:210
+#: templates/nps_survey.html:144 templates/nps_survey.html:230
 msgid "Next"
 msgstr "Next"
 
-#: templates/nps_survey.html:171
+#: templates/nps_survey.html:162
+#, fuzzy
+msgid "Optional"
+msgstr "Total de Artículos"
+
+#: templates/nps_survey.html:183
 msgid "Not likely at all"
 msgstr "Not likely at all"
 
-#: templates/nps_survey.html:172
+#: templates/nps_survey.html:184
 msgid "Extremely likely"
 msgstr "Extremely likely"
 
-#: templates/nps_survey.html:182
+#: templates/nps_survey.html:194
 msgid "Yes"
 msgstr "Yes"
 
-#: templates/nps_survey.html:189
+#: templates/nps_survey.html:201
 msgid "No"
 msgstr "No"
 
-#: templates/nps_survey.html:195
+#: templates/nps_survey.html:207
 msgid "Your feedback..."
 msgstr "Your feedback..."
 
-#: templates/nps_survey.html:202
+#: templates/nps_survey.html:222 templates/nps_survey.html:255
 msgid "Back"
 msgstr "Back"
 
-#: templates/nps_survey.html:206 templates/nps_survey.html:222
+#: templates/nps_survey.html:226 templates/nps_survey.html:258
+#: templates/nps_survey.html:269
 #, fuzzy
 msgid "Submit Feedback"
 msgstr "Enviado por"
 
-#: templates/nps_survey.html:220
+#: templates/nps_survey.html:241
+msgid "Personal Data Treatment Acceptance"
+msgstr "Personal Data Treatment Acceptance"
+
+#: templates/nps_survey.html:247
+msgid "I accept the treatment of my personal data according to the"
+msgstr "I accept the treatment of my personal data according to the"
+
+#: templates/nps_survey.html:248
+msgid "Terms and Conditions"
+msgstr "Terms and Conditions"
+
+#: templates/nps_survey.html:267
 #, fuzzy
 msgid "No additional questions configured."
 msgstr "No se encontraron requisiciones pasadas."
 
-#: templates/nps_survey.html:234
+#: templates/nps_survey.html:281
 msgid "Thank You!"
 msgstr "Thank You!"
 
-#: templates/nps_survey.html:237
+#: templates/nps_survey.html:284
 msgid "Start New Survey"
 msgstr "Start New Survey"
 
-#: templates/nps_survey.html:349
+#: templates/nps_survey.html:406
 #, fuzzy
 msgid "Submitting..."
 msgstr "Uploading..."

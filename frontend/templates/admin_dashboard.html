@@ -319,6 +319,8 @@
                         <option value="score">Score (0-10)</option>
                         <option value="yes_no">Yes / No</option>
                         <option value="text">Open Text</option>
+                        <option value="phone">Customer Phone</option>
+                        <option value="email">Customer Email</option>
                     </select>
                     <input type="number" id="newNPSQuestionOrder" class="form-control" placeholder="Order" value="0" style="width: 80px;">
                     <button type="submit" class="btn btn-primary">Add Question</button>
@@ -411,6 +413,12 @@
                         <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.5rem;">Enter the public URL of your logo (PNG/JPG recommended).</p>
                     </div>
                 </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label for="termsUrl" style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem;">{{ _('Terms and Conditions URL') }}:</label>
+                <input type="text" id="termsUrl" class="form-control" value="{{ terms_and_conditions_url }}" placeholder="https://example.com/terms">
+                <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.25rem;">Link to your data treatment and privacy policies.</p>
             </div>
 
             <div style="margin-top: 1.5rem;">
@@ -617,6 +625,7 @@
         const brand_name = document.getElementById('brandName').value;
         const primary_color = document.getElementById('primaryColor').value;
         const logo_url = document.getElementById('logoUrl').value;
+        const terms_and_conditions_url = document.getElementById('termsUrl').value;
         
         try {
             const res = await fetch(`${API_URL}/admin/settings`, {
@@ -628,7 +637,8 @@
                     nps_thank_you_message,
                     brand_name,
                     primary_color,
-                    logo_url
+                    logo_url,
+                    terms_and_conditions_url
                 })
             });
             if (res.ok) {

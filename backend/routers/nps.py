@@ -32,6 +32,7 @@ def get_survey_questions(db: Session = Depends(get_db), current_user: User = Dep
     brand_name = db.query(SystemSetting).filter(SystemSetting.company_id == current_user.company_id, SystemSetting.setting_key == "brand_name").first()
     primary_color = db.query(SystemSetting).filter(SystemSetting.company_id == current_user.company_id, SystemSetting.setting_key == "primary_color").first()
     logo_url = db.query(SystemSetting).filter(SystemSetting.company_id == current_user.company_id, SystemSetting.setting_key == "logo_url").first()
+    terms_url = db.query(SystemSetting).filter(SystemSetting.company_id == current_user.company_id, SystemSetting.setting_key == "terms_and_conditions_url").first()
 
     return {
         "questions": questions,
@@ -40,7 +41,8 @@ def get_survey_questions(db: Session = Depends(get_db), current_user: User = Dep
             "brand_name": brand_name.setting_value if brand_name else "",
             "primary_color": primary_color.setting_value if primary_color else "#2563eb",
             "logo_url": logo_url.setting_value if logo_url else ""
-        }
+        },
+        "terms_and_conditions_url": terms_url.setting_value if terms_url else ""
     }
 
 @router.post("/submit-survey")

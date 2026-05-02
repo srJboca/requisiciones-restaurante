@@ -88,7 +88,7 @@ class NPSQuestion(Base):
     id = Column(Integer, primary_key=True, index=True)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
     question_text = Column(String(255), nullable=False)
-    question_type = Column(Enum('score', 'text', 'yes_no'), default='score')
+    question_type = Column(Enum('score', 'text', 'yes_no', 'phone', 'email'), default='score')
     is_active = Column(Boolean, default=True)
     display_order = Column(Integer, default=0)
 

@@ -125,7 +125,7 @@
     </div>
 
     <div id="survey-container">
-        <form id="npsForm" onsubmit="submitSurvey(event)">
+        <form id="npsForm" onsubmit="submitSurvey(event)" novalidate>
             <!-- Receipt Number Step (Step 0) -->
             <div class="survey-step active" data-step="0">
                 <div class="form-group" style="margin-bottom: 2rem;">
@@ -146,11 +146,23 @@
                 </div>
             </div>
 
+            {% set ns = namespace(has_personal_data=false) %}
+            {% for q in questions %}
+                {% if q.question_type in ['phone', 'email'] %}
+                    {% set ns.has_personal_data = true %}
+                {% endif %}
+            {% endfor %}
+
             {% for q in questions %}
             <div class="survey-step nps-question" data-step="{{ loop.index }}" data-qid="{{ q.id }}"
                 data-type="{{ q.question_type }}">
                 <label class="question-label">
                     {{ loop.index + 1 }}. {{ q.question_text }}
+                    {% if q.question_type in ['phone', 'email', 'text'] %}
+                    <span style="color: var(--text-light); font-size: 0.9rem; font-weight: normal; margin-left: 0.5rem;">({{ _('Optional') }})</span>
+                    {% else %}
+                    <span style="color: red;">*</span>
+                    {% endif %}
                 </label>
 
                 {% if q.question_type == 'score' %}
@@ -194,6 +206,14 @@
                 {% elif q.question_type == 'text' %}
                 <textarea class="form-control" name="q_{{ q.id }}" rows="4" placeholder="{{ _('Your feedback...') }}"
                     style="font-size: 1rem;"></textarea>
+
+                {% elif q.question_type == 'phone' %}
+                <input type="tel" class="form-control" name="q_{{ q.id }}" placeholder="e.g. +57 300 1234567" 
+                    inputmode="numeric" style="font-size: 1.5rem; padding: 1rem; height: auto;">
+
+                {% elif q.question_type == 'email' %}
+                <input type="email" class="form-control" name="q_{{ q.id }}" placeholder="e.g. customer@email.com"
+                    style="font-size: 1.5rem; padding: 1rem; height: auto;">
                 {% endif %}
 
                 <div style="margin-top: 2rem; display: flex; gap: 1rem;">
@@ -201,7 +221,7 @@
                         onclick="prevStep({{ loop.index }})">
                         <i class="fa-solid fa-arrow-left"></i> {{ _('Back') }}
                     </button>
-                    {% if loop.last %}
+                    {% if loop.last and not ns.has_personal_data %}
                     <button type="submit" id="submitBtn" class="btn btn-primary" style="flex: 2;">
                         {{ _('Submit Feedback') }}
                     </button>
@@ -213,6 +233,33 @@
                 </div>
             </div>
             {% endfor %}
+
+            {% if ns.has_personal_data %}
+            <!-- Personal Data Treatment Step -->
+            <div class="survey-step" data-step="{{ questions|length + 1 }}" id="dataAcceptanceStep">
+                <label class="question-label">
+                    {{ questions|length + 2 }}. {{ _('Personal Data Treatment Acceptance') }} <span style="color: red;">*</span>
+                </label>
+                <div style="margin: 1.5rem 0;">
+                    <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
+                        <input type="checkbox" id="dataAcceptance" required style="width: 24px; height: 24px; margin-top: 4px;">
+                        <span style="font-size: 1rem; line-height: 1.4;">
+                            {{ _('I accept the treatment of my personal data according to the') }} 
+                            <a href="{{ terms_and_conditions_url or '#' }}" target="_blank" style="color: var(--primary); font-weight: 600;">{{ _('Terms and Conditions') }}</a>.
+                        </span>
+                    </label>
+                </div>
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button type="button" class="btn btn-secondary" style="flex: 1;"
+                        onclick="prevStep({{ questions|length + 1 }})">
+                        <i class="fa-solid fa-arrow-left"></i> {{ _('Back') }}
+                    </button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary" style="flex: 2;">
+                        {{ _('Submit Feedback') }}
+                    </button>
+                </div>
+            </div>
+            {% endif %}
 
             {% if not questions %}
             <div class="survey-step active" data-step="0">
@@ -255,7 +302,7 @@
 <script>
     const API_URL = "{{ API_URL }}";
     const TOKEN = "{{ session.get('access_token') }}";
-    const totalSteps = {{ questions| length + 1 }};
+    const totalSteps = document.querySelectorAll('.survey-step').length - 1;
     let currentStep = 0;
 
     function updateProgress() {
@@ -276,6 +323,11 @@
             if (type === 'score' || type === 'yes_no') {
                 if (!qEl.querySelector('input[type="radio"]:checked')) {
                     alert("Please select an option");
+                    return;
+                }
+            } else if (qEl.id === 'dataAcceptanceStep') {
+                if (!document.getElementById('dataAcceptance').checked) {
+                    alert("Please accept the terms and conditions");
                     return;
                 }
             }
@@ -321,6 +373,11 @@
                     alert("Please select an option");
                     return;
                 }
+            }
+        } else if (lastStepEl && lastStepEl.id === 'dataAcceptanceStep') {
+            if (!document.getElementById('dataAcceptance').checked) {
+                alert("Please accept the terms and conditions");
+                return;
             }
         }
 

@@ -168,6 +168,7 @@ def admin_dashboard():
         groups = requests.get(f"{API_URL}/admin/product-groups", headers=headers).json()
         products = requests.get(f"{API_URL}/admin/products", headers=headers).json()
         logs = requests.get(f"{API_URL}/admin/audit-logs", headers=headers).json()
+        nps_questions = requests.get(f"{API_URL}/admin/nps/questions", headers=headers).json()
         settings_res = requests.get(f"{API_URL}/admin/settings", headers=headers)
         settings = settings_res.json() if settings_res.status_code == 200 else {}
         eta_days = settings.get("eta_days", "2")
@@ -176,18 +177,18 @@ def admin_dashboard():
         brand_name = settings.get("brand_name", "")
         primary_color = settings.get("primary_color", "#2563eb")
         logo_url = settings.get("logo_url", "")
-        
-        nps_questions = requests.get(f"{API_URL}/admin/nps/questions", headers=headers).json()
+        terms_and_conditions_url = settings.get("terms_and_conditions_url", "")
     except:
         users, restaurants, plants, groups, products, logs, nps_questions = [], [], [], [], [], [], []
-        eta_days, default_language, nps_thank_you_message = "2", "en", "Your feedback has been successfully recorded."
-        brand_name, primary_color, logo_url = "", "#2563eb", ""
+        eta_days, default_language, nps_thank_you_message = "2", "en", ""
+        brand_name, primary_color, logo_url, terms_and_conditions_url = "", "#2563eb", "", ""
     return render_template("admin_dashboard.html",
                            users=users, restaurants=restaurants, plants=plants,
                            groups=groups, products=products, logs=logs,
                            eta_days=eta_days, default_language=default_language,
                            nps_thank_you_message=nps_thank_you_message,
-                           brand_name=brand_name, primary_color=primary_color, logo_url=logo_url,
+                           brand_name=brand_name, primary_color=primary_color, 
+                           logo_url=logo_url, terms_and_conditions_url=terms_and_conditions_url,
                            nps_questions=nps_questions, API_URL=PUBLIC_API_URL)
 
 @app.route("/nps/survey")
@@ -203,16 +204,18 @@ def nps_survey():
         brand_name = branding.get("brand_name", "")
         primary_color = branding.get("primary_color", "#2563eb")
         logo_url = branding.get("logo_url", "")
+        terms_and_conditions_url = data.get("terms_and_conditions_url", "")
     except:
         questions = []
         thank_you_message = "Your feedback has been successfully recorded."
-        brand_name, primary_color, logo_url = "", "#2563eb", ""
+        brand_name, primary_color, logo_url, terms_and_conditions_url = "", "#2563eb", "", ""
     return render_template("nps_survey.html", 
                            questions=questions, 
                            thank_you_message=thank_you_message, 
                            brand_name=brand_name,
                            primary_color=primary_color,
                            logo_url=logo_url,
+                           terms_and_conditions_url=terms_and_conditions_url,
                            API_URL=PUBLIC_API_URL)
 
 @app.route("/admin/reports/nps")
