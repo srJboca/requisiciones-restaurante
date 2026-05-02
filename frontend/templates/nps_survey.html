@@ -102,7 +102,7 @@
                 <div class="score-grid">
                     {% for i in range(11) %}
                     <label style="cursor: pointer;">
-                        <input type="radio" name="q_{{ q.id }}" value="{{ i }}" required style="display: none;" onchange="autoNext()">
+                        <input type="radio" name="q_{{ q.id }}" value="{{ i }}" style="display: none;" onchange="autoNext()">
                         <div class="score-box" style="border: 2px solid var(--border); padding: 1.25rem 0.5rem; border-radius: 12px; text-align: center; font-weight: bold; transition: all 0.2s; font-size: 1.25rem;">
                             {{ i }}
                         </div>
@@ -117,13 +117,13 @@
                 {% elif q.question_type == 'yes_no' %}
                 <div style="display: flex; gap: 1.5rem; margin-top: 1rem;">
                     <label style="flex: 1; cursor: pointer;">
-                        <input type="radio" name="q_{{ q.id }}" value="Yes" required style="display: none;" onchange="autoNext()">
+                        <input type="radio" name="q_{{ q.id }}" value="Yes" style="display: none;" onchange="autoNext()">
                         <div class="score-box" style="border: 2px solid var(--border); padding: 1.5rem; border-radius: 12px; text-align: center; font-weight: bold; font-size: 1.2rem;">
                             {{ _('Yes') }}
                         </div>
                     </label>
                     <label style="flex: 1; cursor: pointer;">
-                        <input type="radio" name="q_{{ q.id }}" value="No" required style="display: none;" onchange="autoNext()">
+                        <input type="radio" name="q_{{ q.id }}" value="No" style="display: none;" onchange="autoNext()">
                         <div class="score-box" style="border: 2px solid var(--border); padding: 1.5rem; border-radius: 12px; text-align: center; font-weight: bold; font-size: 1.2rem;">
                             {{ _('No') }}
                         </div>
@@ -235,9 +235,15 @@
     async function submitSurvey(e) {
         e.preventDefault();
         
+        // If user hits Enter but we are not on the last step, just try to go to next
+        if (currentStep < totalSteps - 1) {
+            nextStep(currentStep);
+            return;
+        }
+
         // Final validation for the last step if it's a radio
         const lastStepEl = document.querySelector(`.survey-step[data-step="${currentStep}"]`);
-        if (lastStepEl.classList.contains('nps-question')) {
+        if (lastStepEl && lastStepEl.classList.contains('nps-question')) {
             const type = lastStepEl.dataset.type;
             if (type === 'score' || type === 'yes_no') {
                  if (!lastStepEl.querySelector('input[type="radio"]:checked')) {
