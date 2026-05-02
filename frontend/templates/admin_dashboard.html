@@ -370,6 +370,11 @@
                     <option value="es" {% if default_language=='es' %}selected{% endif %}>{{ _('Spanish') }}</option>
                 </select>
             </div>
+            <div>
+                <label for="npsThankYou" style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem;">{{
+                    _('NPS Thank You Message') }}:</label>
+                <textarea id="npsThankYou" class="form-control" rows="2">{{ nps_thank_you_message }}</textarea>
+            </div>
             <div style="margin-top: 0.5rem;">
                 <button type="submit" class="btn btn-primary">{{ _('Save Settings') }}</button>
             </div>
@@ -570,11 +575,12 @@
         e.preventDefault();
         const eta_days = document.getElementById('etaDays').value;
         const default_language = document.getElementById('defaultLang').value;
+        const nps_thank_you_message = document.getElementById('npsThankYou').value;
         try {
             const res = await fetch(`${API_URL}/admin/settings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
-                body: JSON.stringify({ eta_days, default_language })
+                body: JSON.stringify({ eta_days, default_language, nps_thank_you_message })
             });
             if (res.ok) {
                 alert('Settings updated successfully');

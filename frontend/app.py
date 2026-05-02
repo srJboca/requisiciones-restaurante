@@ -155,14 +155,16 @@ def admin_dashboard():
         settings = settings_res.json() if settings_res.status_code == 200 else {}
         eta_days = settings.get("eta_days", "2")
         default_language = settings.get("default_language", "en")
+        nps_thank_you_message = settings.get("nps_thank_you_message", "Your feedback has been successfully recorded.")
         nps_questions = requests.get(f"{API_URL}/admin/nps/questions", headers=headers).json()
     except:
         users, restaurants, plants, groups, products, logs, nps_questions = [], [], [], [], [], [], []
-        eta_days, default_language = "2", "en"
+        eta_days, default_language, nps_thank_you_message = "2", "en", "Your feedback has been successfully recorded."
     return render_template("admin_dashboard.html",
                            users=users, restaurants=restaurants, plants=plants,
                            groups=groups, products=products, logs=logs,
                            eta_days=eta_days, default_language=default_language,
+                           nps_thank_you_message=nps_thank_you_message,
                            nps_questions=nps_questions, API_URL=PUBLIC_API_URL)
 
 @app.route("/nps/survey")
@@ -171,10 +173,13 @@ def nps_survey():
         return redirect(url_for("welcome"))
     headers = get_auth_headers()
     try:
-        questions = requests.get(f"{API_URL}/nps/survey-questions", headers=headers).json()
+        data = requests.get(f"{API_URL}/nps/survey-questions", headers=headers).json()
+        questions = data.get("questions", [])
+        thank_you_message = data.get("thank_you_message", "Your feedback has been successfully recorded.")
     except:
         questions = []
-    return render_template("nps_survey.html", questions=questions, API_URL=PUBLIC_API_URL)
+        thank_you_message = "Your feedback has been successfully recorded."
+    return render_template("nps_survey.html", questions=questions, thank_you_message=thank_you_message, API_URL=PUBLIC_API_URL)
 
 @app.route("/admin/reports/sales")
 def admin_sales_report():

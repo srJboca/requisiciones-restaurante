@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
 from database import get_db
-from models.models import User, Restaurant, NPSQuestion, NPSSurveyResponse, NPSSurveyAnswer
-from dependencies import get_current_user # Need a more generic one or custom for NPS
+from models.models import User, Restaurant, NPSQuestion, NPSSurveyResponse, NPSSurveyAnswer, SystemSetting
+from dependencies import get_current_user
 
 router = APIRouter(prefix="/nps", tags=["nps"])
 
@@ -26,8 +26,18 @@ def get_survey_questions(db: Session = Depends(get_db), current_user: User = Dep
         NPSQuestion.company_id == current_user.company_id,
         NPSQuestion.is_active == True
     ).order_by(NPSQuestion.display_order).all()
-    
-    return questions
+
+    # Fetch thank you message
+    setting = db.query(SystemSetting).filter(
+        SystemSetting.company_id == current_user.company_id,
+        SystemSetting.setting_key == "nps_thank_you_message"
+    ).first()
+    thank_you_message = setting.setting_value if setting else "Your feedback has been successfully recorded."
+
+    return {
+        "questions": questions,
+        "thank_you_message": thank_you_message
+    }
 
 @router.post("/submit-survey")
 def submit_survey(payload: SurveySubmission, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

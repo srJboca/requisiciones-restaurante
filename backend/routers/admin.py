@@ -64,6 +64,7 @@ class ProductCreate(BaseModel):
 class SettingUpdate(BaseModel):
     eta_days: Optional[str] = None
     default_language: Optional[str] = None
+    nps_thank_you_message: Optional[str] = None
 
 class AdminPasswordReset(BaseModel):
     new_password: str
@@ -402,6 +403,7 @@ def get_settings(db: Session = Depends(get_db), current_user: User = Depends(get
     return {
         "eta_days": _get_setting(db, current_user.company_id, 'eta_days') or "2",
         "default_language": _get_setting(db, current_user.company_id, 'default_language') or "en",
+        "nps_thank_you_message": _get_setting(db, current_user.company_id, 'nps_thank_you_message') or "Your feedback has been successfully recorded."
     }
 
 @router.post("/settings")
@@ -410,6 +412,8 @@ def update_settings(data: SettingUpdate, db: Session = Depends(get_db), current_
         _set_setting(db, current_user.company_id, 'eta_days', data.eta_days)
     if data.default_language is not None:
         _set_setting(db, current_user.company_id, 'default_language', data.default_language)
+    if data.nps_thank_you_message is not None:
+        _set_setting(db, current_user.company_id, 'nps_thank_you_message', data.nps_thank_you_message)
     db.commit()
     log_audit(db, current_user.id, "Update Settings", "SystemSetting")
     return {"message": "Settings updated"}
