@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
+from fastapi.staticfiles import StaticFiles
 from routers import auth, admin, requisitions, production, superadmin, nps
 import logging
 
@@ -27,6 +28,12 @@ app = FastAPI(
     description="Multi-company restaurant requisition management system",
     version="2.0.0"
 )
+
+# Static files for uploads
+UPLOAD_DIR = "uploads"
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,

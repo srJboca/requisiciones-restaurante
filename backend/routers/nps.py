@@ -27,16 +27,20 @@ def get_survey_questions(db: Session = Depends(get_db), current_user: User = Dep
         NPSQuestion.is_active == True
     ).order_by(NPSQuestion.display_order).all()
 
-    # Fetch thank you message
-    setting = db.query(SystemSetting).filter(
-        SystemSetting.company_id == current_user.company_id,
-        SystemSetting.setting_key == "nps_thank_you_message"
-    ).first()
-    thank_you_message = setting.setting_value if setting else "Your feedback has been successfully recorded."
+    # Fetch settings
+    ty_msg = db.query(SystemSetting).filter(SystemSetting.company_id == current_user.company_id, SystemSetting.setting_key == "nps_thank_you_message").first()
+    brand_name = db.query(SystemSetting).filter(SystemSetting.company_id == current_user.company_id, SystemSetting.setting_key == "brand_name").first()
+    primary_color = db.query(SystemSetting).filter(SystemSetting.company_id == current_user.company_id, SystemSetting.setting_key == "primary_color").first()
+    logo_url = db.query(SystemSetting).filter(SystemSetting.company_id == current_user.company_id, SystemSetting.setting_key == "logo_url").first()
 
     return {
         "questions": questions,
-        "thank_you_message": thank_you_message
+        "thank_you_message": ty_msg.setting_value if ty_msg else "Your feedback has been successfully recorded.",
+        "branding": {
+            "brand_name": brand_name.setting_value if brand_name else "",
+            "primary_color": primary_color.setting_value if primary_color else "#2563eb",
+            "logo_url": logo_url.setting_value if logo_url else ""
+        }
     }
 
 @router.post("/submit-survey")

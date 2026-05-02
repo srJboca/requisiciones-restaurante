@@ -1,9 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
-    :root {
-        --primary-rgb: 37, 99, 235; /* Example blue */
-    }
     .survey-card {
         max-width: 800px;
         margin: 2rem auto;
@@ -11,17 +8,28 @@
         padding: 3rem;
         transition: all 0.3s ease;
     }
+
     .survey-step {
         display: none;
         animation: slideIn 0.4s ease;
     }
+
     .survey-step.active {
         display: block;
     }
+
     @keyframes slideIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
+
     .progress-bar-container {
         height: 8px;
         background: var(--border);
@@ -29,26 +37,42 @@
         margin-bottom: 3rem;
         overflow: hidden;
     }
+
     .progress-bar {
         height: 100%;
         background: var(--primary);
         width: 0%;
         transition: width 0.4s ease;
     }
+
     .score-grid {
         display: grid;
         grid-template-columns: repeat(11, 1fr);
         gap: 0.75rem;
         margin-top: 1.5rem;
     }
+
     @media (max-width: 850px) {
-        .score-grid { grid-template-columns: repeat(6, 1fr); }
-        .survey-card { padding: 2rem; }
+        .score-grid {
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        .survey-card {
+            padding: 2rem;
+        }
     }
+
     @media (max-width: 500px) {
-        .score-grid { grid-template-columns: repeat(4, 1fr); }
-        .survey-card { padding: 1.5rem; margin: 1rem auto; }
+        .score-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .survey-card {
+            padding: 1.5rem;
+            margin: 1rem auto;
+        }
     }
+
     .survey-title {
         text-align: center;
         color: var(--primary);
@@ -56,6 +80,7 @@
         font-size: clamp(1.5rem, 5vw, 2.25rem);
         font-weight: 700;
     }
+
     .question-label {
         font-weight: 600;
         font-size: clamp(1.1rem, 3.5vw, 1.4rem);
@@ -63,11 +88,38 @@
         margin-bottom: 2rem;
         line-height: 1.4;
     }
+
+    .brand-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 2rem;
+        gap: 1rem;
+    }
+
+    .brand-logo {
+        max-height: 80px;
+        max-width: 200px;
+        object-fit: contain;
+    }
+
+    .brand-name {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
 </style>
 
 <div class="card survey-card">
+    <div class="brand-header">
+        {% if logo_url %}
+        <img src="{% if logo_url.startswith('http') %}{{ logo_url }}{% else %}{{ API_URL }}{{ logo_url }}{% endif %}"
+            class="brand-logo" alt="Logo">
+        {% endif %}
+    </div>
+
     <h2 class="survey-title">{{ _('Customer Satisfaction Survey') }}</h2>
-    
+
     <div class="progress-bar-container">
         <div id="progressBar" class="progress-bar"></div>
     </div>
@@ -80,20 +132,23 @@
                     <label class="question-label" for="receiptRef">
                         {{ _('1. Receipt / Order Number') }} <span style="color: red;">*</span>
                     </label>
-                    <input type="text" id="receiptRef" class="form-control" placeholder="e.g. 12345" required style="font-size: 1.5rem; padding: 1rem; height: auto;">
+                    <input type="text" id="receiptRef" class="form-control" placeholder="e.g. 12345" required
+                        style="font-size: 1.5rem; padding: 1rem; height: auto;">
                     <p style="color: var(--text-light); margin-top: 1.5rem; font-size: 1rem;">
                         <i class="fa-solid fa-circle-info"></i> {{ _('To be filled by the waiter/staff.') }}
                     </p>
                 </div>
                 <div style="margin-top: 2rem;">
-                    <button type="button" class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="nextStep(0)">
+                    <button type="button" class="btn btn-primary" style="width: 100%; padding: 1rem;"
+                        onclick="nextStep(0)">
                         {{ _('Next') }} <i class="fa-solid fa-arrow-right" style="margin-left: 0.5rem;"></i>
                     </button>
                 </div>
             </div>
 
             {% for q in questions %}
-            <div class="survey-step nps-question" data-step="{{ loop.index }}" data-qid="{{ q.id }}" data-type="{{ q.question_type }}">
+            <div class="survey-step nps-question" data-step="{{ loop.index }}" data-qid="{{ q.id }}"
+                data-type="{{ q.question_type }}">
                 <label class="question-label">
                     {{ loop.index + 1 }}. {{ q.question_text }}
                 </label>
@@ -102,14 +157,17 @@
                 <div class="score-grid">
                     {% for i in range(11) %}
                     <label style="cursor: pointer;">
-                        <input type="radio" name="q_{{ q.id }}" value="{{ i }}" style="display: none;" onchange="autoNext()">
-                        <div class="score-box" style="border: 2px solid var(--border); padding: 1.25rem 0.5rem; border-radius: 12px; text-align: center; font-weight: bold; transition: all 0.2s; font-size: 1.25rem;">
+                        <input type="radio" name="q_{{ q.id }}" value="{{ i }}" style="display: none;"
+                            onchange="autoNext()">
+                        <div class="score-box"
+                            style="border: 2px solid var(--border); padding: 1.25rem 0.5rem; border-radius: 12px; text-align: center; font-weight: bold; transition: all 0.2s; font-size: 1.25rem;">
                             {{ i }}
                         </div>
                     </label>
                     {% endfor %}
                 </div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-light); margin-top: 1rem;">
+                <div
+                    style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-light); margin-top: 1rem;">
                     <span>{{ _('Not likely at all') }}</span>
                     <span>{{ _('Extremely likely') }}</span>
                 </div>
@@ -117,25 +175,30 @@
                 {% elif q.question_type == 'yes_no' %}
                 <div style="display: flex; gap: 1.5rem; margin-top: 1rem;">
                     <label style="flex: 1; cursor: pointer;">
-                        <input type="radio" name="q_{{ q.id }}" value="Yes" style="display: none;" onchange="autoNext()">
-                        <div class="score-box" style="border: 2px solid var(--border); padding: 1.5rem; border-radius: 12px; text-align: center; font-weight: bold; font-size: 1.2rem;">
+                        <input type="radio" name="q_{{ q.id }}" value="Yes" style="display: none;"
+                            onchange="autoNext()">
+                        <div class="score-box"
+                            style="border: 2px solid var(--border); padding: 1.5rem; border-radius: 12px; text-align: center; font-weight: bold; font-size: 1.2rem;">
                             {{ _('Yes') }}
                         </div>
                     </label>
                     <label style="flex: 1; cursor: pointer;">
                         <input type="radio" name="q_{{ q.id }}" value="No" style="display: none;" onchange="autoNext()">
-                        <div class="score-box" style="border: 2px solid var(--border); padding: 1.5rem; border-radius: 12px; text-align: center; font-weight: bold; font-size: 1.2rem;">
+                        <div class="score-box"
+                            style="border: 2px solid var(--border); padding: 1.5rem; border-radius: 12px; text-align: center; font-weight: bold; font-size: 1.2rem;">
                             {{ _('No') }}
                         </div>
                     </label>
                 </div>
 
                 {% elif q.question_type == 'text' %}
-                <textarea class="form-control" name="q_{{ q.id }}" rows="4" placeholder="{{ _('Your feedback...') }}" style="font-size: 1rem;"></textarea>
+                <textarea class="form-control" name="q_{{ q.id }}" rows="4" placeholder="{{ _('Your feedback...') }}"
+                    style="font-size: 1rem;"></textarea>
                 {% endif %}
 
                 <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="prevStep({{ loop.index }})">
+                    <button type="button" class="btn btn-secondary" style="flex: 1;"
+                        onclick="prevStep({{ loop.index }})">
                         <i class="fa-solid fa-arrow-left"></i> {{ _('Back') }}
                     </button>
                     {% if loop.last %}
@@ -150,15 +213,15 @@
                 </div>
             </div>
             {% endfor %}
-            
+
             {% if not questions %}
             <div class="survey-step active" data-step="0">
-                 <div style="text-align: center; padding: 2rem;">
+                <div style="text-align: center; padding: 2rem;">
                     <p>{{ _('No additional questions configured.') }}</p>
                     <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
                         {{ _('Submit Feedback') }}
                     </button>
-                 </div>
+                </div>
             </div>
             {% endif %}
         </form>
@@ -177,14 +240,22 @@
 </div>
 
 <style>
-    .score-box:hover { border-color: var(--primary); background: rgba(var(--primary-rgb), 0.05); }
-    input[type="radio"]:checked + .score-box { background: var(--primary); color: white; border-color: var(--primary); }
+    .score-box:hover {
+        border-color: var(--primary);
+        background: rgba(var(--primary-rgb), 0.05);
+    }
+
+    input[type="radio"]:checked+.score-box {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
 </style>
 
 <script>
     const API_URL = "{{ API_URL }}";
     const TOKEN = "{{ session.get('access_token') }}";
-    const totalSteps = {{ questions|length + 1 }};
+    const totalSteps = {{ questions| length + 1 }};
     let currentStep = 0;
 
     function updateProgress() {
@@ -234,7 +305,7 @@
 
     async function submitSurvey(e) {
         e.preventDefault();
-        
+
         // If user hits Enter but we are not on the last step, just try to go to next
         if (currentStep < totalSteps - 1) {
             nextStep(currentStep);
@@ -246,7 +317,7 @@
         if (lastStepEl && lastStepEl.classList.contains('nps-question')) {
             const type = lastStepEl.dataset.type;
             if (type === 'score' || type === 'yes_no') {
-                 if (!lastStepEl.querySelector('input[type="radio"]:checked')) {
+                if (!lastStepEl.querySelector('input[type="radio"]:checked')) {
                     alert("Please select an option");
                     return;
                 }
@@ -255,7 +326,7 @@
 
         const btn = document.getElementById('submitBtn');
         const originalHtml = btn.innerHTML;
-        
+
         const receiptRef = document.getElementById('receiptRef').value;
         const answers = [];
 
@@ -280,7 +351,7 @@
         try {
             const res = await fetch(`${API_URL}/nps/submit-survey`, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${TOKEN}`
                 },
@@ -304,7 +375,7 @@
             btn.innerHTML = originalHtml;
         }
     }
-    
+
     updateProgress();
 </script>
 {% endblock %}

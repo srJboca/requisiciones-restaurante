@@ -375,7 +375,42 @@
                     _('NPS Thank You Message') }}:</label>
                 <textarea id="npsThankYou" class="form-control" rows="2">{{ nps_thank_you_message }}</textarea>
             </div>
-            <div style="margin-top: 0.5rem;">
+
+            <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid var(--border);">
+            <h4 style="margin-bottom: 1rem; color: var(--primary);">{{ _('Visual Identity') }}</h4>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label for="brandName" style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem;">{{ _('Brand Name') }}:</label>
+                    <input type="text" id="brandName" class="form-control" value="{{ brand_name }}" placeholder="e.g. La Cesta">
+                </div>
+                <div>
+                    <label for="primaryColor" style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem;">{{ _('Primary Color') }}:</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="color" id="primaryColor" value="{{ primary_color }}" style="width: 50px; height: 38px; border: 1px solid var(--border); border-radius: 4px; padding: 2px;">
+                        <input type="text" id="primaryColorHex" class="form-control" value="{{ primary_color }}" style="flex: 1;" oninput="document.getElementById('primaryColor').value = this.value">
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1rem;">
+                <label for="logoUrl" style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem;">{{ _('Logo URL') }}:</label>
+                <div style="display: flex; gap: 1rem; align-items: center; background: var(--bg-light); padding: 1rem; border-radius: 8px;">
+                    <div id="logoPreview" style="width: 80px; height: 80px; border: 1px dashed var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: white;">
+                        {% if logo_url %}
+                        <img src="{% if logo_url.startswith('http') %}{{ logo_url }}{% else %}{{ API_URL }}{{ logo_url }}{% endif %}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                        {% else %}
+                        <i class="fa-solid fa-image" style="font-size: 2rem; color: var(--border);"></i>
+                        {% endif %}
+                    </div>
+                    <div style="flex: 1;">
+                        <input type="text" id="logoUrl" class="form-control" value="{{ logo_url }}" placeholder="https://example.com/logo.png" oninput="updateLogoPreview(this.value)">
+                        <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.5rem;">Enter the public URL of your logo (PNG/JPG recommended).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
                 <button type="submit" class="btn btn-primary">{{ _('Save Settings') }}</button>
             </div>
         </form>
@@ -576,17 +611,38 @@
         const eta_days = document.getElementById('etaDays').value;
         const default_language = document.getElementById('defaultLang').value;
         const nps_thank_you_message = document.getElementById('npsThankYou').value;
+        const brand_name = document.getElementById('brandName').value;
+        const primary_color = document.getElementById('primaryColor').value;
+        const logo_url = document.getElementById('logoUrl').value;
+        
         try {
             const res = await fetch(`${API_URL}/admin/settings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
-                body: JSON.stringify({ eta_days, default_language, nps_thank_you_message })
+                body: JSON.stringify({ 
+                    eta_days, 
+                    default_language, 
+                    nps_thank_you_message,
+                    brand_name,
+                    primary_color,
+                    logo_url
+                })
             });
             if (res.ok) {
                 alert('Settings updated successfully');
                 window.location.reload();
             } else alert('Error updating settings');
         } catch (err) { alert('Connection error'); }
+    }
+
+    function updateLogoPreview(url) {
+        const preview = document.getElementById('logoPreview');
+        if (!url) {
+            preview.innerHTML = '<i class="fa-solid fa-image" style="font-size: 2rem; color: var(--border);"></i>';
+            return;
+        }
+        const finalUrl = url.startsWith('http') ? url : `${API_URL}${url}`;
+        preview.innerHTML = `<img src="${finalUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
     }
 
     async function adminResetPassword(userId, username) {

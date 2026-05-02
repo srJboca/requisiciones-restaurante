@@ -7,12 +7,39 @@
     <title>La Cesta - Requisiciones</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        :root {
+            {% if session.get('primary_color') %}
+            --primary: {{ session.get('primary_color') }};
+            --primary-hover: {{ session.get('primary_color') }};
+            {% endif %}
+        }
+
+        {% if session.get('primary_color') %}
+        .form-control:focus {
+            box-shadow: 0 0 0 3px {{ session.get('primary_color') }}33 !important;
+            /* 33 is approx 0.2 opacity in hex */
+        }
+        {% endif %}
+    </style>
     {% block head %}{% endblock %}
 </head>
 
 <body>
     <nav class="navbar">
-        <a href="/" class="navbar-brand">La Cesta - Requisiciones</a>
+        <a href="/" class="navbar-brand" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; font-weight: 700; color: var(--primary); font-size: 1.25rem;">
+            {% if session.get('logo_url') %}
+            <img src="{% if session.get('logo_url').startswith('http') %}{{ session.get('logo_url') }}{% else %}{{ API_URL }}{{ session.get('logo_url') }}{% endif %}"
+                style="height: 32px; width: auto; object-fit: contain;" alt="Logo">
+            {% endif %}
+            <span>
+                {% if session.get('brand_name') %}
+                {{ session.get('brand_name') }}
+                {% else %}
+                La Cesta - Requisiciones
+                {% endif %}
+            </span>
+        </a>
         <div class="nav-links" style="display: flex; align-items: center;">
             <div style="margin-right: 1.5rem; font-size: 0.875rem;">
                 <a href="{{ url_for('set_lang', lang='en') }}"
@@ -22,26 +49,26 @@
                     style="margin-left: 0; {% if session.get('lang') == 'es' %}font-weight: bold; color: var(--primary);{% endif %}">ES</a>
             </div>
             {% if session.get('access_token') %}
-                {% if session.get('subrole') == 'NPS' %}
-                    <a href="{{ url_for('nps_survey') }}">{{ _('NPS Survey') }}</a>
-                {% else %}
-                    {% if session.get('role') == 'SuperAdmin' %}
-                        <a href="{{ url_for('superadmin_dashboard') }}">{{ _('SuperAdmin') }}</a>
-                        <a href="{{ url_for('history') }}">{{ _('History') }}</a>
-                    {% elif session.get('role') in ['CompanyAdmin', 'Admin'] %}
-                        <a href="{{ url_for('admin_dashboard') }}">{{ _('Admin Dashboard') }}</a>
-                        <a href="{{ url_for('history') }}">{{ _('History') }}</a>
-                    {% elif session.get('role') == 'Restaurant' %}
-                        <a href="{{ url_for('restaurant_order') }}">{{ _('Order Builder') }}</a>
-                        <a href="{{ url_for('restaurant_receiving') }}">{{ _('Receiving') }}</a>
-                        <a href="{{ url_for('history') }}">{{ _('History') }}</a>
-                    {% elif session.get('role') == 'Production Plant' %}
-                        <a href="{{ url_for('production_shipping') }}">{{ _('Shipping') }}</a>
-                        <a href="{{ url_for('history') }}">{{ _('History') }}</a>
-                    {% endif %}
-                {% endif %}
-                <a href="#" onclick="openChangePasswordModal()">{{ _('Change Password') }}</a>
-                <a href="{{ url_for('logout') }}">{{ _('Logout') }}</a>
+            {% if session.get('subrole') == 'NPS' %}
+            <a href="{{ url_for('nps_survey') }}">{{ _('NPS Survey') }}</a>
+            {% else %}
+            {% if session.get('role') == 'SuperAdmin' %}
+            <a href="{{ url_for('superadmin_dashboard') }}">{{ _('SuperAdmin') }}</a>
+            <a href="{{ url_for('history') }}">{{ _('History') }}</a>
+            {% elif session.get('role') in ['CompanyAdmin', 'Admin'] %}
+            <a href="{{ url_for('admin_dashboard') }}">{{ _('Admin Dashboard') }}</a>
+            <a href="{{ url_for('history') }}">{{ _('History') }}</a>
+            {% elif session.get('role') == 'Restaurant' %}
+            <a href="{{ url_for('restaurant_order') }}">{{ _('Order Builder') }}</a>
+            <a href="{{ url_for('restaurant_receiving') }}">{{ _('Receiving') }}</a>
+            <a href="{{ url_for('history') }}">{{ _('History') }}</a>
+            {% elif session.get('role') == 'Production Plant' %}
+            <a href="{{ url_for('production_shipping') }}">{{ _('Shipping') }}</a>
+            <a href="{{ url_for('history') }}">{{ _('History') }}</a>
+            {% endif %}
+            {% endif %}
+            <a href="#" onclick="openChangePasswordModal()">{{ _('Change Password') }}</a>
+            <a href="{{ url_for('logout') }}">{{ _('Logout') }}</a>
             {% else %}
             <a href="{{ url_for('login') }}">{{ _('Login') }}</a>
             {% endif %}

@@ -4,6 +4,7 @@ CompanyAdmin router — all operations scoped to the current user's company.
 import csv
 import io
 import logging
+import os
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
@@ -65,6 +66,9 @@ class SettingUpdate(BaseModel):
     eta_days: Optional[str] = None
     default_language: Optional[str] = None
     nps_thank_you_message: Optional[str] = None
+    brand_name: Optional[str] = None
+    primary_color: Optional[str] = None
+    logo_url: Optional[str] = None
 
 class AdminPasswordReset(BaseModel):
     new_password: str
@@ -403,7 +407,10 @@ def get_settings(db: Session = Depends(get_db), current_user: User = Depends(get
     return {
         "eta_days": _get_setting(db, current_user.company_id, 'eta_days') or "2",
         "default_language": _get_setting(db, current_user.company_id, 'default_language') or "en",
-        "nps_thank_you_message": _get_setting(db, current_user.company_id, 'nps_thank_you_message') or "Your feedback has been successfully recorded."
+        "nps_thank_you_message": _get_setting(db, current_user.company_id, 'nps_thank_you_message') or "Your feedback has been successfully recorded.",
+        "brand_name": _get_setting(db, current_user.company_id, 'brand_name') or "",
+        "primary_color": _get_setting(db, current_user.company_id, 'primary_color') or "#2563eb",
+        "logo_url": _get_setting(db, current_user.company_id, 'logo_url') or ""
     }
 
 @router.post("/settings")
@@ -414,6 +421,12 @@ def update_settings(data: SettingUpdate, db: Session = Depends(get_db), current_
         _set_setting(db, current_user.company_id, 'default_language', data.default_language)
     if data.nps_thank_you_message is not None:
         _set_setting(db, current_user.company_id, 'nps_thank_you_message', data.nps_thank_you_message)
+    if data.brand_name is not None:
+        _set_setting(db, current_user.company_id, 'brand_name', data.brand_name)
+    if data.primary_color is not None:
+        _set_setting(db, current_user.company_id, 'primary_color', data.primary_color)
+    if data.logo_url is not None:
+        _set_setting(db, current_user.company_id, 'logo_url', data.logo_url)
     db.commit()
     log_audit(db, current_user.id, "Update Settings", "SystemSetting")
     return {"message": "Settings updated"}

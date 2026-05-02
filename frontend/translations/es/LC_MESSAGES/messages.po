@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-02 13:52+0000\n"
+"POT-Creation-Date: 2026-05-02 14:25+0000\n"
 "PO-Revision-Date: 2026-04-28 01:34+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -58,7 +58,26 @@ msgstr "Español"
 msgid "NPS Thank You Message"
 msgstr "NPS Thank You Message"
 
-#: templates/admin_dashboard.html:379 templates/superadmin_dashboard.html:62
+#: templates/admin_dashboard.html:380
+#, fuzzy
+msgid "Visual Identity"
+msgstr "Cantidad Requerida"
+
+#: templates/admin_dashboard.html:384
+#, fuzzy
+msgid "Brand Name"
+msgstr "Nombre del Producto"
+
+#: templates/admin_dashboard.html:388
+msgid "Primary Color"
+msgstr "Primary Color"
+
+#: templates/admin_dashboard.html:397
+#, fuzzy
+msgid "Logo URL"
+msgstr "Cerrar Sesión"
+
+#: templates/admin_dashboard.html:414 templates/superadmin_dashboard.html:62
 msgid "Save Settings"
 msgstr "Guardar Configuración"
 
@@ -233,66 +252,66 @@ msgstr "Waking up system..."
 msgid "System is still sleeping. Please try again in a moment."
 msgstr "System is still sleeping. Please try again in a moment."
 
-#: templates/nps_survey.html:31
+#: templates/nps_survey.html:100
 msgid "Customer Satisfaction Survey"
 msgstr "Customer Satisfaction Survey"
 
-#: templates/nps_survey.html:43
+#: templates/nps_survey.html:112
 #, fuzzy
 msgid "1. Receipt / Order Number"
 msgstr "Receipt / Order Number"
 
-#: templates/nps_survey.html:47
+#: templates/nps_survey.html:116
 msgid "To be filled by the waiter/staff."
 msgstr "To be filled by the waiter/staff."
 
-#: templates/nps_survey.html:52 templates/nps_survey.html:109
+#: templates/nps_survey.html:121 templates/nps_survey.html:178
 msgid "Next"
 msgstr "Next"
 
-#: templates/nps_survey.html:75
+#: templates/nps_survey.html:144
 msgid "Not likely at all"
 msgstr "Not likely at all"
 
-#: templates/nps_survey.html:76
+#: templates/nps_survey.html:145
 msgid "Extremely likely"
 msgstr "Extremely likely"
 
-#: templates/nps_survey.html:84
+#: templates/nps_survey.html:153
 msgid "Yes"
 msgstr "Yes"
 
-#: templates/nps_survey.html:90
+#: templates/nps_survey.html:159
 msgid "No"
 msgstr "No"
 
-#: templates/nps_survey.html:96
+#: templates/nps_survey.html:165
 msgid "Your feedback..."
 msgstr "Your feedback..."
 
-#: templates/nps_survey.html:101
+#: templates/nps_survey.html:170
 msgid "Back"
 msgstr "Back"
 
-#: templates/nps_survey.html:105 templates/nps_survey.html:121
+#: templates/nps_survey.html:174 templates/nps_survey.html:190
 #, fuzzy
 msgid "Submit Feedback"
 msgstr "Enviado por"
 
-#: templates/nps_survey.html:119
+#: templates/nps_survey.html:188
 #, fuzzy
 msgid "No additional questions configured."
 msgstr "No se encontraron requisiciones pasadas."
 
-#: templates/nps_survey.html:133
+#: templates/nps_survey.html:202
 msgid "Thank You!"
 msgstr "Thank You!"
 
-#: templates/nps_survey.html:136
+#: templates/nps_survey.html:205
 msgid "Start New Survey"
 msgstr "Start New Survey"
 
-#: templates/nps_survey.html:234
+#: templates/nps_survey.html:309
 #, fuzzy
 msgid "Submitting..."
 msgstr "Uploading..."
@@ -961,3 +980,9 @@ msgstr "Ingresar"
 
 #~ msgid "Your feedback has been successfully recorded."
 #~ msgstr "Your feedback has been successfully recorded."
+
+#~ msgid "Brand Logo"
+#~ msgstr "Brand Logo"
+
+#~ msgid "Upload Logo"
+#~ msgstr "Upload Data"

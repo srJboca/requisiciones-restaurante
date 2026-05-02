@@ -7,7 +7,7 @@ import bcrypt
 from jose import jwt
 
 from database import get_db
-from models.models import User, Company
+from models.models import User, Company, SystemSetting
 from dependencies import SECRET_KEY, ALGORITHM, log_audit, get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -118,16 +118,31 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     access_token = create_access_token(data=token_data)
     log_audit(db, user.id, "User Login", "User", user.id, "Successful login")
 
+    # Get branding info
+    brand_name = db.query(SystemSetting).filter(SystemSetting.company_id == user.company_id, SystemSetting.setting_key == "brand_name").first()
+    primary_color = db.query(SystemSetting).filter(SystemSetting.company_id == user.company_id, SystemSetting.setting_key == "primary_color").first()
+    logo_url = db.query(SystemSetting).filter(SystemSetting.company_id == user.company_id, SystemSetting.setting_key == "logo_url").first()
+
     return {
         "access_token": access_token,
         "token_type": "bearer",
         "role": user.role,
         "subrole": user.subrole,
         "company_id": user.company_id,
+        "branding": {
+            "brand_name": brand_name.setting_value if brand_name else "",
+            "primary_color": primary_color.setting_value if primary_color else "#2563eb",
+            "logo_url": logo_url.setting_value if logo_url else ""
+        }
     }
 
 @router.get("/me")
-def read_users_me(current_user: User = Depends(get_current_user)):
+def read_users_me(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Get branding info
+    brand_name = db.query(SystemSetting).filter(SystemSetting.company_id == current_user.company_id, SystemSetting.setting_key == "brand_name").first()
+    primary_color = db.query(SystemSetting).filter(SystemSetting.company_id == current_user.company_id, SystemSetting.setting_key == "primary_color").first()
+    logo_url = db.query(SystemSetting).filter(SystemSetting.company_id == current_user.company_id, SystemSetting.setting_key == "logo_url").first()
+
     return {
         "id": current_user.id,
         "username": current_user.username,
@@ -136,6 +151,11 @@ def read_users_me(current_user: User = Depends(get_current_user)):
         "company_id": current_user.company_id,
         "restaurant_id": current_user.restaurant_id,
         "production_plant_id": current_user.production_plant_id,
+        "branding": {
+            "brand_name": brand_name.setting_value if brand_name else "",
+            "primary_color": primary_color.setting_value if primary_color else "#2563eb",
+            "logo_url": logo_url.setting_value if logo_url else ""
+        }
     }
 
 @router.post("/change-password")

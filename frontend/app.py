@@ -58,6 +58,17 @@ def welcome():
                 profile = requests.get(f"{API_URL}/auth/me", headers=headers).json()
                 if profile.get("subrole") == "NPS":
                     session["subrole"] = "NPS" # Ensure session is in sync
+                    
+                # Update branding in session if available
+                branding = profile.get("branding", {})
+                if branding.get("brand_name"):
+                    session["brand_name"] = branding.get("brand_name")
+                if branding.get("primary_color"):
+                    session["primary_color"] = branding.get("primary_color")
+                if branding.get("logo_url"):
+                    session["logo_url"] = branding.get("logo_url")
+                    
+                if profile.get("subrole") == "NPS":
                     return redirect(url_for("nps_survey"))
             except:
                 pass
@@ -86,6 +97,12 @@ def login():
                 session["role"] = data["role"]
                 session["subrole"] = data.get("subrole", "Requisition")
                 session["company_id"] = data.get("company_id")
+                
+                branding = data.get("branding", {})
+                session["brand_name"] = branding.get("brand_name")
+                session["primary_color"] = branding.get("primary_color")
+                session["logo_url"] = branding.get("logo_url")
+                
                 return redirect(url_for("welcome"))
             else:
                 try:
@@ -156,15 +173,21 @@ def admin_dashboard():
         eta_days = settings.get("eta_days", "2")
         default_language = settings.get("default_language", "en")
         nps_thank_you_message = settings.get("nps_thank_you_message", "Your feedback has been successfully recorded.")
+        brand_name = settings.get("brand_name", "")
+        primary_color = settings.get("primary_color", "#2563eb")
+        logo_url = settings.get("logo_url", "")
+        
         nps_questions = requests.get(f"{API_URL}/admin/nps/questions", headers=headers).json()
     except:
         users, restaurants, plants, groups, products, logs, nps_questions = [], [], [], [], [], [], []
         eta_days, default_language, nps_thank_you_message = "2", "en", "Your feedback has been successfully recorded."
+        brand_name, primary_color, logo_url = "", "#2563eb", ""
     return render_template("admin_dashboard.html",
                            users=users, restaurants=restaurants, plants=plants,
                            groups=groups, products=products, logs=logs,
                            eta_days=eta_days, default_language=default_language,
                            nps_thank_you_message=nps_thank_you_message,
+                           brand_name=brand_name, primary_color=primary_color, logo_url=logo_url,
                            nps_questions=nps_questions, API_URL=PUBLIC_API_URL)
 
 @app.route("/nps/survey")
@@ -176,10 +199,21 @@ def nps_survey():
         data = requests.get(f"{API_URL}/nps/survey-questions", headers=headers).json()
         questions = data.get("questions", [])
         thank_you_message = data.get("thank_you_message", "Your feedback has been successfully recorded.")
+        branding = data.get("branding", {})
+        brand_name = branding.get("brand_name", "")
+        primary_color = branding.get("primary_color", "#2563eb")
+        logo_url = branding.get("logo_url", "")
     except:
         questions = []
         thank_you_message = "Your feedback has been successfully recorded."
-    return render_template("nps_survey.html", questions=questions, thank_you_message=thank_you_message, API_URL=PUBLIC_API_URL)
+        brand_name, primary_color, logo_url = "", "#2563eb", ""
+    return render_template("nps_survey.html", 
+                           questions=questions, 
+                           thank_you_message=thank_you_message, 
+                           brand_name=brand_name,
+                           primary_color=primary_color,
+                           logo_url=logo_url,
+                           API_URL=PUBLIC_API_URL)
 
 @app.route("/admin/reports/sales")
 def admin_sales_report():
