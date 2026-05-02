@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-02 14:25+0000\n"
+"POT-Creation-Date: 2026-05-02 14:51+0000\n"
 "PO-Revision-Date: 2026-04-28 01:34+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -18,124 +18,129 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app.py:111
+#: app.py:128
 msgid "Passwords do not match"
 msgstr "Passwords do not match"
 
-#: app.py:117
+#: app.py:134
 msgid "Setup complete. You can now log in as superadmin."
 msgstr "Setup complete. You can now log in as superadmin."
 
-#: templates/admin_dashboard.html:62 templates/base.html:32
+#: templates/admin_dashboard.html:62 templates/base.html:59
 msgid "Admin Dashboard"
 msgstr "Panel de Administración"
 
-#: templates/admin_dashboard.html:76
+#: templates/admin_dashboard.html:76 templates/nps_report.html:6
+#, fuzzy
+msgid "NPS Satisfaction Report"
+msgstr "Customer Satisfaction Survey"
+
+#: templates/admin_dashboard.html:79
 msgid "View Sales Analytics Report"
 msgstr "View Sales Analytics Report"
 
-#: templates/admin_dashboard.html:357 templates/superadmin_dashboard.html:48
+#: templates/admin_dashboard.html:360 templates/superadmin_dashboard.html:48
 msgid "System Settings"
 msgstr "Configuración del Sistema"
 
-#: templates/admin_dashboard.html:361 templates/superadmin_dashboard.html:51
+#: templates/admin_dashboard.html:364 templates/superadmin_dashboard.html:51
 msgid "Requisition ETA (Business Days)"
 msgstr "ETA de Requisición (Días Hábiles)"
 
-#: templates/admin_dashboard.html:367 templates/superadmin_dashboard.html:55
+#: templates/admin_dashboard.html:370 templates/superadmin_dashboard.html:55
 msgid "Default Language"
 msgstr "Idioma Predeterminado"
 
-#: templates/admin_dashboard.html:369 templates/superadmin_dashboard.html:57
+#: templates/admin_dashboard.html:372 templates/superadmin_dashboard.html:57
 msgid "English"
 msgstr "Inglés"
 
-#: templates/admin_dashboard.html:370 templates/superadmin_dashboard.html:58
+#: templates/admin_dashboard.html:373 templates/superadmin_dashboard.html:58
 msgid "Spanish"
 msgstr "Español"
 
-#: templates/admin_dashboard.html:375
+#: templates/admin_dashboard.html:378
 msgid "NPS Thank You Message"
 msgstr "NPS Thank You Message"
 
-#: templates/admin_dashboard.html:380
+#: templates/admin_dashboard.html:383
 #, fuzzy
 msgid "Visual Identity"
 msgstr "Cantidad Requerida"
 
-#: templates/admin_dashboard.html:384
+#: templates/admin_dashboard.html:387
 #, fuzzy
 msgid "Brand Name"
 msgstr "Nombre del Producto"
 
-#: templates/admin_dashboard.html:388
+#: templates/admin_dashboard.html:391
 msgid "Primary Color"
 msgstr "Primary Color"
 
-#: templates/admin_dashboard.html:397
+#: templates/admin_dashboard.html:400
 #, fuzzy
 msgid "Logo URL"
 msgstr "Cerrar Sesión"
 
-#: templates/admin_dashboard.html:414 templates/superadmin_dashboard.html:62
+#: templates/admin_dashboard.html:417 templates/superadmin_dashboard.html:62
 msgid "Save Settings"
 msgstr "Guardar Configuración"
 
-#: templates/base.html:26
+#: templates/base.html:53
 #, fuzzy
 msgid "NPS Survey"
 msgstr "Start New Survey"
 
-#: templates/base.html:29
+#: templates/base.html:56
 msgid "SuperAdmin"
 msgstr "SuperAdmin"
 
-#: templates/base.html:30 templates/base.html:33 templates/base.html:37
-#: templates/base.html:40 templates/history.html:4
+#: templates/base.html:57 templates/base.html:60 templates/base.html:64
+#: templates/base.html:67 templates/history.html:4
 msgid "History"
 msgstr "Historial"
 
-#: templates/base.html:35
+#: templates/base.html:62
 msgid "Order Builder"
 msgstr "Creador de Pedidos"
 
-#: templates/base.html:36
+#: templates/base.html:63
 msgid "Receiving"
 msgstr "Recepción"
 
-#: templates/base.html:39
+#: templates/base.html:66
 msgid "Shipping"
 msgstr "Envíos"
 
-#: templates/base.html:43 templates/base.html:78
+#: templates/base.html:70 templates/base.html:105
 msgid "Change Password"
 msgstr "Cambiar Contraseña"
 
-#: templates/base.html:44
+#: templates/base.html:71
 msgid "Logout"
 msgstr "Cerrar Sesión"
 
-#: templates/base.html:46 templates/login.html:4 templates/login.html:18
+#: templates/base.html:73 templates/login.html:4 templates/login.html:18
 msgid "Login"
 msgstr "Ingresar"
 
-#: templates/base.html:81
+#: templates/base.html:108
 msgid "Current Password"
 msgstr "Contraseña Actual"
 
-#: templates/base.html:85
+#: templates/base.html:112
 msgid "New Password"
 msgstr "Nueva Contraseña"
 
-#: templates/base.html:89
+#: templates/base.html:116
 msgid "Confirm New Password"
 msgstr "Confirmar Nueva Contraseña"
 
-#: templates/base.html:94 templates/reporte_restaurantes.html:218
+#: templates/base.html:121 templates/reporte_restaurantes.html:218
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: templates/base.html:95 templates/reporte_restaurantes.html:186
+#: templates/base.html:122 templates/reporte_restaurantes.html:186
 msgid "Save Changes"
 msgstr "Guardar Cambios"
 
@@ -158,7 +163,8 @@ msgstr "No se encontraron requisiciones pasadas."
 msgid "Order #"
 msgstr "Pedido #"
 
-#: templates/history.html:32 templates/production_shipping.html:25
+#: templates/history.html:32 templates/nps_report.html:58
+#: templates/production_shipping.html:25
 #: templates/restaurant_receiving.html:20
 msgid "Date"
 msgstr "Fecha"
@@ -252,66 +258,123 @@ msgstr "Waking up system..."
 msgid "System is still sleeping. Please try again in a moment."
 msgstr "System is still sleeping. Please try again in a moment."
 
-#: templates/nps_survey.html:100
+#: templates/nps_report.html:10 templates/nps_report.html:59
+#: templates/production_shipping.html:78
+#: templates/reporte_restaurantes.html:87
+#, fuzzy
+msgid "Restaurant"
+msgstr "Recepción de Restaurante"
+
+#: templates/nps_report.html:12
+#, fuzzy
+msgid "All Restaurants"
+msgstr "Recepción de Restaurante"
+
+#: templates/nps_report.html:19 templates/production_shipping.html:21
+msgid "Print"
+msgstr "Print"
+
+#: templates/nps_report.html:27
+#, fuzzy
+msgid "NPS SCORE"
+msgstr "Start New Survey"
+
+#: templates/nps_report.html:32
+msgid "PROMOTERS"
+msgstr "PROMOTERS"
+
+#: templates/nps_report.html:37
+msgid "PASSIVES"
+msgstr "PASSIVES"
+
+#: templates/nps_report.html:42
+msgid "DETRACTORS"
+msgstr "DETRACTORS"
+
+#: templates/nps_report.html:47
+#, fuzzy
+msgid "TOTAL RESPONSES"
+msgstr "Total de Artículos"
+
+#: templates/nps_report.html:49
+#, fuzzy
+msgid "Completed surveys"
+msgstr "Complete Setup"
+
+#: templates/nps_report.html:60
+msgid "Receipt #"
+msgstr "Receipt #"
+
+#: templates/nps_report.html:61
+#, fuzzy
+msgid "Score"
+msgstr "Cerrado por"
+
+#: templates/nps_report.html:99
+#, fuzzy
+msgid "No survey responses found for the selected filters."
+msgstr "No items match the selected filters."
+
+#: templates/nps_survey.html:121
 msgid "Customer Satisfaction Survey"
 msgstr "Customer Satisfaction Survey"
 
-#: templates/nps_survey.html:112
+#: templates/nps_survey.html:133
 #, fuzzy
 msgid "1. Receipt / Order Number"
 msgstr "Receipt / Order Number"
 
-#: templates/nps_survey.html:116
+#: templates/nps_survey.html:138
 msgid "To be filled by the waiter/staff."
 msgstr "To be filled by the waiter/staff."
 
-#: templates/nps_survey.html:121 templates/nps_survey.html:178
+#: templates/nps_survey.html:144 templates/nps_survey.html:210
 msgid "Next"
 msgstr "Next"
 
-#: templates/nps_survey.html:144
+#: templates/nps_survey.html:171
 msgid "Not likely at all"
 msgstr "Not likely at all"
 
-#: templates/nps_survey.html:145
+#: templates/nps_survey.html:172
 msgid "Extremely likely"
 msgstr "Extremely likely"
 
-#: templates/nps_survey.html:153
+#: templates/nps_survey.html:182
 msgid "Yes"
 msgstr "Yes"
 
-#: templates/nps_survey.html:159
+#: templates/nps_survey.html:189
 msgid "No"
 msgstr "No"
 
-#: templates/nps_survey.html:165
+#: templates/nps_survey.html:195
 msgid "Your feedback..."
 msgstr "Your feedback..."
 
-#: templates/nps_survey.html:170
+#: templates/nps_survey.html:202
 msgid "Back"
 msgstr "Back"
 
-#: templates/nps_survey.html:174 templates/nps_survey.html:190
+#: templates/nps_survey.html:206 templates/nps_survey.html:222
 #, fuzzy
 msgid "Submit Feedback"
 msgstr "Enviado por"
 
-#: templates/nps_survey.html:188
+#: templates/nps_survey.html:220
 #, fuzzy
 msgid "No additional questions configured."
 msgstr "No se encontraron requisiciones pasadas."
 
-#: templates/nps_survey.html:202
+#: templates/nps_survey.html:234
 msgid "Thank You!"
 msgstr "Thank You!"
 
-#: templates/nps_survey.html:205
+#: templates/nps_survey.html:237
 msgid "Start New Survey"
 msgstr "Start New Survey"
 
-#: templates/nps_survey.html:309
+#: templates/nps_survey.html:349
 #, fuzzy
 msgid "Submitting..."
 msgstr "Uploading..."
@@ -323,10 +386,6 @@ msgstr "Envíos Planta de Producción"
 #: templates/production_shipping.html:12
 msgid "No pending requirements found."
 msgstr "No se encontraron requerimientos pendientes."
-
-#: templates/production_shipping.html:21
-msgid "Print"
-msgstr "Print"
 
 #: templates/production_shipping.html:42
 msgid "Current Inv"
@@ -348,12 +407,6 @@ msgstr "Enviar Pedido"
 #, fuzzy
 msgid "Requisition Shipping Report"
 msgstr "Reporte de Requisiciones"
-
-#: templates/production_shipping.html:78
-#: templates/reporte_restaurantes.html:87
-#, fuzzy
-msgid "Restaurant"
-msgstr "Recepción de Restaurante"
 
 #: templates/production_shipping.html:79
 #, fuzzy

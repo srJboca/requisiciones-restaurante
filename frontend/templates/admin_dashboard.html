@@ -71,7 +71,10 @@
 
 <!-- ORGANIZATION TAB -->
 <div id="tab-org" class="tab-pane active">
-    <div style="margin-bottom: 1.5rem; text-align: right;">
+    <div style="margin-bottom: 1.5rem; text-align: right; display: flex; justify-content: flex-end; gap: 0.5rem;">
+        <a href="{{ url_for('admin_nps_report') }}" class="btn btn-primary">
+            <i class="fa-solid fa-star" style="margin-right: 0.5rem;"></i>{{ _('NPS Satisfaction Report') }}
+        </a>
         <a href="{{ url_for('admin_sales_report') }}" class="btn btn-primary" style="background-color: #15803d; border-color: #15803d;">
             <i class="fa-solid fa-chart-line" style="margin-right: 0.5rem;"></i>{{ _('View Sales Analytics Report') }}
         </a>

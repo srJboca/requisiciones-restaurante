@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width: 1400px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 style="color: var(--primary); font-weight: 700; display: flex; align-items: center; gap: 0.75rem;">
+            <i class="fa-solid fa-chart-pie"></i> {{ _('NPS Satisfaction Report') }}
+        </h2>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <form id="filterForm" method="GET" style="display: flex; gap: 0.5rem; align-items: center;">
+                <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-light);">{{ _('Restaurant') }}:</label>
+                <select name="restaurant_id" class="form-control" style="width: auto;" onchange="this.form.submit()">
+                    <option value="">{{ _('All Restaurants') }}</option>
+                    {% for r in restaurants %}
+                    <option value="{{ r.id }}" {% if selected_restaurant == r.id|string %}selected{% endif %}>{{ r.name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+            <button onclick="window.print()" class="btn btn-secondary btn-sm">
+                <i class="fa-solid fa-print"></i> {{ _('Print') }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="card" style="margin-bottom: 0; padding: 1.5rem; text-align: center; border-bottom: 4px solid var(--primary);">
+            <div style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 0.5rem; font-weight: 600;">{{ _('NPS SCORE') }}</div>
+            <div style="font-size: 2.5rem; font-weight: 800; color: var(--primary);">{{ report.summary.nps_score }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.5rem;">(-100 to 100)</div>
+        </div>
+        <div class="card" style="margin-bottom: 0; padding: 1.5rem; text-align: center; border-bottom: 4px solid #10B981;">
+            <div style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 0.5rem; font-weight: 600;">{{ _('PROMOTERS') }} (9-10)</div>
+            <div style="font-size: 2.5rem; font-weight: 800; color: #10B981;">{{ report.summary.promoters }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.5rem;">{{ ((report.summary.promoters / report.summary.total * 100)|round(1)) if report.summary.total > 0 else 0 }}%</div>
+        </div>
+        <div class="card" style="margin-bottom: 0; padding: 1.5rem; text-align: center; border-bottom: 4px solid #F59E0B;">
+            <div style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 0.5rem; font-weight: 600;">{{ _('PASSIVES') }} (7-8)</div>
+            <div style="font-size: 2.5rem; font-weight: 800; color: #F59E0B;">{{ report.summary.passives }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.5rem;">{{ ((report.summary.passives / report.summary.total * 100)|round(1)) if report.summary.total > 0 else 0 }}%</div>
+        </div>
+        <div class="card" style="margin-bottom: 0; padding: 1.5rem; text-align: center; border-bottom: 4px solid #EF4444;">
+            <div style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 0.5rem; font-weight: 600;">{{ _('DETRACTORS') }} (0-6)</div>
+            <div style="font-size: 2.5rem; font-weight: 800; color: #EF4444;">{{ report.summary.detractors }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.5rem;">{{ ((report.summary.detractors / report.summary.total * 100)|round(1)) if report.summary.total > 0 else 0 }}%</div>
+        </div>
+        <div class="card" style="margin-bottom: 0; padding: 1.5rem; text-align: center; border-bottom: 4px solid var(--accent);">
+            <div style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 0.5rem; font-weight: 600;">{{ _('TOTAL RESPONSES') }}</div>
+            <div style="font-size: 2.5rem; font-weight: 800; color: var(--text);">{{ report.summary.total }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.5rem;">{{ _('Completed surveys') }}</div>
+        </div>
+    </div>
+
+    <!-- Detailed Responses Table -->
+    <div class="card" style="overflow-x: auto; padding: 0;">
+        <table class="grid-table" style="width: 100%; margin-top: 0;">
+            <thead>
+                <tr>
+                    <th style="padding-left: 1.5rem;">{{ _('Date') }}</th>
+                    <th>{{ _('Restaurant') }}</th>
+                    <th>{{ _('Receipt #') }}</th>
+                    <th style="text-align: center;">{{ _('Score') }}</th>
+                    {% for q in report.questions %}
+                    <th style="max-width: 200px;">{{ q.text }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for resp in report.responses %}
+                <tr>
+                    <td style="padding-left: 1.5rem; font-size: 0.875rem; color: var(--text-light);">
+                        {{ resp.created_at[:16].replace('T', ' ') }}
+                    </td>
+                    <td style="font-weight: 600;">{{ resp.restaurant_name }}</td>
+                    <td style="font-family: monospace;">{{ resp.receipt_ref }}</td>
+                    <td style="text-align: center;">
+                        <span style="
+                            display: inline-block; 
+                            width: 32px; height: 32px; 
+                            line-height: 32px; 
+                            border-radius: 50%; 
+                            color: white; 
+                            font-weight: bold;
+                            background: {% if resp.score != None %}{% if resp.score >= 9 %}#10B981{% elif resp.score >= 7 %}#F59E0B{% else %}#EF4444{% endif %}{% else %}var(--border){% endif %};
+                        ">
+                            {{ resp.score if resp.score != None else '-' }}
+                        </span>
+                    </td>
+                    {% for q in report.questions %}
+                    <td style="font-size: 0.875rem; max-width: 200px; white-space: normal; word-wrap: break-word;">
+                        {{ resp.answers.get(q.id|string, '-') }}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                {% if not report.responses %}
+                <tr>
+                    <td colspan="{{ 4 + report.questions|length }}" style="text-align: center; padding: 3rem; color: var(--text-light);">
+                        <i class="fa-solid fa-inbox" style="font-size: 2rem; display: block; margin-bottom: 1rem;"></i>
+                        {{ _('No survey responses found for the selected filters.') }}
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .navbar, #filterForm, .btn-secondary { display: none !important; }
+        .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+        .card { box-shadow: none !important; border: 1px solid #eee !important; page-break-inside: avoid; }
+        body { background: white !important; }
+    }
+</style>
+{% endblock %}

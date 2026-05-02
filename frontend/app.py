@@ -215,6 +215,30 @@ def nps_survey():
                            logo_url=logo_url,
                            API_URL=PUBLIC_API_URL)
 
+@app.route("/admin/reports/nps")
+def admin_nps_report():
+    if session.get("role") not in ["CompanyAdmin", "Admin", "SuperAdmin"]:
+        return redirect(url_for("welcome"))
+    
+    restaurant_id = request.args.get("restaurant_id")
+    headers = get_auth_headers()
+    
+    try:
+        restaurants = requests.get(f"{API_URL}/admin/restaurants", headers=headers).json()
+        report_url = f"{API_URL}/nps/report"
+        if restaurant_id:
+            report_url += f"?restaurant_id={restaurant_id}"
+        report_data = requests.get(report_url, headers=headers).json()
+    except:
+        restaurants = []
+        report_data = {"summary": {}, "questions": [], "responses": []}
+        
+    return render_template("nps_report.html", 
+                           restaurants=restaurants, 
+                           report=report_data,
+                           selected_restaurant=restaurant_id,
+                           API_URL=PUBLIC_API_URL)
+
 @app.route("/admin/reports/sales")
 def admin_sales_report():
     if session.get("role") not in ADMIN_ROLES:

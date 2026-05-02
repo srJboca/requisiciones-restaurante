@@ -70,3 +70,80 @@ def submit_survey(payload: SurveySubmission, db: Session = Depends(get_db), curr
     
     db.commit()
     return {"status": "success", "message": "Survey submitted"}
+
+@router.get("/report")
+def get_nps_report(
+    restaurant_id: Optional[int] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role not in ["CompanyAdmin", "Admin", "SuperAdmin"]:
+        raise HTTPException(403, "Not authorized to view reports")
+
+    query = db.query(NPSSurveyResponse).join(Restaurant).filter(Restaurant.company_id == current_user.company_id)
+    
+    if restaurant_id:
+        query = query.filter(NPSSurveyResponse.restaurant_id == restaurant_id)
+    
+    responses = query.order_by(NPSSurveyResponse.created_at.desc()).all()
+    
+    # Calculate stats
+    total = len(responses)
+    promoters = 0
+    passives = 0
+    detractors = 0
+    
+    # Get all questions for this company to headers
+    questions_meta = db.query(NPSQuestion).filter(
+        NPSQuestion.company_id == current_user.company_id
+    ).order_by(NPSQuestion.display_order).all()
+    
+    score_q_ids = [q.id for q in questions_meta if q.question_type == 'score']
+    
+    # Map results
+    results = []
+    for r in responses:
+        ans_data = {}
+        score_val = None
+        for a in r.answers:
+            ans_data[str(a.question_id)] = a.answer_text
+            if a.question_id in score_q_ids:
+                try:
+                    # Take the first score question found as the NPS score
+                    if score_val is None:
+                        score_val = int(a.answer_text)
+                except:
+                    pass
+        
+        if score_val is not None:
+            if score_val >= 9: promoters += 1
+            elif score_val >= 7: passives += 1
+            else: detractors += 1
+            
+        results.append({
+            "id": r.id,
+            "restaurant_name": r.restaurant.name,
+            "receipt_ref": r.receipt_ref,
+            "created_at": r.created_at,
+            "score": score_val,
+            "answers": ans_data
+        })
+
+    nps_score = 0
+    if total > 0:
+        nps_score = ((promoters / total) - (detractors / total)) * 100
+
+    return {
+        "summary": {
+            "total": total,
+            "promoters": promoters,
+            "passives": passives,
+            "detractors": detractors,
+            "nps_score": round(nps_score, 1)
+        },
+        "questions": [
+            {"id": q.id, "text": q.question_text, "type": q.question_type} 
+            for q in questions_meta
+        ],
+        "responses": results
+    }

@@ -100,6 +100,9 @@ class NPSSurveyResponse(Base):
     receipt_ref = Column(String(50), nullable=False)
     created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
 
+    restaurant = relationship("Restaurant")
+    answers = relationship("NPSSurveyAnswer", back_populates="response")
+
 class NPSSurveyAnswer(Base):
     __tablename__ = "nps_survey_answers"
 
@@ -107,6 +110,9 @@ class NPSSurveyAnswer(Base):
     response_id = Column(Integer, ForeignKey("nps_survey_responses.id"), nullable=False)
     question_id = Column(Integer, ForeignKey("nps_questions.id"), nullable=False)
     answer_text = Column(Text)
+
+    response = relationship("NPSSurveyResponse", back_populates="answers")
+    question = relationship("NPSQuestion")
 
 # ============================================================
 # Product Group (per company)
