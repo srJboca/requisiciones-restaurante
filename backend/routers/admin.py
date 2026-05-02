@@ -409,8 +409,8 @@ def get_settings(db: Session = Depends(get_db), current_user: User = Depends(get
         "eta_days": _get_setting(db, current_user.company_id, 'eta_days') or "2",
         "default_language": _get_setting(db, current_user.company_id, 'default_language') or "en",
         "nps_thank_you_message": _get_setting(db, current_user.company_id, 'nps_thank_you_message') or "Your feedback has been successfully recorded.",
-        "brand_name": _get_setting(db, current_user.company_id, 'brand_name') or "",
-        "primary_color": _get_setting(db, current_user.company_id, 'primary_color') or "#2563eb",
+        "brand_name": _get_setting(db, current_user.company_id, 'brand_name') or "Plateback",
+        "primary_color": _get_setting(db, current_user.company_id, 'primary_color') or "#3D315B",
         "logo_url": _get_setting(db, current_user.company_id, 'logo_url') or "",
         "terms_and_conditions_url": _get_setting(db, current_user.company_id, 'terms_and_conditions_url') or ""
     }

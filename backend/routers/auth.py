@@ -130,8 +130,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         "subrole": user.subrole,
         "company_id": user.company_id,
         "branding": {
-            "brand_name": brand_name.setting_value if brand_name else "",
-            "primary_color": primary_color.setting_value if primary_color else "#2563eb",
+            "brand_name": brand_name.setting_value if brand_name else "Plateback",
+            "primary_color": primary_color.setting_value if primary_color else "#3D315B",
             "logo_url": logo_url.setting_value if logo_url else ""
         }
     }
@@ -152,8 +152,8 @@ def read_users_me(db: Session = Depends(get_db), current_user: User = Depends(ge
         "restaurant_id": current_user.restaurant_id,
         "production_plant_id": current_user.production_plant_id,
         "branding": {
-            "brand_name": brand_name.setting_value if brand_name else "",
-            "primary_color": primary_color.setting_value if primary_color else "#2563eb",
+            "brand_name": brand_name.setting_value if brand_name else "Plateback",
+            "primary_color": primary_color.setting_value if primary_color else "#3D315B",
             "logo_url": logo_url.setting_value if logo_url else ""
         }
     }

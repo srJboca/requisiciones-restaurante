@@ -1,11 +1,285 @@
 {% extends "base.html" %}
 {% block content %}
-<div style="text-align: center; max-width: 600px; margin: 4rem auto;">
-    <h1 style="color: var(--primary); font-size: 2.5rem; margin-bottom: 1rem;">{{ _('La Cesta - Café Local') }}</h1>
-    <p style="font-size: 1.25rem; color: var(--text-light); margin-bottom: 2rem;">
-        {{ _('The centralized restaurant requisition management system.') }}
-    </p>
-    <a href="{{ url_for('login') }}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">{{ _('Login
-        to Continue') }}</a>
-</div>
+<style>
+    /* POFO Inspired Styles */
+    :root {
+        --space-indigo: #3D315B;
+        --dusk-blue: #444B6E;
+        --dusty-olive: #708B75;
+        --muted-olive: #9AB87A;
+        --lime-cream: #F8F991;
+    }
+
+    .pofo-hero {
+        min-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        background: var(--surface);
+        padding: 4rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .pofo-hero h1 {
+        font-size: 5.5rem;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 2rem;
+        letter-spacing: -3px;
+        color: var(--space-indigo);
+    }
+
+    .pofo-hero p {
+        font-size: 1.5rem;
+        max-width: 700px;
+        color: var(--text-light);
+        margin-bottom: 3rem;
+        font-weight: 400;
+    }
+
+    .pofo-btn {
+        padding: 1.5rem 3.5rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        border-radius: 0;
+        transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    .pofo-btn-dark {
+        background: var(--space-indigo);
+        color: white;
+    }
+
+    .pofo-btn-dark:hover {
+        background: var(--dusty-olive);
+        color: white;
+        transform: translateY(-5px);
+    }
+
+    .section-container {
+        padding: 10rem 2rem;
+        max-width: 1300px;
+        margin: 0 auto;
+    }
+
+    .section-title-wrapper {
+        margin-bottom: 6rem;
+        text-align: center;
+    }
+
+    .section-subtitle {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: var(--muted-olive);
+        display: block;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    .section-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--space-indigo);
+        letter-spacing: -1px;
+    }
+
+    /* Feature Grid - Portfolio Style */
+    .pofo-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 4rem;
+        align-items: center;
+    }
+
+    .pofo-card {
+        grid-column: span 12;
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 0;
+        margin-bottom: 4rem;
+        align-items: center;
+    }
+
+    .pofo-card:nth-child(even) .pofo-card-content {
+        order: 2;
+    }
+
+    .pofo-card-image {
+        grid-column: span 7;
+        position: relative;
+        overflow: hidden;
+        border-radius: 0;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+    }
+
+    .pofo-card-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: transform 1.5s cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    .pofo-card:hover .pofo-card-image img {
+        transform: scale(1.05);
+    }
+
+    .pofo-card-content {
+        grid-column: span 5;
+        padding: 4rem;
+        background: var(--surface);
+        z-index: 2;
+        margin-left: -5rem;
+    }
+
+    .pofo-card:nth-child(even) .pofo-card-content {
+        margin-left: 0;
+        margin-right: -5rem;
+    }
+
+    .pofo-card h3 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        color: var(--space-indigo);
+    }
+
+    .pofo-card p {
+        font-size: 1.125rem;
+        line-height: 1.8;
+        color: var(--text-light);
+        margin-bottom: 2rem;
+    }
+
+    .pofo-footer {
+        padding: 8rem 2rem;
+        background: #f9f9f9;
+        text-align: center;
+    }
+
+    @media (max-width: 991px) {
+        .pofo-hero h1 { font-size: 3.5rem; }
+        .pofo-card-image, .pofo-card-content { grid-column: span 12; }
+        .pofo-card-content { margin: -2rem 1rem 0 1rem; padding: 2rem; }
+        .pofo-card:nth-child(even) .pofo-card-content { margin: -2rem 1rem 0 1rem; }
+    }
+
+    /* Scroll Animation Overlay */
+    .pofo-reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s ease-out;
+    }
+
+    .pofo-reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="pofo-hero">
+    <div class="pofo-reveal">
+        <span class="section-subtitle">{{ _('Intelligence for Gastronomy') }}</span>
+        <h1>Plateback.</h1>
+        <p>{{ _('We empower restaurants with end-to-end operational control and deep behavioral analytics to scale customer satisfaction.') }}</p>
+        <a href="{{ url_for('login') }}" class="pofo-btn pofo-btn-dark">{{ _('Access Platform') }}</a>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="section-container" id="features">
+    <div class="section-title-wrapper pofo-reveal">
+        <span class="section-subtitle">{{ _('Our Expertise') }}</span>
+        <h2 class="section-title">{{ _('Operational Excellence & Analytics') }}</h2>
+    </div>
+
+    <div class="pofo-grid">
+        <!-- Requisitions -->
+        <div class="pofo-card pofo-reveal">
+            <div class="pofo-card-image">
+                <img src="{{ url_for('static', filename='img/requisitions.png') }}" alt="Requisition Management">
+            </div>
+            <div class="pofo-card-content">
+                <span class="section-subtitle">01. {{ _('Operations') }}</span>
+                <h3>{{ _('End-to-End Requisitions') }}</h3>
+                <p>{{ _('Complete management of the supply chain. From the restaurant floor to the production plant, ensuring consistency and efficiency in every order.') }}</p>
+                <div style="font-size: 0.875rem; color: var(--muted-olive); font-weight: 700;">
+                    <i class="fa-solid fa-check"></i> {{ _('Real-time Tracking') }} &nbsp;
+                    <i class="fa-solid fa-check"></i> {{ _('Inventory Sync') }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics -->
+        <div class="pofo-card pofo-reveal">
+            <div class="pofo-card-image">
+                <img src="{{ url_for('static', filename='img/analytics.png') }}" alt="Advanced Analytics">
+            </div>
+            <div class="pofo-card-content">
+                <span class="section-subtitle">02. {{ _('Intelligence') }}</span>
+                <h3>{{ _('Deep Data Analytics') }}</h3>
+                <p>{{ _('Unlock the secrets of your menu. Market Basket Analysis to detect item correlations, average ticket trends, and restaurant traffic patterns.') }}</p>
+                <div style="font-size: 0.875rem; color: var(--muted-olive); font-weight: 700;">
+                    <i class="fa-solid fa-check"></i> {{ _('Market Basket') }} &nbsp;
+                    <i class="fa-solid fa-check"></i> {{ _('Traffic Analysis') }}
+                </div>
+            </div>
+        </div>
+
+        <!-- NPS -->
+        <div class="pofo-card pofo-reveal">
+            <div class="pofo-card-image">
+                <img src="{{ url_for('static', filename='img/nps.png') }}" alt="NPS Management">
+            </div>
+            <div class="pofo-card-content">
+                <span class="section-subtitle">03. {{ _('Customer') }}</span>
+                <h3>{{ _('POS NPS Management') }}</h3>
+                <p>{{ _('Real-time satisfaction measurement at the point of sale. Capture critical guest feedback immediately and turn detractors into promoters.') }}</p>
+                <div style="font-size: 0.875rem; color: var(--muted-olive); font-weight: 700;">
+                    <i class="fa-solid fa-check"></i> {{ _('Instant Alerts') }} &nbsp;
+                    <i class="fa-solid fa-check"></i> {{ _('Digital Surveys') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Final CTA -->
+<section class="pofo-footer">
+    <div class="pofo-reveal">
+        <h2 style="font-size: 3.5rem; font-weight: 900; color: var(--space-indigo); margin-bottom: 2rem;">{{ _('Ready to Scale?') }}</h2>
+        <p style="color: var(--text-light); font-size: 1.25rem; margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+            {{ _('Join the industry leaders using Plateback to optimize their operations and delight their customers.') }}
+        </p>
+        <a href="{{ url_for('login') }}" class="pofo-btn pofo-btn-dark">{{ _('Start Now') }}</a>
+    </div>
+    <div style="margin-top: 8rem; font-size: 0.875rem; color: var(--text-light); border-top: 1px solid var(--border); padding-top: 4rem;">
+        &copy; 2026 Plateback.co &nbsp;&bull;&nbsp; {{ _('The intelligent gastronomy platform') }}
+    </div>
+</section>
+
+<script>
+    // Simple reveal animation on scroll
+    function reveal() {
+        var reveals = document.querySelectorAll(".pofo-reveal");
+        for (var i = 0; i < reveals.length; i++) {
+            var windowHeight = window.innerHeight;
+            var elementTop = reveals[i].getBoundingClientRect().top;
+            var elementVisible = 150;
+            if (elementTop < windowHeight - elementVisible) {
+                reveals[i].classList.add("visible");
+            }
+        }
+    }
+    window.addEventListener("scroll", reveal);
+    window.addEventListener("load", reveal);
+</script>
 {% endblock %}

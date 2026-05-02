@@ -38,8 +38,8 @@ def get_survey_questions(db: Session = Depends(get_db), current_user: User = Dep
         "questions": questions,
         "thank_you_message": ty_msg.setting_value if ty_msg else "Your feedback has been successfully recorded.",
         "branding": {
-            "brand_name": brand_name.setting_value if brand_name else "",
-            "primary_color": primary_color.setting_value if primary_color else "#2563eb",
+            "brand_name": brand_name.setting_value if brand_name else "Plateback",
+            "primary_color": primary_color.setting_value if primary_color else "#3D315B",
             "logo_url": logo_url.setting_value if logo_url else ""
         },
         "terms_and_conditions_url": terms_url.setting_value if terms_url else ""

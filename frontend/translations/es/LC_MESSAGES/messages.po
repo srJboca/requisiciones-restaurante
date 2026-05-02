@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-02 15:09+0000\n"
+"POT-Creation-Date: 2026-05-02 16:02+0000\n"
 "PO-Revision-Date: 2026-04-28 01:34+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -26,7 +26,7 @@ msgstr "Passwords do not match"
 msgid "Setup complete. You can now log in as superadmin."
 msgstr "Setup complete. You can now log in as superadmin."
 
-#: templates/admin_dashboard.html:62 templates/base.html:59
+#: templates/admin_dashboard.html:62 templates/base.html:63
 msgid "Admin Dashboard"
 msgstr "Panel de Administración"
 
@@ -90,61 +90,61 @@ msgstr "Terms and Conditions URL"
 msgid "Save Settings"
 msgstr "Guardar Configuración"
 
-#: templates/base.html:53
+#: templates/base.html:57
 #, fuzzy
 msgid "NPS Survey"
 msgstr "Start New Survey"
 
-#: templates/base.html:56
+#: templates/base.html:60
 msgid "SuperAdmin"
 msgstr "SuperAdmin"
 
-#: templates/base.html:57 templates/base.html:60 templates/base.html:64
-#: templates/base.html:67 templates/history.html:4
+#: templates/base.html:61 templates/base.html:64 templates/base.html:68
+#: templates/base.html:71 templates/history.html:4
 msgid "History"
 msgstr "Historial"
 
-#: templates/base.html:62
+#: templates/base.html:66
 msgid "Order Builder"
 msgstr "Creador de Pedidos"
 
-#: templates/base.html:63
+#: templates/base.html:67
 msgid "Receiving"
 msgstr "Recepción"
 
-#: templates/base.html:66
+#: templates/base.html:70
 msgid "Shipping"
 msgstr "Envíos"
 
-#: templates/base.html:70 templates/base.html:105
+#: templates/base.html:74 templates/base.html:109
 msgid "Change Password"
 msgstr "Cambiar Contraseña"
 
-#: templates/base.html:71
+#: templates/base.html:75
 msgid "Logout"
 msgstr "Cerrar Sesión"
 
-#: templates/base.html:73 templates/login.html:4 templates/login.html:18
+#: templates/base.html:77 templates/login.html:4 templates/login.html:18
 msgid "Login"
 msgstr "Ingresar"
 
-#: templates/base.html:108
+#: templates/base.html:112
 msgid "Current Password"
 msgstr "Contraseña Actual"
 
-#: templates/base.html:112
+#: templates/base.html:116
 msgid "New Password"
 msgstr "Nueva Contraseña"
 
-#: templates/base.html:116
+#: templates/base.html:120
 msgid "Confirm New Password"
 msgstr "Confirmar Nueva Contraseña"
 
-#: templates/base.html:121 templates/reporte_restaurantes.html:218
+#: templates/base.html:125 templates/reporte_restaurantes.html:218
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: templates/base.html:122 templates/reporte_restaurantes.html:186
+#: templates/base.html:126 templates/reporte_restaurantes.html:186
 msgid "Save Changes"
 msgstr "Guardar Cambios"
 
@@ -1026,20 +1026,131 @@ msgstr "Confirmar Nueva Contraseña"
 msgid "Complete Setup"
 msgstr "Complete Setup"
 
-#: templates/welcome.html:4
-msgid "La Cesta - Café Local"
-msgstr "La Cesta - Café Local"
+#: templates/welcome.html:190
+msgid "Intelligence for Gastronomy"
+msgstr "Intelligence for Gastronomy"
 
-#: templates/welcome.html:6
-msgid "The centralized restaurant requisition management system."
-msgstr ""
-"El sistema centralizado de gestión de requisiciones para restaurantes."
-
-#: templates/welcome.html:8
+#: templates/welcome.html:192
 msgid ""
-"Login\n"
-"        to Continue"
-msgstr "Ingresar"
+"We empower restaurants with end-to-end operational control and deep "
+"behavioral analytics to scale customer satisfaction."
+msgstr ""
+"We empower restaurants with end-to-end operational control and deep "
+"behavioral analytics to scale customer satisfaction."
+
+#: templates/welcome.html:193
+msgid "Access Platform"
+msgstr "Access Platform"
+
+#: templates/welcome.html:200
+msgid "Our Expertise"
+msgstr "Our Expertise"
+
+#: templates/welcome.html:201
+msgid "Operational Excellence & Analytics"
+msgstr "Operational Excellence & Analytics"
+
+#: templates/welcome.html:211
+#, fuzzy
+msgid "Operations"
+msgstr "Total de Artículos"
+
+#: templates/welcome.html:212
+#, fuzzy
+msgid "End-to-End Requisitions"
+msgstr "Constructor de Requisiciones Diarias"
+
+#: templates/welcome.html:213
+msgid ""
+"Complete management of the supply chain. From the restaurant floor to the "
+"production plant, ensuring consistency and efficiency in every order."
+msgstr ""
+"Complete management of the supply chain. From the restaurant floor to the "
+"production plant, ensuring consistency and efficiency in every order."
+
+#: templates/welcome.html:215
+msgid "Real-time Tracking"
+msgstr "Real-time Tracking"
+
+#: templates/welcome.html:216
+msgid "Inventory Sync"
+msgstr "Inventory Sync"
+
+#: templates/welcome.html:227
+#, fuzzy
+msgid "Intelligence"
+msgstr "Intelligent NPS"
+
+#: templates/welcome.html:228
+#, fuzzy
+msgid "Deep Data Analytics"
+msgstr "Advanced Analytics"
+
+#: templates/welcome.html:229
+msgid ""
+"Unlock the secrets of your menu. Market Basket Analysis to detect item "
+"correlations, average ticket trends, and restaurant traffic patterns."
+msgstr ""
+"Unlock the secrets of your menu. Market Basket Analysis to detect item "
+"correlations, average ticket trends, and restaurant traffic patterns."
+
+#: templates/welcome.html:231
+#, fuzzy
+msgid "Market Basket"
+msgstr "Market Basket Analysis"
+
+#: templates/welcome.html:232
+#, fuzzy
+msgid "Traffic Analysis"
+msgstr "Interactive Portfolio Analysis"
+
+#: templates/welcome.html:243
+#, fuzzy
+msgid "Customer"
+msgstr "Custom Branding"
+
+#: templates/welcome.html:244
+#, fuzzy
+msgid "POS NPS Management"
+msgstr "Strategic Management"
+
+#: templates/welcome.html:245
+msgid ""
+"Real-time satisfaction measurement at the point of sale. Capture critical "
+"guest feedback immediately and turn detractors into promoters."
+msgstr ""
+"Real-time satisfaction measurement at the point of sale. Capture critical "
+"guest feedback immediately and turn detractors into promoters."
+
+#: templates/welcome.html:247
+msgid "Instant Alerts"
+msgstr "Instant Alerts"
+
+#: templates/welcome.html:248
+msgid "Digital Surveys"
+msgstr "Digital Surveys"
+
+#: templates/welcome.html:258
+msgid "Ready to Scale?"
+msgstr "Ready to Scale?"
+
+#: templates/welcome.html:260
+msgid ""
+"Join the industry leaders using Plateback to optimize their operations and "
+"delight their customers."
+msgstr ""
+"Join the industry leaders using Plateback to optimize their operations and "
+"delight their customers."
+
+#: templates/welcome.html:262
+#, fuzzy
+msgid "Start Now"
+msgstr "Start New Survey"
+
+#: templates/welcome.html:265
+#, fuzzy
+msgid "The intelligent gastronomy platform"
+msgstr "Intelligent Gastronomy Solutions"
 
 #~ msgid "Welcome to ReqSys"
 #~ msgstr "Bienvenido a ReqSys"
@@ -1061,3 +1172,101 @@ msgstr "Ingresar"
 
 #~ msgid "Upload Logo"
 #~ msgstr "Upload Data"
+
+#~ msgid "La Cesta - Café Local"
+#~ msgstr "La Cesta - Café Local"
+
+#~ msgid "The centralized restaurant requisition management system."
+#~ msgstr ""
+#~ "El sistema centralizado de gestión de requisiciones para restaurantes."
+
+#~ msgid "The intelligent customer satisfaction and analytics platform."
+#~ msgstr "The intelligent customer satisfaction and analytics platform."
+
+#~ msgid ""
+#~ "Login\n"
+#~ "        to Continue"
+#~ msgstr "Ingresar"
+
+#~ msgid "Plateback"
+#~ msgstr "Back"
+
+#~ msgid ""
+#~ "Turn every meal into data-driven insights. The most advanced platform for "
+#~ "customer satisfaction, NPS analytics, and multi-location performance."
+#~ msgstr ""
+#~ "Turn every meal into data-driven insights. The most advanced platform for "
+#~ "customer satisfaction, NPS analytics, and multi-location performance."
+
+#~ msgid "Get Started"
+#~ msgstr "Get Started"
+
+#~ msgid "Learn More"
+#~ msgstr "Learn More"
+
+#~ msgid "Why Plateback?"
+#~ msgstr "Back"
+
+#~ msgid "Everything you need to scale your brand"
+#~ msgstr "Everything you need to scale your brand"
+
+#~ msgid ""
+#~ "Collect feedback in real-time with tablet-optimized surveys. Capture phone, "
+#~ "email, and sentiment effortlessly."
+#~ msgstr ""
+#~ "Collect feedback in real-time with tablet-optimized surveys. Capture phone, "
+#~ "email, and sentiment effortlessly."
+
+#~ msgid ""
+#~ "Visualize trends, compare performance across locations, and identify your "
+#~ "most loyal promoters in seconds."
+#~ msgstr ""
+#~ "Visualize trends, compare performance across locations, and identify your "
+#~ "most loyal promoters in seconds."
+
+#~ msgid ""
+#~ "Your brand, your rules. Customize colors, logos, and terms to create a "
+#~ "seamless experience for your customers."
+#~ msgstr ""
+#~ "Your brand, your rules. Customize colors, logos, and terms to create a "
+#~ "seamless experience for your customers."
+
+#~ msgid "Legal Compliance"
+#~ msgstr "Legal Compliance"
+
+#~ msgid ""
+#~ "Built-in data treatment acceptance and legal link management to keep your "
+#~ "customer data safe and compliant."
+#~ msgstr ""
+#~ "Built-in data treatment acceptance and legal link management to keep your "
+#~ "customer data safe and compliant."
+
+#~ msgid "Multi-Location"
+#~ msgstr "Multi-Location"
+
+#~ msgid ""
+#~ "Manage your entire restaurant group from a single dashboard. Centralized "
+#~ "settings with localized execution."
+#~ msgstr ""
+#~ "Manage your entire restaurant group from a single dashboard. Centralized "
+#~ "settings with localized execution."
+
+#~ msgid "Tablet First"
+#~ msgstr "Tablet First"
+
+#~ msgid ""
+#~ "Designed specifically for the restaurant floor. Fast, intuitive, and "
+#~ "beautiful interfaces that guests love to use."
+#~ msgstr ""
+#~ "Designed specifically for the restaurant floor. Fast, intuitive, and "
+#~ "beautiful interfaces that guests love to use."
+
+#~ msgid "Ready to improve your customer experience?"
+#~ msgstr "Ready to improve your customer experience?"
+
+#~ msgid ""
+#~ "Join the next generation of restaurant management. Start measuring what "
+#~ "matters today."
+#~ msgstr ""
+#~ "Join the next generation of restaurant management. Start measuring what "
+#~ "matters today."

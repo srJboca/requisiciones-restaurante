@@ -2,18 +2,17 @@
 {% block content %}
 <div class="card" style="max-width: 420px; margin: 5vh auto;">
     <h2 style="margin-bottom: 0.5rem; text-align: center;">{{ _('Login') }}</h2>
-    <p style="text-align: center; font-size: 0.85rem; color: var(--text-light); margin-bottom: 1.5rem;">
-        {{ _('Company users:') }} <code>username@domain</code> &nbsp;|&nbsp; {{ _('SuperAdmin:') }} <code>superadmin</code>
-    </p>
+
     <form method="POST" action="{{ url_for('login') }}">
         <div class="form-group">
             <label class="form-label" for="username">{{ _('Username') }}</label>
-            <input type="text" class="form-control" id="username" name="username"
-                   placeholder="username@company" required autocomplete="username">
+            <input type="text" class="form-control" id="username" name="username" placeholder="username@company"
+                required autocomplete="username">
         </div>
         <div class="form-group">
             <label class="form-label" for="password">{{ _('Password') }}</label>
-            <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
+            <input type="password" class="form-control" id="password" name="password" required
+                autocomplete="current-password">
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%;">{{ _('Login') }}</button>
     </form>
@@ -26,7 +25,7 @@
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> {{ _("Waking up system...") }}';
 
@@ -39,12 +38,12 @@
                 // Try to ping the health endpoint
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 2000);
-                
-                const res = await fetch(`${API_URL}/health`, { 
+
+                const res = await fetch(`${API_URL}/health`, {
                     mode: 'cors',
-                    signal: controller.signal 
+                    signal: controller.signal
                 });
-                
+
                 if (res.ok) {
                     ready = true;
                 }

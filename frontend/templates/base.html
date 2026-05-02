@@ -4,11 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Cesta - Requisiciones</title>
+    <title>Plateback - Customer Experience</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
         :root {
+            --primary: #3D315B;
+            --primary-hover: #444B6E;
+            --secondary: #708B75;
+            --secondary-hover: #9AB87A;
             {% if session.get('primary_color') %}
             --primary: {{ session.get('primary_color') }};
             --primary-hover: {{ session.get('primary_color') }};
@@ -36,7 +40,7 @@
                 {% if session.get('brand_name') %}
                 {{ session.get('brand_name') }}
                 {% else %}
-                La Cesta - Requisiciones
+                Plateback
                 {% endif %}
             </span>
         </a>
