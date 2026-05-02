@@ -64,7 +64,7 @@
                 <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; margin-top: 1rem;">
                     {% for i in range(11) %}
                     <label style="cursor: pointer;">
-                        <input type="radio" name="q_{{ q.id }}" value="{{ i }}" required style="display: none;" onchange="autoNext({{ loop.index0 + 1 }})">
+                        <input type="radio" name="q_{{ q.id }}" value="{{ i }}" required style="display: none;" onchange="autoNext()">
                         <div class="score-box" style="border: 2px solid var(--border); padding: 0.75rem; border-radius: 8px; text-align: center; font-weight: bold; transition: all 0.2s;">
                             {{ i }}
                         </div>
@@ -79,13 +79,13 @@
                 {% elif q.question_type == 'yes_no' %}
                 <div style="display: flex; gap: 1rem; margin-top: 1rem;">
                     <label style="flex: 1; cursor: pointer;">
-                        <input type="radio" name="q_{{ q.id }}" value="Yes" required style="display: none;" onchange="autoNext({{ loop.index0 + 1 }})">
+                        <input type="radio" name="q_{{ q.id }}" value="Yes" required style="display: none;" onchange="autoNext()">
                         <div class="score-box" style="border: 2px solid var(--border); padding: 1rem; border-radius: 8px; text-align: center; font-weight: bold;">
                             {{ _('Yes') }}
                         </div>
                     </label>
                     <label style="flex: 1; cursor: pointer;">
-                        <input type="radio" name="q_{{ q.id }}" value="No" required style="display: none;" onchange="autoNext({{ loop.index0 + 1 }})">
+                        <input type="radio" name="q_{{ q.id }}" value="No" required style="display: none;" onchange="autoNext()">
                         <div class="score-box" style="border: 2px solid var(--border); padding: 1rem; border-radius: 8px; text-align: center; font-weight: bold;">
                             {{ _('No') }}
                         </div>
@@ -185,13 +185,13 @@
         updateProgress();
     }
 
-    function autoNext(step) {
+    function autoNext() {
         // Automatically go to next step for radio buttons
         setTimeout(() => {
             if (currentStep < totalSteps - 1) {
-                nextStep(step);
+                nextStep(currentStep);
             }
-        }, 300);
+        }, 250);
     }
 
     async function submitSurvey(e) {
