@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-01 17:13+0000\n"
+"POT-Creation-Date: 2026-05-01 17:48+0000\n"
 "PO-Revision-Date: 2026-04-28 01:34+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app.py:97
+#: app.py:105
 msgid "Passwords do not match"
 msgstr "Passwords do not match"
 
-#: app.py:103
+#: app.py:111
 msgid "Setup complete. You can now log in as superadmin."
 msgstr "Setup complete. You can now log in as superadmin."
 
@@ -30,31 +30,31 @@ msgstr "Setup complete. You can now log in as superadmin."
 msgid "Admin Dashboard"
 msgstr "Panel de Administración"
 
-#: templates/admin_dashboard.html:75
+#: templates/admin_dashboard.html:76
 msgid "View Sales Analytics Report"
 msgstr "View Sales Analytics Report"
 
-#: templates/admin_dashboard.html:299 templates/superadmin_dashboard.html:48
+#: templates/admin_dashboard.html:357 templates/superadmin_dashboard.html:48
 msgid "System Settings"
 msgstr "Configuración del Sistema"
 
-#: templates/admin_dashboard.html:303 templates/superadmin_dashboard.html:51
+#: templates/admin_dashboard.html:361 templates/superadmin_dashboard.html:51
 msgid "Requisition ETA (Business Days)"
 msgstr "ETA de Requisición (Días Hábiles)"
 
-#: templates/admin_dashboard.html:309 templates/superadmin_dashboard.html:55
+#: templates/admin_dashboard.html:367 templates/superadmin_dashboard.html:55
 msgid "Default Language"
 msgstr "Idioma Predeterminado"
 
-#: templates/admin_dashboard.html:311 templates/superadmin_dashboard.html:57
+#: templates/admin_dashboard.html:369 templates/superadmin_dashboard.html:57
 msgid "English"
 msgstr "Inglés"
 
-#: templates/admin_dashboard.html:312 templates/superadmin_dashboard.html:58
+#: templates/admin_dashboard.html:370 templates/superadmin_dashboard.html:58
 msgid "Spanish"
 msgstr "Español"
 
-#: templates/admin_dashboard.html:316 templates/superadmin_dashboard.html:62
+#: templates/admin_dashboard.html:374 templates/superadmin_dashboard.html:62
 msgid "Save Settings"
 msgstr "Guardar Configuración"
 
@@ -223,6 +223,64 @@ msgstr "Waking up system..."
 #: templates/login.html:65
 msgid "System is still sleeping. Please try again in a moment."
 msgstr "System is still sleeping. Please try again in a moment."
+
+#: templates/nps_survey.html:4
+msgid "Customer Satisfaction Survey"
+msgstr "Customer Satisfaction Survey"
+
+#: templates/nps_survey.html:6
+msgid "Please help us improve by answering these quick questions."
+msgstr "Please help us improve by answering these quick questions."
+
+#: templates/nps_survey.html:14
+msgid "Receipt / Order Number"
+msgstr "Receipt / Order Number"
+
+#: templates/nps_survey.html:17
+msgid "To be filled by the waiter/staff."
+msgstr "To be filled by the waiter/staff."
+
+#: templates/nps_survey.html:36
+msgid "Not likely at all"
+msgstr "Not likely at all"
+
+#: templates/nps_survey.html:37
+msgid "Extremely likely"
+msgstr "Extremely likely"
+
+#: templates/nps_survey.html:43
+msgid "Yes"
+msgstr "Yes"
+
+#: templates/nps_survey.html:46
+msgid "No"
+msgstr "No"
+
+#: templates/nps_survey.html:51
+msgid "Your feedback..."
+msgstr "Your feedback..."
+
+#: templates/nps_survey.html:58
+#, fuzzy
+msgid "Submit Feedback"
+msgstr "Enviado por"
+
+#: templates/nps_survey.html:68
+msgid "Thank You!"
+msgstr "Thank You!"
+
+#: templates/nps_survey.html:69
+msgid "Your feedback has been successfully recorded."
+msgstr "Your feedback has been successfully recorded."
+
+#: templates/nps_survey.html:71
+msgid "Start New Survey"
+msgstr "Start New Survey"
+
+#: templates/nps_survey.html:104
+#, fuzzy
+msgid "Submitting..."
+msgstr "Uploading..."
 
 #: templates/production_shipping.html:4
 msgid "Production Plant Shipping"

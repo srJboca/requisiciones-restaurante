@@ -77,6 +77,36 @@ class User(Base):
     restaurant = relationship("Restaurant", back_populates="users", foreign_keys=[restaurant_id])
     production_plant = relationship("ProductionPlant", back_populates="users", foreign_keys=[production_plant_id])
     audit_logs = relationship("AuditLog", back_populates="user")
+    subrole = Column(String(50), default="Requisition", nullable=False)
+
+# ============================================================
+# NPS (Net Promoter Score)
+# ============================================================
+class NPSQuestion(Base):
+    __tablename__ = "nps_questions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    question_text = Column(String(255), nullable=False)
+    question_type = Column(Enum('score', 'text', 'yes_no'), default='score')
+    is_active = Column(Boolean, default=True)
+    display_order = Column(Integer, default=0)
+
+class NPSSurveyResponse(Base):
+    __tablename__ = "nps_survey_responses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), nullable=False)
+    receipt_ref = Column(String(50), nullable=False)
+    created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
+
+class NPSSurveyAnswer(Base):
+    __tablename__ = "nps_survey_answers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    response_id = Column(Integer, ForeignKey("nps_survey_responses.id"), nullable=False)
+    question_id = Column(Integer, ForeignKey("nps_questions.id"), nullable=False)
+    answer_text = Column(Text)
 
 # ============================================================
 # Product Group (per company)

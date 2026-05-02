@@ -48,6 +48,19 @@ def welcome():
         elif role in ADMIN_ROLES:
             return redirect(url_for("admin_dashboard"))
         elif role == "Restaurant":
+            # Check subrole for NPS redirection
+            if session.get("subrole") == "NPS":
+                return redirect(url_for("nps_survey"))
+            
+            # Fallback/verification
+            headers = get_auth_headers()
+            try:
+                profile = requests.get(f"{API_URL}/auth/me", headers=headers).json()
+                if profile.get("subrole") == "NPS":
+                    session["subrole"] = "NPS" # Ensure session is in sync
+                    return redirect(url_for("nps_survey"))
+            except:
+                pass
             return redirect(url_for("restaurant_order"))
         elif role == "Production Plant":
             return redirect(url_for("production_shipping"))
@@ -71,6 +84,7 @@ def login():
                 data = res.json()
                 session["access_token"] = data["access_token"]
                 session["role"] = data["role"]
+                session["subrole"] = data.get("subrole", "Requisition")
                 session["company_id"] = data.get("company_id")
                 return redirect(url_for("welcome"))
             else:
@@ -141,14 +155,26 @@ def admin_dashboard():
         settings = settings_res.json() if settings_res.status_code == 200 else {}
         eta_days = settings.get("eta_days", "2")
         default_language = settings.get("default_language", "en")
+        nps_questions = requests.get(f"{API_URL}/admin/nps/questions", headers=headers).json()
     except:
-        users, restaurants, plants, groups, products, logs = [], [], [], [], [], []
+        users, restaurants, plants, groups, products, logs, nps_questions = [], [], [], [], [], [], []
         eta_days, default_language = "2", "en"
     return render_template("admin_dashboard.html",
                            users=users, restaurants=restaurants, plants=plants,
                            groups=groups, products=products, logs=logs,
                            eta_days=eta_days, default_language=default_language,
-                           API_URL=PUBLIC_API_URL)
+                           nps_questions=nps_questions, API_URL=PUBLIC_API_URL)
+
+@app.route("/nps/survey")
+def nps_survey():
+    if session.get("role") != "Restaurant":
+        return redirect(url_for("welcome"))
+    headers = get_auth_headers()
+    try:
+        questions = requests.get(f"{API_URL}/nps/survey-questions", headers=headers).json()
+    except:
+        questions = []
+    return render_template("nps_survey.html", questions=questions, API_URL=PUBLIC_API_URL)
 
 @app.route("/admin/reports/sales")
 def admin_sales_report():
@@ -166,7 +192,7 @@ def admin_sales_report():
 
 @app.route("/restaurant/order")
 def restaurant_order():
-    if session.get("role") != "Restaurant":
+    if session.get("role") != "Restaurant" or session.get("subrole") == "NPS":
         return redirect(url_for("welcome"))
     headers = get_auth_headers()
     selected_date = request.args.get("date", datetime.now().strftime("%Y-%m-%d"))
@@ -188,7 +214,7 @@ def restaurant_order():
 
 @app.route("/restaurant/receiving")
 def restaurant_receiving():
-    if session.get("role") != "Restaurant":
+    if session.get("role") != "Restaurant" or session.get("subrole") == "NPS":
         return redirect(url_for("welcome"))
     headers = get_auth_headers()
     date_filter = request.args.get("order_date", "")
@@ -219,15 +245,18 @@ def production_shipping():
     return render_template("production_shipping.html", orders=orders, API_URL=PUBLIC_API_URL)
 
 # ── History ──────────────────────────────────────────────────
-
 @app.route("/history")
-def history():
-    role = session.get("role")
-    if not role:
+@app.route("/history/<int:req_id>")
+def history(req_id=None):
+    if not session.get("access_token"):
+        return redirect(url_for("login"))
+    
+    if session.get("subrole") == "NPS":
         return redirect(url_for("welcome"))
     headers = get_auth_headers()
     date_filter = request.args.get("order_date", "")
     try:
+        role = session.get("role")
         if role == "SuperAdmin":
             url = f"{API_URL}/superadmin/history"
         elif role in ADMIN_ROLES:

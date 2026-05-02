@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .survey-step {
+        display: none;
+        animation: slideIn 0.3s ease;
+    }
+    .survey-step.active {
+        display: block;
+    }
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    .progress-bar-container {
+        height: 6px;
+        background: var(--border);
+        border-radius: 3px;
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+    .progress-bar {
+        height: 100%;
+        background: var(--primary);
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+</style>
+
+<div class="card" style="max-width: 600px; margin: 2rem auto;">
+    <h2 style="text-align: center; color: var(--primary); margin-bottom: 0.5rem;">{{ _('Customer Satisfaction Survey') }}</h2>
+    
+    <div class="progress-bar-container">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <div id="survey-container">
+        <form id="npsForm" onsubmit="submitSurvey(event)">
+            <!-- Receipt Number Step (Step 0) -->
+            <div class="survey-step active" data-step="0">
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label class="form-label" for="receiptRef" style="font-weight: bold; font-size: 1.1rem;">
+                        {{ _('1. Receipt / Order Number') }} <span style="color: red;">*</span>
+                    </label>
+                    <input type="text" id="receiptRef" class="form-control" placeholder="e.g. 12345" required style="font-size: 1.2rem; padding: 0.75rem;">
+                    <p style="color: var(--text-light); margin-top: 1rem; font-size: 0.9rem;">
+                        <i class="fa-solid fa-circle-info"></i> {{ _('To be filled by the waiter/staff.') }}
+                    </p>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <button type="button" class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="nextStep(0)">
+                        {{ _('Next') }} <i class="fa-solid fa-arrow-right" style="margin-left: 0.5rem;"></i>
+                    </button>
+                </div>
+            </div>
+
+            {% for q in questions %}
+            <div class="survey-step nps-question" data-step="{{ loop.index }}" data-qid="{{ q.id }}" data-type="{{ q.question_type }}">
+                <label class="form-label" style="font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 1.5rem;">
+                    {{ loop.index + 1 }}. {{ q.question_text }}
+                </label>
+
+                {% if q.question_type == 'score' %}
+                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; margin-top: 1rem;">
+                    {% for i in range(11) %}
+                    <label style="cursor: pointer;">
+                        <input type="radio" name="q_{{ q.id }}" value="{{ i }}" required style="display: none;" onchange="autoNext({{ loop.index0 + 1 }})">
+                        <div class="score-box" style="border: 2px solid var(--border); padding: 0.75rem; border-radius: 8px; text-align: center; font-weight: bold; transition: all 0.2s;">
+                            {{ i }}
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-light); margin-top: 1rem;">
+                    <span>{{ _('Not likely at all') }}</span>
+                    <span>{{ _('Extremely likely') }}</span>
+                </div>
+
+                {% elif q.question_type == 'yes_no' %}
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <label style="flex: 1; cursor: pointer;">
+                        <input type="radio" name="q_{{ q.id }}" value="Yes" required style="display: none;" onchange="autoNext({{ loop.index0 + 1 }})">
+                        <div class="score-box" style="border: 2px solid var(--border); padding: 1rem; border-radius: 8px; text-align: center; font-weight: bold;">
+                            {{ _('Yes') }}
+                        </div>
+                    </label>
+                    <label style="flex: 1; cursor: pointer;">
+                        <input type="radio" name="q_{{ q.id }}" value="No" required style="display: none;" onchange="autoNext({{ loop.index0 + 1 }})">
+                        <div class="score-box" style="border: 2px solid var(--border); padding: 1rem; border-radius: 8px; text-align: center; font-weight: bold;">
+                            {{ _('No') }}
+                        </div>
+                    </label>
+                </div>
+
+                {% elif q.question_type == 'text' %}
+                <textarea class="form-control" name="q_{{ q.id }}" rows="4" placeholder="{{ _('Your feedback...') }}" style="font-size: 1rem;"></textarea>
+                {% endif %}
+
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="prevStep({{ loop.index }})">
+                        <i class="fa-solid fa-arrow-left"></i> {{ _('Back') }}
+                    </button>
+                    {% if loop.last %}
+                    <button type="submit" id="submitBtn" class="btn btn-primary" style="flex: 2;">
+                        {{ _('Submit Feedback') }}
+                    </button>
+                    {% else %}
+                    <button type="button" class="btn btn-primary" style="flex: 2;" onclick="nextStep({{ loop.index }})">
+                        {{ _('Next') }} <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if not questions %}
+            <div class="survey-step active" data-step="0">
+                 <div style="text-align: center; padding: 2rem;">
+                    <p>{{ _('No additional questions configured.') }}</p>
+                    <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                        {{ _('Submit Feedback') }}
+                    </button>
+                 </div>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+
+    <div id="success-message" class="hidden" style="text-align: center; padding: 3rem 0;">
+        <div style="font-size: 4rem; color: #15803d; margin-bottom: 1rem;">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h3 style="color: var(--primary);">{{ _('Thank You!') }}</h3>
+        <p style="color: var(--text-light);">{{ _('Your feedback has been successfully recorded.') }}</p>
+        <button onclick="location.reload()" class="btn btn-secondary" style="margin-top: 2rem;">
+            {{ _('Start New Survey') }}
+        </button>
+    </div>
+</div>
+
+<style>
+    .score-box:hover { border-color: var(--primary); background: rgba(var(--primary-rgb), 0.05); }
+    input[type="radio"]:checked + .score-box { background: var(--primary); color: white; border-color: var(--primary); }
+</style>
+
+<script>
+    const API_URL = "{{ API_URL }}";
+    const TOKEN = "{{ session.get('access_token') }}";
+    const totalSteps = {{ questions|length + 1 }};
+    let currentStep = 0;
+
+    function updateProgress() {
+        const percent = (currentStep / totalSteps) * 100;
+        document.getElementById('progressBar').style.width = percent + '%';
+    }
+
+    function nextStep(step) {
+        // Validate current step
+        if (step === 0) {
+            if (!document.getElementById('receiptRef').value.trim()) {
+                alert("Please enter the receipt number");
+                return;
+            }
+        } else {
+            const qEl = document.querySelector(`.survey-step[data-step="${step}"]`);
+            const type = qEl.dataset.type;
+            if (type === 'score' || type === 'yes_no') {
+                if (!qEl.querySelector('input[type="radio"]:checked')) {
+                    alert("Please select an option");
+                    return;
+                }
+            }
+        }
+
+        document.querySelector(`.survey-step[data-step="${step}"]`).classList.remove('active');
+        currentStep = step + 1;
+        document.querySelector(`.survey-step[data-step="${currentStep}"]`).classList.add('active');
+        updateProgress();
+    }
+
+    function prevStep(step) {
+        document.querySelector(`.survey-step[data-step="${step}"]`).classList.remove('active');
+        currentStep = step - 1;
+        document.querySelector(`.survey-step[data-step="${currentStep}"]`).classList.add('active');
+        updateProgress();
+    }
+
+    function autoNext(step) {
+        // Automatically go to next step for radio buttons
+        setTimeout(() => {
+            if (currentStep < totalSteps - 1) {
+                nextStep(step);
+            }
+        }, 300);
+    }
+
+    async function submitSurvey(e) {
+        e.preventDefault();
+        
+        // Final validation for the last step if it's a radio
+        const lastStepEl = document.querySelector(`.survey-step[data-step="${currentStep}"]`);
+        if (lastStepEl.classList.contains('nps-question')) {
+            const type = lastStepEl.dataset.type;
+            if (type === 'score' || type === 'yes_no') {
+                 if (!lastStepEl.querySelector('input[type="radio"]:checked')) {
+                    alert("Please select an option");
+                    return;
+                }
+            }
+        }
+
+        const btn = document.getElementById('submitBtn');
+        const originalHtml = btn.innerHTML;
+        
+        const receiptRef = document.getElementById('receiptRef').value;
+        const answers = [];
+
+        document.querySelectorAll('.nps-question').forEach(qEl => {
+            const qid = qEl.dataset.qid;
+            const type = qEl.dataset.type;
+            let value = "";
+
+            if (type === 'score' || type === 'yes_no') {
+                const selected = qEl.querySelector('input[type="radio"]:checked');
+                if (selected) value = selected.value;
+            } else if (type === 'text') {
+                value = qEl.querySelector('textarea').value;
+            }
+
+            answers.push({ question_id: parseInt(qid), answer_text: value });
+        });
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> {{ _("Submitting...") }}';
+
+        try {
+            const res = await fetch(`${API_URL}/nps/submit-survey`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${TOKEN}`
+                },
+                body: JSON.stringify({ receipt_ref: receiptRef, answers: answers })
+            });
+
+            if (res.ok) {
+                currentStep = totalSteps;
+                updateProgress();
+                document.getElementById('npsForm').classList.add('hidden');
+                document.getElementById('success-message').classList.remove('hidden');
+            } else {
+                const data = await res.json();
+                alert("Error: " + (data.detail || "Failed to submit survey"));
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        } catch (err) {
+            alert("Connection error");
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
+    
+    updateProgress();
+</script>
+{% endblock %}

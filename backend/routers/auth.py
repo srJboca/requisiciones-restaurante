@@ -122,6 +122,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         "access_token": access_token,
         "token_type": "bearer",
         "role": user.role,
+        "subrole": user.subrole,
         "company_id": user.company_id,
     }
 
@@ -131,6 +132,7 @@ def read_users_me(current_user: User = Depends(get_current_user)):
         "id": current_user.id,
         "username": current_user.username,
         "role": current_user.role,
+        "subrole": current_user.subrole,
         "company_id": current_user.company_id,
         "restaurant_id": current_user.restaurant_id,
         "production_plant_id": current_user.production_plant_id,

@@ -42,8 +42,15 @@ class UserCreate(BaseModel):
     username: str
     password: str
     role: str
+    subrole: Optional[str] = "Requisition"
     restaurant_id: Optional[int] = None
     production_plant_id: Optional[int] = None
+
+class NPSQuestionCreate(BaseModel):
+    question_text: str
+    question_type: str = "score" # score, text, yes_no
+    is_active: bool = True
+    display_order: int = 0
 
 class ProductGroupCreate(BaseModel):
     name: str
@@ -170,7 +177,7 @@ def update_restaurant(restaurant_id: int, payload: RestaurantUpdate, db: Session
 @router.get("/users")
 def get_users(db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
     users = db.query(User).filter(User.company_id == current_user.company_id).all()
-    return [{"id": u.id, "username": u.username, "role": u.role,
+    return [{"id": u.id, "username": u.username, "role": u.role, "subrole": u.subrole,
              "restaurant_id": u.restaurant_id, "production_plant_id": u.production_plant_id} for u in users]
 
 @router.post("/users")
@@ -208,6 +215,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db), current_user: U
         username=user.username,
         password_hash=get_password_hash(user.password),
         role=user.role,
+        subrole=user.subrole,
         company_id=current_user.company_id,
         restaurant_id=rest_id,
         production_plant_id=prod_plant_id,
@@ -802,3 +810,45 @@ def update_sales_mappings(data: List[POSMappingBulkUpdate], db: Session = Depend
             
     db.commit()
     return {"message": "Mappings updated successfully"}
+
+# ── NPS Management ──────────────────────────────────────────
+
+@router.get("/nps/questions")
+def get_nps_questions(db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
+    from models.models import NPSQuestion
+    return db.query(NPSQuestion).filter(NPSQuestion.company_id == current_user.company_id).order_by(NPSQuestion.display_order).all()
+
+@router.post("/nps/questions")
+def create_nps_question(payload: NPSQuestionCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
+    from models.models import NPSQuestion
+    q = NPSQuestion(
+        company_id=current_user.company_id,
+        question_text=payload.question_text,
+        question_type=payload.question_type,
+        is_active=payload.is_active,
+        display_order=payload.display_order
+    )
+    db.add(q)
+    db.commit()
+    return q
+
+@router.put("/nps/questions/{qid}")
+def update_nps_question(qid: int, payload: NPSQuestionCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
+    from models.models import NPSQuestion
+    q = db.query(NPSQuestion).filter(NPSQuestion.id == qid, NPSQuestion.company_id == current_user.company_id).first()
+    if not q: raise HTTPException(404, "Question not found")
+    q.question_text = payload.question_text
+    q.question_type = payload.question_type
+    q.is_active = payload.is_active
+    q.display_order = payload.display_order
+    db.commit()
+    return q
+
+@router.delete("/nps/questions/{qid}")
+def delete_nps_question(qid: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
+    from models.models import NPSQuestion
+    q = db.query(NPSQuestion).filter(NPSQuestion.id == qid, NPSQuestion.company_id == current_user.company_id).first()
+    if not q: raise HTTPException(404, "Question not found")
+    db.delete(q)
+    db.commit()
+    return {"message": "Deleted"}

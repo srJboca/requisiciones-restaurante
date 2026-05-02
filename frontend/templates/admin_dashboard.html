@@ -65,6 +65,7 @@
     <button class="tab-btn active" onclick="switchTab('tab-org')">Organization</button>
     <button class="tab-btn" onclick="switchTab('tab-catalog')">Catalog</button>
     <button class="tab-btn" onclick="switchTab('tab-users')">Users & Logs</button>
+    <button class="tab-btn" onclick="switchTab('tab-nps')">NPS Survey Setup</button>
     <button class="tab-btn" onclick="switchTab('tab-settings')">Settings</button>
 </div>
 
@@ -229,11 +230,18 @@
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
                     <select id="newUserRole" class="form-control" required
-                        onchange="document.getElementById('newUserRest').style.display = this.value === 'Restaurant' ? 'block' : 'none'; document.getElementById('newUserPlant').style.display = this.value === 'Production Plant' ? 'block' : 'none';">
+                        onchange="
+                            document.getElementById('newUserRest').style.display = this.value === 'Restaurant' ? 'block' : 'none'; 
+                            document.getElementById('newUserSubrole').style.display = this.value === 'Restaurant' ? 'block' : 'none';
+                            document.getElementById('newUserPlant').style.display = this.value === 'Production Plant' ? 'block' : 'none';">
                         <option value="">Select Role</option>
                         <option value="Admin">Admin</option>
                         <option value="Restaurant">Restaurant</option>
                         <option value="Production Plant">Production Plant</option>
+                    </select>
+                    <select id="newUserSubrole" class="form-control" style="display: none;">
+                        <option value="Requisition">Requisition User</option>
+                        <option value="NPS">NPS User</option>
                     </select>
                     <select id="newUserRest" class="form-control" style="display: none;">
                         <option value="">Assign Restaurant</option>
@@ -256,7 +264,7 @@
                 <li
                     style="padding: 0.5rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                     <div>
-                        <strong>{{ u.username }}</strong> ({{ u.role }})
+                        <strong>{{ u.username }}</strong> ({{ u.role }}{% if u.subrole %} / {{ u.subrole }}{% endif %})
                     </div>
                     <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: var(--border);"
                         onclick="adminResetPassword({{ u.id }}, '{{ u.username }}')">Reset Pwd</button>
@@ -293,7 +301,57 @@
     </div>
 </div>
 
-<!-- SETTINGS TAB -->
+    <!-- NPS SURVEY SETUP TAB -->
+    <div id="tab-nps" class="tab-pane">
+        <div class="card">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">NPS Survey Questions</h3>
+            <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 1.5rem;">
+                Define the questions customers will see. The <strong>Receipt Number</strong> is always asked first.
+            </p>
+
+            <form onsubmit="createNPSQuestion(event)" style="margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="newNPSQuestionText" class="form-control" placeholder="Question Text" required style="flex: 2;">
+                    <select id="newNPSQuestionType" class="form-control" style="flex: 1;">
+                        <option value="score">Score (0-10)</option>
+                        <option value="yes_no">Yes / No</option>
+                        <option value="text">Open Text</option>
+                    </select>
+                    <input type="number" id="newNPSQuestionOrder" class="form-control" placeholder="Order" value="0" style="width: 80px;">
+                    <button type="submit" class="btn btn-primary">Add Question</button>
+                </div>
+            </form>
+
+            <div id="nps-questions-list">
+                <table class="grid-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Question</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="npsQuestionsBody">
+                        {% for q in nps_questions %}
+                        <tr data-id="{{ q.id }}">
+                            <td>{{ q.display_order }}</td>
+                            <td>{{ q.question_text }}</td>
+                            <td>{{ q.question_type }}</td>
+                            <td>{% if q.is_active %}Active{% else %}Inactive{% endif %}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="deleteNPSQuestion({{ q.id }})" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Delete</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
 <div id="tab-settings" class="tab-pane">
     <div class="card" style="max-width: 600px;">
         <h3 style="margin-bottom: 1rem; color: var(--primary);">{{ _('System Settings') }}</h3>
@@ -470,11 +528,13 @@
         let production_plant_id = null;
         if (role === 'Production Plant' && plant_id_str) production_plant_id = parseInt(plant_id_str);
 
+        const subrole = document.getElementById('newUserSubrole').value;
+
         try {
             const res = await fetch(`${API_URL}/admin/users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
-                body: JSON.stringify({ username, password, role, restaurant_id, production_plant_id })
+                body: JSON.stringify({ username, password, role, subrole, restaurant_id, production_plant_id })
             });
             if (res.ok) window.location.reload();
             else {
@@ -549,5 +609,36 @@
             }
         } catch (err) { alert('Connection error'); }
     }
-</script>
+        async function createNPSQuestion(e) {
+            e.preventDefault();
+            const text = document.getElementById('newNPSQuestionText').value;
+            const type = document.getElementById('newNPSQuestionType').value;
+            const order = document.getElementById('newNPSQuestionOrder').value;
+
+            try {
+                const res = await fetch(`${API_URL}/admin/nps/questions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                    body: JSON.stringify({ question_text: text, question_type: type, display_order: parseInt(order) })
+                });
+                if (res.ok) window.location.reload();
+            } catch (err) { alert('Connection error'); }
+        }
+
+        async function deleteNPSQuestion(qid) {
+            if (!confirm("Delete this question?")) return;
+            try {
+                const res = await fetch(`${API_URL}/admin/nps/questions/${qid}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${TOKEN}` }
+                });
+                if (res.ok) window.location.reload();
+            } catch (err) { alert('Connection error'); }
+        }
+
+        // Initialize display for user creation
+        if (document.getElementById('newUserRole')) {
+            document.getElementById('newUserRole').dispatchEvent(new Event('change'));
+        }
+    </script>
 {% endblock %}

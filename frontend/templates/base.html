@@ -22,22 +22,26 @@
                     style="margin-left: 0; {% if session.get('lang') == 'es' %}font-weight: bold; color: var(--primary);{% endif %}">ES</a>
             </div>
             {% if session.get('access_token') %}
-            {% if session.get('role') == 'SuperAdmin' %}
-            <a href="{{ url_for('superadmin_dashboard') }}">{{ _('SuperAdmin') }}</a>
-            <a href="{{ url_for('history') }}">{{ _('History') }}</a>
-            {% elif session.get('role') in ['CompanyAdmin', 'Admin'] %}
-            <a href="{{ url_for('admin_dashboard') }}">{{ _('Admin Dashboard') }}</a>
-            <a href="{{ url_for('history') }}">{{ _('History') }}</a>
-            {% elif session.get('role') == 'Restaurant' %}
-            <a href="{{ url_for('restaurant_order') }}">{{ _('Order Builder') }}</a>
-            <a href="{{ url_for('restaurant_receiving') }}">{{ _('Receiving') }}</a>
-            <a href="{{ url_for('history') }}">{{ _('History') }}</a>
-            {% elif session.get('role') == 'Production Plant' %}
-            <a href="{{ url_for('production_shipping') }}">{{ _('Shipping') }}</a>
-            <a href="{{ url_for('history') }}">{{ _('History') }}</a>
-            {% endif %}
-            <a href="#" onclick="openChangePasswordModal()">{{ _('Change Password') }}</a>
-            <a href="{{ url_for('logout') }}">{{ _('Logout') }}</a>
+                {% if session.get('subrole') == 'NPS' %}
+                    <a href="{{ url_for('nps_survey') }}">{{ _('NPS Survey') }}</a>
+                {% else %}
+                    {% if session.get('role') == 'SuperAdmin' %}
+                        <a href="{{ url_for('superadmin_dashboard') }}">{{ _('SuperAdmin') }}</a>
+                        <a href="{{ url_for('history') }}">{{ _('History') }}</a>
+                    {% elif session.get('role') in ['CompanyAdmin', 'Admin'] %}
+                        <a href="{{ url_for('admin_dashboard') }}">{{ _('Admin Dashboard') }}</a>
+                        <a href="{{ url_for('history') }}">{{ _('History') }}</a>
+                    {% elif session.get('role') == 'Restaurant' %}
+                        <a href="{{ url_for('restaurant_order') }}">{{ _('Order Builder') }}</a>
+                        <a href="{{ url_for('restaurant_receiving') }}">{{ _('Receiving') }}</a>
+                        <a href="{{ url_for('history') }}">{{ _('History') }}</a>
+                    {% elif session.get('role') == 'Production Plant' %}
+                        <a href="{{ url_for('production_shipping') }}">{{ _('Shipping') }}</a>
+                        <a href="{{ url_for('history') }}">{{ _('History') }}</a>
+                    {% endif %}
+                {% endif %}
+                <a href="#" onclick="openChangePasswordModal()">{{ _('Change Password') }}</a>
+                <a href="{{ url_for('logout') }}">{{ _('Logout') }}</a>
             {% else %}
             <a href="{{ url_for('login') }}">{{ _('Login') }}</a>
             {% endif %}
