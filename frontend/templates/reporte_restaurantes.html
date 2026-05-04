@@ -5,9 +5,6 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- FontAwesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
 <script>
     tailwind.config = {
         theme: {
@@ -257,8 +254,7 @@
     <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
         <div class="flex flex-wrap gap-3" id="tabs-container">
             <button onclick="changeData('total')" id="btn-total"
-                class="px-6 py-2 rounded-full border font-semibold transition-colors tab-active">Total
-                Organización</button>
+                class="px-6 py-2 rounded-full border font-semibold transition-colors tab-active">{{ _('Total Organization') }}</button>
         </div>
         
         <div class="bg-slate-100 p-1 rounded-xl flex gap-1 border border-slate-200">
@@ -1063,7 +1059,7 @@
                     <input type="text" value="${m.category_name}" 
                         onchange="updateMappingValue(${idx}, 'category_name', this.value)"
                         class="w-full bg-transparent border-none focus:ring-2 focus:ring-brand-500 rounded px-2 py-1 hover:bg-white hover:border-slate-200 border transition-all text-xs"
-                        placeholder="Uncategorized">
+                        placeholder="{{ _('Uncategorized') }}">
                 </td>
                 <td class="px-6 py-4 text-center">
                     <button onclick="toggleMappingIgnore(${idx})" 
@@ -1134,7 +1130,7 @@
                 fetchData();
                 closeMappingModal();
             } else {
-                alert("Error saving mappings");
+                alert("{{ _('Error saving mappings') }}");
             }
         } catch (err) {
             console.error(err);

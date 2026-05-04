@@ -206,7 +206,7 @@
 
         const preview = document.getElementById('etaPreview');
         if (preview) {
-            preview.innerText = `Delivery ETA: ${date.toISOString().split('T')[0]}`;
+            preview.innerText = `{{ _('Delivery ETA') }}: ${date.toISOString().split('T')[0]}`;
         }
     }
 
@@ -291,7 +291,7 @@
         });
 
         if (items.length === 0) {
-            alert('Please specify at least one required quantity before saving.');
+            alert("{{ _('Please specify at least one required quantity before saving.') }}");
             return;
         }
 

@@ -289,13 +289,15 @@
 <style>
     .score-box:hover {
         border-color: var(--primary);
-        background: rgba(var(--primary-rgb), 0.05);
+        background: color-mix(in srgb, var(--primary) 5%, transparent);
     }
 
     input[type="radio"]:checked+.score-box {
         background: var(--primary);
         color: white;
         border-color: var(--primary);
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 30%, transparent);
     }
 </style>
 
@@ -314,7 +316,7 @@
         // Validate current step
         if (step === 0) {
             if (!document.getElementById('receiptRef').value.trim()) {
-                alert("Please enter the receipt number");
+                alert("{{ _('Please enter the receipt number') }}");
                 return;
             }
         } else {
@@ -322,12 +324,12 @@
             const type = qEl.dataset.type;
             if (type === 'score' || type === 'yes_no') {
                 if (!qEl.querySelector('input[type="radio"]:checked')) {
-                    alert("Please select an option");
+                    alert("{{ _('Please select an option') }}");
                     return;
                 }
             } else if (qEl.id === 'dataAcceptanceStep') {
                 if (!document.getElementById('dataAcceptance').checked) {
-                    alert("Please accept the terms and conditions");
+                    alert("{{ _('Please accept the terms and conditions') }}");
                     return;
                 }
             }
@@ -370,13 +372,13 @@
             const type = lastStepEl.dataset.type;
             if (type === 'score' || type === 'yes_no') {
                 if (!lastStepEl.querySelector('input[type="radio"]:checked')) {
-                    alert("Please select an option");
+                    alert("{{ _('Please select an option') }}");
                     return;
                 }
             }
         } else if (lastStepEl && lastStepEl.id === 'dataAcceptanceStep') {
             if (!document.getElementById('dataAcceptance').checked) {
-                alert("Please accept the terms and conditions");
+                alert("{{ _('Please accept the terms and conditions') }}");
                 return;
             }
         }
@@ -422,12 +424,12 @@
                 document.getElementById('success-message').classList.remove('hidden');
             } else {
                 const data = await res.json();
-                alert("Error: " + (data.detail || "Failed to submit survey"));
+                alert("{{ _('Error:') }} " + (data.detail || "{{ _('Failed to submit survey') }}"));
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
             }
         } catch (err) {
-            alert("Connection error");
+            alert("{{ _('Connection error') }}");
             btn.disabled = false;
             btn.innerHTML = originalHtml;
         }

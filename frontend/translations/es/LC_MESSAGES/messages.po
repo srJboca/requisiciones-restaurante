@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-02 16:02+0000\n"
+"POT-Creation-Date: 2026-05-03 23:45+0000\n"
 "PO-Revision-Date: 2026-04-28 01:34+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -20,131 +20,432 @@ msgstr ""
 
 #: app.py:128
 msgid "Passwords do not match"
-msgstr "Passwords do not match"
+msgstr "Las contraseñas no coinciden"
 
 #: app.py:134
 msgid "Setup complete. You can now log in as superadmin."
-msgstr "Setup complete. You can now log in as superadmin."
+msgstr "Configuración completada. Ahora puede ingresar como superadmin."
 
-#: templates/admin_dashboard.html:62 templates/base.html:63
+#: templates/admin_dashboard.html:62 templates/base.html:102
+#: templates/base_new.html:119
 msgid "Admin Dashboard"
 msgstr "Panel de Administración"
+
+#: templates/admin_dashboard.html:65
+#, fuzzy
+msgid "Organization"
+msgstr "Organización"
+
+#: templates/admin_dashboard.html:66
+msgid "Catalog"
+msgstr "Catálogo"
+
+#: templates/admin_dashboard.html:67
+msgid "Users & Logs"
+msgstr "Usuarios y Registros"
+
+#: templates/admin_dashboard.html:68
+#, fuzzy
+msgid "NPS Survey Setup"
+msgstr "Configuración NPS"
+
+#: templates/admin_dashboard.html:69
+#, fuzzy
+msgid "Settings"
+msgstr "Configuración"
 
 #: templates/admin_dashboard.html:76 templates/nps_report.html:6
 #, fuzzy
 msgid "NPS Satisfaction Report"
-msgstr "Customer Satisfaction Survey"
+msgstr "Reporte de Satisfacción NPS"
 
 #: templates/admin_dashboard.html:79
 msgid "View Sales Analytics Report"
-msgstr "View Sales Analytics Report"
+msgstr "Ver Reporte de Analítica"
 
-#: templates/admin_dashboard.html:362 templates/superadmin_dashboard.html:48
+#: templates/admin_dashboard.html:84
+#, fuzzy
+msgid "Production Plants"
+msgstr "Plantas de Producción"
+
+#: templates/admin_dashboard.html:86
+#, fuzzy
+msgid "Plant Name"
+msgstr "Nombre de la Planta"
+
+#: templates/admin_dashboard.html:87 templates/admin_dashboard.html:122
+#: templates/admin_dashboard.html:155 templates/admin_dashboard.html:184
+#: templates/admin_dashboard.html:261
+msgid "Add"
+msgstr "Agregar"
+
+#: templates/admin_dashboard.html:96
+#, fuzzy
+msgid "restaurants"
+msgstr "restaurantes"
+
+#: templates/admin_dashboard.html:100 templates/admin_dashboard.html:139
+#: templates/admin_dashboard.html:212
+#, fuzzy
+msgid "Disable"
+msgstr "Desactivar"
+
+#: templates/admin_dashboard.html:100 templates/admin_dashboard.html:139
+#: templates/admin_dashboard.html:212
+msgid "Enable"
+msgstr "Activar"
+
+#: templates/admin_dashboard.html:108
+#, fuzzy
+msgid "Restaurants"
+msgstr "Restaurantes"
+
+#: templates/admin_dashboard.html:112 templates/admin_dashboard.html:173
+#, fuzzy
+msgid "Name"
+msgstr "Nombre"
+
+#: templates/admin_dashboard.html:113
+#, fuzzy
+msgid "Location"
+msgstr "Ubicación"
+
+#: templates/admin_dashboard.html:117
+#, fuzzy
+msgid "No Production Plant"
+msgstr "Sin Planta de Producción"
+
+#: templates/admin_dashboard.html:134
+msgid "Unassigned"
+msgstr "Sin asignar"
+
+#: templates/admin_dashboard.html:152
+#, fuzzy
+msgid "Product Groups"
+msgstr "Grupos de Productos"
+
+#: templates/admin_dashboard.html:154
+#, fuzzy
+msgid "Group Name"
+msgstr "Nombre del Grupo"
+
+#: templates/admin_dashboard.html:168
+#, fuzzy
+msgid "Products"
+msgstr "Productos"
+
+#: templates/admin_dashboard.html:174 templates/history.html:71
+#: templates/production_shipping.html:40 templates/restaurant_order.html:71
+#: templates/restaurant_receiving.html:41
+msgid "SKU"
+msgstr "SKU"
+
+#: templates/admin_dashboard.html:177 templates/restaurant_order.html:73
+msgid "Unit Measure"
+msgstr "Unidad de Medida"
+
+#: templates/admin_dashboard.html:179
+#, fuzzy
+msgid "No Group"
+msgstr "Sin Grupo"
+
+#: templates/admin_dashboard.html:190
+#, fuzzy
+msgid "Bulk Import Products:"
+msgstr "Importación Masiva:"
+
+#: templates/admin_dashboard.html:192
+msgid "Download Template"
+msgstr "Descargar Plantilla"
+
+#: templates/admin_dashboard.html:198
+#, fuzzy
+msgid "Upload CSV"
+msgstr "Subir CSV"
+
+#: templates/admin_dashboard.html:226
+#, fuzzy
+msgid "Users"
+msgstr "Usuarios"
+
+#: templates/admin_dashboard.html:231 templates/login.html:8
+msgid "Username"
+msgstr "Usuario"
+
+#: templates/admin_dashboard.html:232 templates/login.html:13
+msgid "Password"
+msgstr "Contraseña"
+
+#: templates/admin_dashboard.html:240
+msgid "Select Role"
+msgstr "Seleccionar Rol"
+
+#: templates/admin_dashboard.html:241
+#, fuzzy
+msgid "Admin"
+msgstr "Admin"
+
+#: templates/admin_dashboard.html:242 templates/nps_report.html:10
+#: templates/nps_report.html:59 templates/production_shipping.html:78
+#: templates/reporte_restaurantes.html:84
+#, fuzzy
+msgid "Restaurant"
+msgstr "Restaurante"
+
+#: templates/admin_dashboard.html:243
+#, fuzzy
+msgid "Production Plant"
+msgstr "Planta de Producción"
+
+#: templates/admin_dashboard.html:246
+#, fuzzy
+msgid "Requisition User"
+msgstr "Usuario de Requisición"
+
+#: templates/admin_dashboard.html:247
+#, fuzzy
+msgid "NPS User"
+msgstr "Usuario de NPS"
+
+#: templates/admin_dashboard.html:250
+#, fuzzy
+msgid "Assign Restaurant"
+msgstr "Asignar Restaurante"
+
+#: templates/admin_dashboard.html:256
+msgid "Assign Plant"
+msgstr "Asignar Planta"
+
+#: templates/admin_dashboard.html:273
+msgid "Reset Pwd"
+msgstr "Restablecer"
+
+#: templates/admin_dashboard.html:280
+msgid "Recent Audit Logs"
+msgstr "Registros de Auditoría"
+
+#: templates/admin_dashboard.html:285
+#, fuzzy
+msgid "Time"
+msgstr "Hora"
+
+#: templates/admin_dashboard.html:286
+#, fuzzy
+msgid "Action"
+msgstr "Acción"
+
+#: templates/admin_dashboard.html:287
+#, fuzzy
+msgid "Entity"
+msgstr "Entidad"
+
+#: templates/admin_dashboard.html:288
+#, fuzzy
+msgid "Details"
+msgstr "Detalles"
+
+#: templates/admin_dashboard.html:310
+#, fuzzy
+msgid "NPS Survey Questions"
+msgstr "Preguntas Encuesta NPS"
+
+#: templates/admin_dashboard.html:312
+msgid ""
+"Define the questions customers will see. The Receipt Number is always asked "
+"first."
+msgstr ""
+"Defina las preguntas de la encuesta. El número de recibo siempre es "
+"obligatorio."
+
+#: templates/admin_dashboard.html:317
+#, fuzzy
+msgid "Question Text"
+msgstr "Texto de la Pregunta"
+
+#: templates/admin_dashboard.html:319
+msgid "Score (0-10)"
+msgstr "Puntuación (0-10)"
+
+#: templates/admin_dashboard.html:320
+msgid "Yes / No"
+msgstr "Sí / No"
+
+#: templates/admin_dashboard.html:321
+#, fuzzy
+msgid "Open Text"
+msgstr "Texto Libre"
+
+#: templates/admin_dashboard.html:322
+#, fuzzy
+msgid "Customer Phone"
+msgstr "Teléfono Cliente"
+
+#: templates/admin_dashboard.html:323
+#, fuzzy
+msgid "Customer Email"
+msgstr "Correo Cliente"
+
+#: templates/admin_dashboard.html:325 templates/admin_dashboard.html:334
+#, fuzzy
+msgid "Order"
+msgstr "Orden"
+
+#: templates/admin_dashboard.html:326
+msgid "Add Question"
+msgstr "Agregar Pregunta"
+
+#: templates/admin_dashboard.html:335
+msgid "Question"
+msgstr "Pregunta"
+
+#: templates/admin_dashboard.html:336
+msgid "Type"
+msgstr "Tipo"
+
+#: templates/admin_dashboard.html:337 templates/reporte_restaurantes.html:203
+#: templates/restaurant_order.html:34 templates/restaurant_order.html:48
+#: templates/restaurant_order.html:133
+msgid "Status"
+msgstr "Estado"
+
+#: templates/admin_dashboard.html:338
+#, fuzzy
+msgid "Actions"
+msgstr "Acciones"
+
+#: templates/admin_dashboard.html:347 templates/reporte_restaurantes.html:1068
+#, fuzzy
+msgid "Active"
+msgstr "Activo"
+
+#: templates/admin_dashboard.html:347
+#, fuzzy
+msgid "Inactive"
+msgstr "Inactivo"
+
+#: templates/admin_dashboard.html:349
+#, fuzzy
+msgid "Delete"
+msgstr "Eliminar"
+
+#: templates/admin_dashboard.html:362 templates/superadmin_dashboard.html:70
 msgid "System Settings"
 msgstr "Configuración del Sistema"
 
-#: templates/admin_dashboard.html:366 templates/superadmin_dashboard.html:51
+#: templates/admin_dashboard.html:366 templates/superadmin_dashboard.html:73
 msgid "Requisition ETA (Business Days)"
 msgstr "ETA de Requisición (Días Hábiles)"
 
-#: templates/admin_dashboard.html:372 templates/superadmin_dashboard.html:55
+#: templates/admin_dashboard.html:372 templates/superadmin_dashboard.html:78
 msgid "Default Language"
 msgstr "Idioma Predeterminado"
 
-#: templates/admin_dashboard.html:374 templates/superadmin_dashboard.html:57
+#: templates/admin_dashboard.html:374 templates/superadmin_dashboard.html:81
 msgid "English"
 msgstr "Inglés"
 
-#: templates/admin_dashboard.html:375 templates/superadmin_dashboard.html:58
+#: templates/admin_dashboard.html:375 templates/superadmin_dashboard.html:83
 msgid "Spanish"
 msgstr "Español"
 
 #: templates/admin_dashboard.html:380
 msgid "NPS Thank You Message"
-msgstr "NPS Thank You Message"
+msgstr "Mensaje de Agradecimiento NPS"
 
 #: templates/admin_dashboard.html:385
 #, fuzzy
 msgid "Visual Identity"
-msgstr "Cantidad Requerida"
+msgstr "Identidad Visual"
 
 #: templates/admin_dashboard.html:389
 #, fuzzy
 msgid "Brand Name"
-msgstr "Nombre del Producto"
+msgstr "Nombre de Marca"
 
 #: templates/admin_dashboard.html:393
 msgid "Primary Color"
-msgstr "Primary Color"
+msgstr "Color Primario"
 
 #: templates/admin_dashboard.html:402
 #, fuzzy
 msgid "Logo URL"
-msgstr "Cerrar Sesión"
+msgstr "URL del Logo"
+
+#: templates/admin_dashboard.html:413
+msgid "Enter the public URL of your logo (PNG/JPG recommended)."
+msgstr "Ingrese la URL pública de su logo (PNG/JPG)."
 
 #: templates/admin_dashboard.html:419
 msgid "Terms and Conditions URL"
-msgstr "Terms and Conditions URL"
+msgstr "URL de Términos y Condiciones"
 
-#: templates/admin_dashboard.html:425 templates/superadmin_dashboard.html:62
+#: templates/admin_dashboard.html:421
+msgid "Link to your data treatment and privacy policies."
+msgstr "Enlace a sus políticas de privacidad."
+
+#: templates/admin_dashboard.html:425 templates/superadmin_dashboard.html:87
 msgid "Save Settings"
 msgstr "Guardar Configuración"
 
-#: templates/base.html:57
+#: templates/base.html:96 templates/base_new.html:113
 #, fuzzy
 msgid "NPS Survey"
-msgstr "Start New Survey"
+msgstr "Encuesta NPS"
 
-#: templates/base.html:60
+#: templates/base.html:100 templates/base_new.html:117
 msgid "SuperAdmin"
 msgstr "SuperAdmin"
 
-#: templates/base.html:61 templates/base.html:64 templates/base.html:68
-#: templates/base.html:71 templates/history.html:4
-msgid "History"
-msgstr "Historial"
-
-#: templates/base.html:66
+#: templates/base.html:104 templates/base_new.html:121
 msgid "Order Builder"
 msgstr "Creador de Pedidos"
 
-#: templates/base.html:67
+#: templates/base.html:105 templates/base_new.html:122
 msgid "Receiving"
 msgstr "Recepción"
 
-#: templates/base.html:70
+#: templates/base.html:107 templates/base_new.html:124
 msgid "Shipping"
 msgstr "Envíos"
 
-#: templates/base.html:74 templates/base.html:109
+#: templates/base.html:111 templates/base_new.html:128
+#: templates/history.html:4
+msgid "History"
+msgstr "Historial"
+
+#: templates/base.html:114 templates/base.html:157 templates/base_new.html:131
+#: templates/base_new.html:174
 msgid "Change Password"
 msgstr "Cambiar Contraseña"
 
-#: templates/base.html:75
+#: templates/base.html:115 templates/base_new.html:132
 msgid "Logout"
 msgstr "Cerrar Sesión"
 
-#: templates/base.html:77 templates/login.html:4 templates/login.html:18
+#: templates/base.html:117 templates/base_new.html:134 templates/login.html:4
+#: templates/login.html:17
 msgid "Login"
 msgstr "Ingresar"
 
-#: templates/base.html:112
+#: templates/base.html:160 templates/base_new.html:177
 msgid "Current Password"
 msgstr "Contraseña Actual"
 
-#: templates/base.html:116
+#: templates/base.html:164 templates/base_new.html:181
 msgid "New Password"
 msgstr "Nueva Contraseña"
 
-#: templates/base.html:120
+#: templates/base.html:168 templates/base_new.html:185
 msgid "Confirm New Password"
 msgstr "Confirmar Nueva Contraseña"
 
-#: templates/base.html:125 templates/reporte_restaurantes.html:218
+#: templates/base.html:172 templates/base_new.html:191
+#: templates/reporte_restaurantes.html:215
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: templates/base.html:126 templates/reporte_restaurantes.html:186
+#: templates/base.html:173 templates/base_new.html:192
+#: templates/base_new.html:270 templates/reporte_restaurantes.html:183
 msgid "Save Changes"
 msgstr "Guardar Cambios"
 
@@ -201,22 +502,17 @@ msgstr "artículos"
 #: templates/production_shipping.html:85
 #: templates/restaurant_receiving.html:26
 msgid "Notes from Restaurant"
-msgstr "Notes from Restaurant"
+msgstr "Notas de Restaurante"
 
 #: templates/history.html:56 templates/restaurant_receiving.html:32
 #, fuzzy
 msgid "Notes from Production Plant"
-msgstr "Enviar a Producción"
+msgstr "Notas de Planta de Producción"
 
 #: templates/history.html:62 templates/restaurant_receiving.html:62
 #, fuzzy
 msgid "Receiving Annotations"
-msgstr "Recepción"
-
-#: templates/history.html:71 templates/production_shipping.html:40
-#: templates/restaurant_order.html:71 templates/restaurant_receiving.html:41
-msgid "SKU"
-msgstr "SKU"
+msgstr "Anotaciones de Recepción"
 
 #: templates/history.html:72 templates/production_shipping.html:41
 #: templates/production_shipping.html:95 templates/restaurant_order.html:72
@@ -238,120 +534,97 @@ msgstr "Cant. Enviada"
 msgid "Received Qty"
 msgstr "Cant. Recibida"
 
-#: templates/login.html:6
-msgid "Company users:"
-msgstr "Company users:"
-
-#: templates/login.html:6
-msgid "SuperAdmin:"
-msgstr "SuperAdmin:"
-
-#: templates/login.html:10
-msgid "Username"
-msgstr "Usuario"
-
-#: templates/login.html:15
-msgid "Password"
-msgstr "Contraseña"
-
-#: templates/login.html:31
+#: templates/login.html:30
 msgid "Waking up system..."
-msgstr "Waking up system..."
+msgstr "Despertando el sistema..."
 
-#: templates/login.html:65
+#: templates/login.html:64
 msgid "System is still sleeping. Please try again in a moment."
-msgstr "System is still sleeping. Please try again in a moment."
-
-#: templates/nps_report.html:10 templates/nps_report.html:59
-#: templates/production_shipping.html:78
-#: templates/reporte_restaurantes.html:87
-#, fuzzy
-msgid "Restaurant"
-msgstr "Recepción de Restaurante"
+msgstr "El sistema está despertando. Intente de nuevo en un momento."
 
 #: templates/nps_report.html:12
 #, fuzzy
 msgid "All Restaurants"
-msgstr "Recepción de Restaurante"
+msgstr "Todos los Restaurantes"
 
 #: templates/nps_report.html:19 templates/production_shipping.html:21
 msgid "Print"
-msgstr "Print"
+msgstr "Imprimir"
 
 #: templates/nps_report.html:27
 #, fuzzy
 msgid "NPS SCORE"
-msgstr "Start New Survey"
+msgstr "PUNTUACIÓN NPS"
 
 #: templates/nps_report.html:32
 msgid "PROMOTERS"
-msgstr "PROMOTERS"
+msgstr "PROMOTORES"
 
 #: templates/nps_report.html:37
 msgid "PASSIVES"
-msgstr "PASSIVES"
+msgstr "PASIVOS"
 
 #: templates/nps_report.html:42
 msgid "DETRACTORS"
-msgstr "DETRACTORS"
+msgstr "DETRACTORES"
 
 #: templates/nps_report.html:47
 #, fuzzy
 msgid "TOTAL RESPONSES"
-msgstr "Total de Artículos"
+msgstr "TOTAL RESPUESTAS"
 
 #: templates/nps_report.html:49
 #, fuzzy
 msgid "Completed surveys"
-msgstr "Complete Setup"
+msgstr "Encuestas completadas"
 
 #: templates/nps_report.html:60
 msgid "Receipt #"
-msgstr "Receipt #"
+msgstr "Recibo #"
 
 #: templates/nps_report.html:61
 #, fuzzy
 msgid "Score"
-msgstr "Cerrado por"
+msgstr "Puntaje"
 
 #: templates/nps_report.html:99
 #, fuzzy
 msgid "No survey responses found for the selected filters."
-msgstr "No items match the selected filters."
+msgstr "No se encontraron respuestas para los filtros seleccionados."
 
 #: templates/nps_survey.html:121
 msgid "Customer Satisfaction Survey"
-msgstr "Customer Satisfaction Survey"
+msgstr "Encuesta de Satisfacción"
 
 #: templates/nps_survey.html:133
 #, fuzzy
 msgid "1. Receipt / Order Number"
-msgstr "Receipt / Order Number"
+msgstr "1. Número de Recibo / Pedido"
 
 #: templates/nps_survey.html:138
 msgid "To be filled by the waiter/staff."
-msgstr "To be filled by the waiter/staff."
+msgstr "A ser llenado por el mesero/staff."
 
 #: templates/nps_survey.html:144 templates/nps_survey.html:230
 msgid "Next"
-msgstr "Next"
+msgstr "Siguiente"
 
 #: templates/nps_survey.html:162
 #, fuzzy
 msgid "Optional"
-msgstr "Total de Artículos"
+msgstr "Opcional"
 
 #: templates/nps_survey.html:183
 msgid "Not likely at all"
-msgstr "Not likely at all"
+msgstr "Nada probable"
 
 #: templates/nps_survey.html:184
 msgid "Extremely likely"
-msgstr "Extremely likely"
+msgstr "Extremadamente probable"
 
 #: templates/nps_survey.html:194
 msgid "Yes"
-msgstr "Yes"
+msgstr "Sí"
 
 #: templates/nps_survey.html:201
 msgid "No"
@@ -359,47 +632,47 @@ msgstr "No"
 
 #: templates/nps_survey.html:207
 msgid "Your feedback..."
-msgstr "Your feedback..."
+msgstr "Sus comentarios..."
 
 #: templates/nps_survey.html:222 templates/nps_survey.html:255
 msgid "Back"
-msgstr "Back"
+msgstr "Atrás"
 
 #: templates/nps_survey.html:226 templates/nps_survey.html:258
 #: templates/nps_survey.html:269
 #, fuzzy
 msgid "Submit Feedback"
-msgstr "Enviado por"
+msgstr "Enviar Comentarios"
 
 #: templates/nps_survey.html:241
 msgid "Personal Data Treatment Acceptance"
-msgstr "Personal Data Treatment Acceptance"
+msgstr "Aceptación de Datos Personales"
 
 #: templates/nps_survey.html:247
 msgid "I accept the treatment of my personal data according to the"
-msgstr "I accept the treatment of my personal data according to the"
+msgstr "Acepto el tratamiento de mis datos personales según los"
 
 #: templates/nps_survey.html:248
 msgid "Terms and Conditions"
-msgstr "Terms and Conditions"
+msgstr "Términos y Condiciones"
 
 #: templates/nps_survey.html:267
 #, fuzzy
 msgid "No additional questions configured."
-msgstr "No se encontraron requisiciones pasadas."
+msgstr "No hay preguntas adicionales configuradas."
 
 #: templates/nps_survey.html:281
 msgid "Thank You!"
-msgstr "Thank You!"
+msgstr "¡Gracias!"
 
 #: templates/nps_survey.html:284
 msgid "Start New Survey"
-msgstr "Start New Survey"
+msgstr "Iniciar Nueva Encuesta"
 
-#: templates/nps_survey.html:406
+#: templates/nps_survey.html:408
 #, fuzzy
 msgid "Submitting..."
-msgstr "Uploading..."
+msgstr "Enviando..."
 
 #: templates/production_shipping.html:4
 msgid "Production Plant Shipping"
@@ -415,11 +688,11 @@ msgstr "Inv. Actual"
 
 #: templates/production_shipping.html:63
 msgid "Notes for Restaurant"
-msgstr "Notes for Restaurant"
+msgstr "Notas para el Restaurante"
 
 #: templates/production_shipping.html:64 templates/restaurant_order.html:109
 msgid "Optional annotations..."
-msgstr "Optional annotations..."
+msgstr "Anotaciones opcionales..."
 
 #: templates/production_shipping.html:68
 msgid "Ship Order"
@@ -428,12 +701,12 @@ msgstr "Enviar Pedido"
 #: templates/production_shipping.html:75
 #, fuzzy
 msgid "Requisition Shipping Report"
-msgstr "Reporte de Requisiciones"
+msgstr "Reporte de Envío de Requisición"
 
 #: templates/production_shipping.html:79
 #, fuzzy
 msgid "Date of Requisition"
-msgstr "Constructor de Requisiciones Diarias"
+msgstr "Fecha de Requisición"
 
 #: templates/production_shipping.html:80
 msgid "ETA"
@@ -441,438 +714,431 @@ msgstr "ETA"
 
 #: templates/production_shipping.html:96
 msgid "Unit"
-msgstr "Unit"
+msgstr "Unidad"
 
 #: templates/production_shipping.html:98
 msgid "Amount to be Shipped"
-msgstr "Amount to be Shipped"
+msgstr "Cantidad a Enviar"
 
 #: templates/production_shipping.html:115
 msgid "Dispatched By (Signature)"
-msgstr "Dispatched By (Signature)"
+msgstr "Despachado Por (Firma)"
 
 #: templates/production_shipping.html:118
 msgid "Received By (Signature)"
-msgstr "Received By (Signature)"
+msgstr "Recibido Por (Firma)"
 
 #: templates/production_shipping.html:158
 #, fuzzy
 msgid "Print Requisition"
-msgstr "Fecha de Requisición"
+msgstr "Imprimir Requisición"
 
-#: templates/reporte_restaurantes.html:66
+#: templates/reporte_restaurantes.html:63
 #, fuzzy
 msgid "Return to Dashboard"
-msgstr "Panel de Administración"
+msgstr "Volver al Panel"
 
-#: templates/reporte_restaurantes.html:73
+#: templates/reporte_restaurantes.html:70
 #, fuzzy
 msgid ""
 "Strategic\n"
 "                Sales Infographic"
-msgstr "Strategic Sales Infographic"
+msgstr "Infografía Estratégica de Ventas"
 
-#: templates/reporte_restaurantes.html:75
+#: templates/reporte_restaurantes.html:72
 msgid "Analysis of Traffic, Pareto and Ideal Portfolio Structure"
-msgstr "Analysis of Traffic, Pareto and Ideal Portfolio Structure"
+msgstr "Análisis de Tráfico, Pareto y Estructura de Portafolio Ideal"
 
-#: templates/reporte_restaurantes.html:84
+#: templates/reporte_restaurantes.html:81
 msgid "Upload Sales (CSV)"
-msgstr "Upload Sales (CSV)"
+msgstr "Cargar Ventas (CSV)"
 
-#: templates/reporte_restaurantes.html:91
+#: templates/reporte_restaurantes.html:88
 #, fuzzy
 msgid "Select a restaurant..."
-msgstr "Recepción de Restaurante"
+msgstr "Seleccionar restaurante..."
 
-#: templates/reporte_restaurantes.html:98
+#: templates/reporte_restaurantes.html:95
 #, fuzzy
 msgid "CSV File"
-msgstr "Limpiar Filtro"
+msgstr "Archivo CSV"
 
-#: templates/reporte_restaurantes.html:105
-#: templates/reporte_restaurantes.html:946
+#: templates/reporte_restaurantes.html:102
+#: templates/reporte_restaurantes.html:943
 msgid "Upload Data"
-msgstr "Upload Data"
+msgstr "Cargar Datos"
+
+#: templates/reporte_restaurantes.html:110
+msgid "Strategic Management"
+msgstr "Gestión Estratégica"
 
 #: templates/reporte_restaurantes.html:113
-msgid "Strategic Management"
-msgstr "Strategic Management"
-
-#: templates/reporte_restaurantes.html:116
 #, fuzzy
 msgid "Exclude Products"
-msgstr "Enviar a Producción"
+msgstr "Excluir Productos"
 
-#: templates/reporte_restaurantes.html:120
+#: templates/reporte_restaurantes.html:117
 msgid "Categorize Items"
-msgstr "Categorize Items"
+msgstr "Categorizar Artículos"
 
-#: templates/reporte_restaurantes.html:132
+#: templates/reporte_restaurantes.html:129
 #, fuzzy
 msgid "Manage POS Products"
-msgstr "Enviar a Producción"
+msgstr "Gestionar Productos POS"
 
-#: templates/reporte_restaurantes.html:133
+#: templates/reporte_restaurantes.html:130
 msgid "Disable products to hide them from all reports."
-msgstr "Disable products to hide them from all reports."
+msgstr "Deshabilite productos para ocultarlos de los reportes."
 
-#: templates/reporte_restaurantes.html:144
+#: templates/reporte_restaurantes.html:141
 #, fuzzy
 msgid "Search products..."
-msgstr "Enviar a Producción"
+msgstr "Buscar productos..."
 
-#: templates/reporte_restaurantes.html:159
+#: templates/reporte_restaurantes.html:156
 msgid "Done"
-msgstr "Done"
+msgstr "Listo"
 
-#: templates/reporte_restaurantes.html:170
+#: templates/reporte_restaurantes.html:167
 msgid "Strategic Categorization"
-msgstr "Strategic Categorization"
+msgstr "Categorización Estratégica"
 
-#: templates/reporte_restaurantes.html:171
+#: templates/reporte_restaurantes.html:168
 msgid "Group products into categories and manage exclusions in bulk."
-msgstr "Group products into categories and manage exclusions in bulk."
+msgstr "Agrupe productos en categorías y gestione exclusiones masivas."
 
-#: templates/reporte_restaurantes.html:182
+#: templates/reporte_restaurantes.html:179
 #, fuzzy
 msgid "Search by product or category..."
-msgstr "Enviar a Producción"
+msgstr "Buscar por producto o categoría..."
 
-#: templates/reporte_restaurantes.html:192
+#: templates/reporte_restaurantes.html:189
 msgid "Exclude Entire Category"
-msgstr "Exclude Entire Category"
+msgstr "Excluir Categoría Completa"
 
-#: templates/reporte_restaurantes.html:203
+#: templates/reporte_restaurantes.html:200
 #, fuzzy
 msgid "Product Name (POS)"
-msgstr "Nombre del Producto"
+msgstr "Nombre de Producto (POS)"
 
-#: templates/reporte_restaurantes.html:204
+#: templates/reporte_restaurantes.html:201
 #, fuzzy
 msgid "Strategic Product Name"
-msgstr "Nombre del Producto"
+msgstr "Nombre Estratégico"
 
-#: templates/reporte_restaurantes.html:205
+#: templates/reporte_restaurantes.html:202
 msgid "Strategic Category"
-msgstr "Strategic Category"
+msgstr "Categoría Estratégica"
 
-#: templates/reporte_restaurantes.html:206 templates/restaurant_order.html:34
-#: templates/restaurant_order.html:48 templates/restaurant_order.html:133
-msgid "Status"
-msgstr "Estado"
-
-#: templates/reporte_restaurantes.html:216
+#: templates/reporte_restaurantes.html:213
 msgid ""
 "Uncategorized products default to \"Uncategorized\" and are included in "
 "reports."
 msgstr ""
-"Uncategorized products default to \"Uncategorized\" and are included in "
-"reports."
+"Productos sin categoría por defecto son \"Sin Categoría\" y se incluyen en "
+"reportes."
 
-#: templates/reporte_restaurantes.html:229
+#: templates/reporte_restaurantes.html:226
 msgid "Market Basket Analysis"
-msgstr "Market Basket Analysis"
+msgstr "Análisis de Canasta (Market Basket)"
 
-#: templates/reporte_restaurantes.html:230
+#: templates/reporte_restaurantes.html:227
 msgid "Complete list of product correlations detected in your orders."
-msgstr "Complete list of product correlations detected in your orders."
+msgstr "Lista completa de correlaciones detectadas en sus pedidos."
 
-#: templates/reporte_restaurantes.html:239
+#: templates/reporte_restaurantes.html:236
 #, fuzzy
 msgid "Product Pair"
-msgstr "Nombre del Producto"
+msgstr "Par de Productos"
 
-#: templates/reporte_restaurantes.html:240
+#: templates/reporte_restaurantes.html:237
 msgid "Frequency"
-msgstr "Frequency"
+msgstr "Frecuencia"
 
-#: templates/reporte_restaurantes.html:250
+#: templates/reporte_restaurantes.html:247
 #, fuzzy
 msgid "Close"
-msgstr "Cerrado por"
+msgstr "Cerrar"
 
-#: templates/reporte_restaurantes.html:266
+#: templates/reporte_restaurantes.html:263
 #, fuzzy
 msgid "Product View"
-msgstr "Nombre del Producto"
+msgstr "Vista de Productos"
 
-#: templates/reporte_restaurantes.html:269
+#: templates/reporte_restaurantes.html:266
 msgid "Category View"
-msgstr "Category View"
+msgstr "Vista de Categorías"
 
-#: templates/reporte_restaurantes.html:279
+#: templates/reporte_restaurantes.html:276
 #, fuzzy
 msgid "Order Volume"
-msgstr "Pedido para"
+msgstr "Volumen de Pedidos"
 
-#: templates/reporte_restaurantes.html:291
+#: templates/reporte_restaurantes.html:288
 #, fuzzy
 msgid ""
 "Average Ticket per\n"
 "                        Order"
-msgstr "Average Ticket per Order"
+msgstr "Ticket Promedio por Pedido"
 
-#: templates/reporte_restaurantes.html:305
+#: templates/reporte_restaurantes.html:302
 msgid "Diners per Table"
-msgstr "Diners per Table"
+msgstr "Comensales por Mesa"
 
-#: templates/reporte_restaurantes.html:320
+#: templates/reporte_restaurantes.html:317
 msgid "Sales Pareto (Top 10)"
-msgstr "Sales Pareto (Top 10)"
+msgstr "Pareto de Ventas (Top 10)"
 
-#: templates/reporte_restaurantes.html:321
+#: templates/reporte_restaurantes.html:318
 #, fuzzy, python-format
 msgid "The 20%% of products that generate 80%% of monetary income."
-msgstr "The 20% of products that generate 80% of monetary income."
+msgstr "El 20%% de los productos que generan el 80%% de los ingresos."
 
-#: templates/reporte_restaurantes.html:331
+#: templates/reporte_restaurantes.html:328
 #, fuzzy
 msgid "Anchor Products"
-msgstr "Enviar a Producción"
+msgstr "Productos Ancla"
 
-#: templates/reporte_restaurantes.html:332
+#: templates/reporte_restaurantes.html:329
 msgid "Traffic generators (Highest quantity sold)."
-msgstr "Traffic generators (Highest quantity sold)."
+msgstr "Generadores de tráfico (Mayor cantidad vendida)."
 
-#: templates/reporte_restaurantes.html:345
+#: templates/reporte_restaurantes.html:342
 msgid "Frequently Bought Together"
-msgstr "Frequently Bought Together"
+msgstr "Comprados Juntos Frecuentemente"
 
-#: templates/reporte_restaurantes.html:347
+#: templates/reporte_restaurantes.html:344
 #, fuzzy
 msgid "View All"
-msgstr "Ver Detalles"
+msgstr "Ver Todo"
 
-#: templates/reporte_restaurantes.html:350
+#: templates/reporte_restaurantes.html:347
 msgid "Product pairs that appear most often in the same ticket."
-msgstr "Product pairs that appear most often in the same ticket."
+msgstr "Pares de productos que aparecen más seguido en el mismo ticket."
 
-#: templates/reporte_restaurantes.html:364
+#: templates/reporte_restaurantes.html:361
 msgid "Strategy Tip"
-msgstr "Strategy Tip"
+msgstr "Tip de Estrategia"
 
-#: templates/reporte_restaurantes.html:365
+#: templates/reporte_restaurantes.html:362
 #, fuzzy
 msgid ""
 "Use correlations to create \"Combos\" or\n"
 "                \"Packages\" that increase your Average Ticket. Place correlated products together on your physical menu\n"
 "                to encourage natural upsells."
 msgstr ""
-"Use correlations to create \"Combos\" or \"Packages\" that increase your "
-"Average Ticket. Place correlated products together on your physical menu to "
-"encourage natural upsells."
+"Use correlaciones para crear \"Combos\" o \"Paquetes\" que aumenten su "
+"Ticket Promedio. Coloque productos correlacionados juntos en su menú para "
+"fomentar ventas sugestivas."
 
-#: templates/reporte_restaurantes.html:375
+#: templates/reporte_restaurantes.html:372
 msgid "Interactive Portfolio Analysis"
-msgstr "Interactive Portfolio Analysis"
+msgstr "Análisis Interactivo de Portafolio"
 
-#: templates/reporte_restaurantes.html:376
+#: templates/reporte_restaurantes.html:373
 msgid "Simulate demand changes and filter by business contribution (ABC)."
-msgstr "Simulate demand changes and filter by business contribution (ABC)."
+msgstr ""
+"Simule cambios en la demanda y filtre por contribución al negocio (ABC)."
 
-#: templates/reporte_restaurantes.html:382
-#: templates/reporte_restaurantes.html:448
+#: templates/reporte_restaurantes.html:379
+#: templates/reporte_restaurantes.html:445
 #, fuzzy
 msgid "Filter ABC"
-msgstr "Filtrar por Fecha"
+msgstr "Filtrar ABC"
 
-#: templates/reporte_restaurantes.html:400
+#: templates/reporte_restaurantes.html:397
 msgid "Demand Simulation"
-msgstr "Demand Simulation"
+msgstr "Simulación de Demanda"
+
+#: templates/reporte_restaurantes.html:411
+#: templates/reporte_restaurantes.html:477
+msgid "Item Name"
+msgstr "Nombre del Artículo"
+
+#: templates/reporte_restaurantes.html:412
+#: templates/reporte_restaurantes.html:478
+msgid "ABC Class"
+msgstr "Clase ABC"
+
+#: templates/reporte_restaurantes.html:413
+msgid "Actual Revenue"
+msgstr "Ingreso Real"
 
 #: templates/reporte_restaurantes.html:414
-#: templates/reporte_restaurantes.html:480
-msgid "Item Name"
-msgstr "Item Name"
+msgid "Simulated Revenue"
+msgstr "Ingreso Simulado"
 
 #: templates/reporte_restaurantes.html:415
 #: templates/reporte_restaurantes.html:481
-msgid "ABC Class"
-msgstr "ABC Class"
-
-#: templates/reporte_restaurantes.html:416
-msgid "Actual Revenue"
-msgstr "Actual Revenue"
-
-#: templates/reporte_restaurantes.html:417
-msgid "Simulated Revenue"
-msgstr "Simulated Revenue"
-
-#: templates/reporte_restaurantes.html:418
-#: templates/reporte_restaurantes.html:484
 #, fuzzy, python-format
 msgid "Share %%"
-msgstr "Share %"
+msgstr "Participación %%"
 
-#: templates/reporte_restaurantes.html:419
-#: templates/reporte_restaurantes.html:485
+#: templates/reporte_restaurantes.html:416
+#: templates/reporte_restaurantes.html:482
 #, fuzzy, python-format
 msgid "Cumulative %%"
-msgstr "Cumulative %"
+msgstr "Acumulado %%"
 
-#: templates/reporte_restaurantes.html:427
+#: templates/reporte_restaurantes.html:424
 #, fuzzy
 msgid "TOTAL"
-msgstr "Total de Artículos"
+msgstr "TOTAL"
 
-#: templates/reporte_restaurantes.html:441
+#: templates/reporte_restaurantes.html:438
 #, fuzzy
 msgid "Interactive Volume Analysis"
-msgstr "Interactive Portfolio Analysis"
+msgstr "Análisis Interactivo de Volumen"
 
-#: templates/reporte_restaurantes.html:442
+#: templates/reporte_restaurantes.html:439
 msgid "Simulate demand changes based on total units sold (Quantity ABC)."
-msgstr "Simulate demand changes based on total units sold (Quantity ABC)."
+msgstr ""
+"Simule cambios en la demanda basados en unidades totales vendidas (ABC de "
+"Cantidad)."
 
-#: templates/reporte_restaurantes.html:466
+#: templates/reporte_restaurantes.html:463
 #, fuzzy
 msgid "Volume Simulation"
-msgstr "Demand Simulation"
+msgstr "Simulación de Volumen"
 
-#: templates/reporte_restaurantes.html:482
+#: templates/reporte_restaurantes.html:479
 #, fuzzy
 msgid "Actual Quantity"
-msgstr "Cantidad Requerida"
+msgstr "Cantidad Real"
 
-#: templates/reporte_restaurantes.html:483
+#: templates/reporte_restaurantes.html:480
 #, fuzzy
 msgid "Simulated Quantity"
-msgstr "Cantidad Requerida"
+msgstr "Cantidad Simulada"
 
-#: templates/reporte_restaurantes.html:493
+#: templates/reporte_restaurantes.html:490
 #, fuzzy
 msgid "TOTAL UNITS"
-msgstr "Total de Artículos"
+msgstr "TOTAL UNIDADES"
 
-#: templates/reporte_restaurantes.html:506
+#: templates/reporte_restaurantes.html:503
 #, fuzzy
 msgid ""
 "Strategy:\n"
 "                The Ideal Portfolio (Realistic Scenario)"
-msgstr "Strategy: The Ideal Portfolio (Realistic Scenario)"
+msgstr "Estrategia: El Portafolio Ideal (Escenario Realista)"
 
-#: templates/reporte_restaurantes.html:508
+#: templates/reporte_restaurantes.html:505
 #, fuzzy
 msgid ""
 "Based on sales correlation and the 80/20 rule, it is recommended to\n"
 "                adopt a Realistic Portfolio. This model balances variety for the customer with operational\n"
 "                profitability, eliminating \"dead weight\" from the menu."
 msgstr ""
-"Based on sales correlation and the 80/20 rule, it is recommended to adopt a "
-"Realistic Portfolio. This model balances variety for the customer with "
-"operational profitability, eliminating \"dead weight\" from the menu."
+"Basado en la correlación de ventas y la regla 80/20, se recomienda adoptar "
+"un Portafolio Realista. Este modelo equilibra la variedad para el cliente "
+"con la rentabilidad operativa, eliminando el \"peso muerto\" del menú."
 
-#: templates/reporte_restaurantes.html:519
+#: templates/reporte_restaurantes.html:516
 #, fuzzy, python-format
 msgid "Category A (Keep 100%%)"
-msgstr "Category A (Keep 100%)"
+msgstr "Categoría A (Mantener 100%%)"
 
-#: templates/reporte_restaurantes.html:520
+#: templates/reporte_restaurantes.html:517
 #, fuzzy
 msgid ""
 "High rotation and high margin. They are the core of the\n"
 "                    business."
-msgstr "High rotation and high margin. They are the core of the business."
+msgstr "Alta rotación y alto margen. Son el núcleo del negocio."
 
-#: templates/reporte_restaurantes.html:532
+#: templates/reporte_restaurantes.html:529
 msgid "Category B (Cross-Selling)"
-msgstr "Category B (Cross-Selling)"
+msgstr "Categoría B (Venta Cruzada)"
 
-#: templates/reporte_restaurantes.html:533
+#: templates/reporte_restaurantes.html:530
 #, fuzzy
 msgid ""
 "Medium rotation. They have high purchasing affinity with\n"
 "                    anchor products."
 msgstr ""
-"Medium rotation. They have high purchasing affinity with anchor products."
+"Rotación media. Tienen alta afinidad de compra con los productos ancla."
 
-#: templates/reporte_restaurantes.html:545
+#: templates/reporte_restaurantes.html:542
 msgid "Category C (Eliminate / Simplify)"
-msgstr "Category C (Eliminate / Simplify)"
+msgstr "Categoría C (Eliminar / Simplificar)"
 
-#: templates/reporte_restaurantes.html:546
+#: templates/reporte_restaurantes.html:543
 msgid "Low rotation and complicate kitchen operations (waste)."
-msgstr "Low rotation and complicate kitchen operations (waste)."
+msgstr "Baja rotación y complican las operaciones de cocina (desperdicio)."
 
-#: templates/reporte_restaurantes.html:599
+#: templates/reporte_restaurantes.html:596
 msgid "Income Volume (Relative)"
-msgstr "Income Volume (Relative)"
+msgstr "Volumen de Ingresos (Relativo)"
 
-#: templates/reporte_restaurantes.html:689
+#: templates/reporte_restaurantes.html:686
 #, fuzzy
 msgid "Orders"
-msgstr "Pedido #"
+msgstr "Pedidos"
 
-#: templates/reporte_restaurantes.html:695
+#: templates/reporte_restaurantes.html:692
 #, fuzzy
 msgid "No correlations found yet."
-msgstr "No se encontraron requisiciones pasadas."
+msgstr "No se han encontrado correlaciones aún."
 
-#: templates/reporte_restaurantes.html:704
+#: templates/reporte_restaurantes.html:701
 msgid "Expand List"
-msgstr "Expand List"
+msgstr "Expandir Lista"
 
-#: templates/reporte_restaurantes.html:714
+#: templates/reporte_restaurantes.html:711
 msgid "Collapse List"
-msgstr "Collapse List"
+msgstr "Contraer Lista"
 
-#: templates/reporte_restaurantes.html:742
+#: templates/reporte_restaurantes.html:739
 #, fuzzy
 msgid "No significant correlations found."
-msgstr "No se encontraron requisiciones pasadas."
+msgstr "No se encontraron correlaciones significativas."
 
-#: templates/reporte_restaurantes.html:822
-#: templates/reporte_restaurantes.html:865
+#: templates/reporte_restaurantes.html:819
+#: templates/reporte_restaurantes.html:862
 msgid "No items match the selected filters."
-msgstr "No items match the selected filters."
+msgstr "No hay artículos que coincidan con los filtros."
 
-#: templates/reporte_restaurantes.html:921
+#: templates/reporte_restaurantes.html:918
 msgid "Uploading..."
-msgstr "Uploading..."
+msgstr "Cargando..."
 
-#: templates/reporte_restaurantes.html:923
+#: templates/reporte_restaurantes.html:920
 msgid "Processing file, please wait..."
-msgstr "Processing file, please wait..."
+msgstr "Procesando archivo, por favor espere..."
+
+#: templates/reporte_restaurantes.html:933
+msgid "Success! Data loaded correctly."
+msgstr "¡Éxito! Datos cargados correctamente."
 
 #: templates/reporte_restaurantes.html:936
-msgid "Success! Data loaded correctly."
-msgstr "Success! Data loaded correctly."
-
-#: templates/reporte_restaurantes.html:939
 msgid "Error uploading file"
-msgstr "Error uploading file"
+msgstr "Error al cargar el archivo"
 
-#: templates/reporte_restaurantes.html:977
+#: templates/reporte_restaurantes.html:974
 #, fuzzy
 msgid "No products found."
-msgstr "Enviar a Producción"
+msgstr "No se encontraron productos."
 
-#: templates/reporte_restaurantes.html:986
+#: templates/reporte_restaurantes.html:983
 msgid "Show"
-msgstr "Show"
+msgstr "Mostrar"
 
-#: templates/reporte_restaurantes.html:986
+#: templates/reporte_restaurantes.html:983
 msgid "Hide"
-msgstr "Hide"
+msgstr "Ocultar"
 
-#: templates/reporte_restaurantes.html:1071
+#: templates/reporte_restaurantes.html:1068
 msgid "Ignored"
-msgstr "Ignored"
+msgstr "Ignorado"
 
-#: templates/reporte_restaurantes.html:1071
-#, fuzzy
-msgid "Active"
-msgstr "Fecha"
-
-#: templates/reporte_restaurantes.html:1122
+#: templates/reporte_restaurantes.html:1119
 #, fuzzy
 msgid "Saving..."
-msgstr "Uploading..."
+msgstr "Guardando..."
 
 #: templates/restaurant_order.html:4
 msgid "Daily Requisition Builder"
-msgstr "Constructor de Requisiciones Diarias"
+msgstr "Constructor de Requisición Diaria"
 
 #: templates/restaurant_order.html:9
 msgid "Requisition Date"
@@ -889,11 +1155,11 @@ msgstr "Todos los Grupos"
 #: templates/restaurant_order.html:26
 #, fuzzy
 msgid "Show required only"
-msgstr "Cant. Requerida"
+msgstr "Ver solo requeridos"
 
 #: templates/restaurant_order.html:43 templates/restaurant_order.html:49
 msgid "Delivery ETA"
-msgstr "Tiempo estimado de entrega"
+msgstr "ETA de Entrega"
 
 #: templates/restaurant_order.html:48
 msgid "Draft"
@@ -920,11 +1186,7 @@ msgstr "Pedido para"
 msgid ""
 "has\n"
 "                been"
-msgstr "Ver Detalles"
-
-#: templates/restaurant_order.html:73
-msgid "Unit Measure"
-msgstr "Unidad de Medida"
+msgstr "ha sido"
 
 #: templates/restaurant_order.html:74
 msgid "Current Inventory"
@@ -943,7 +1205,7 @@ msgstr "Editado Por"
 msgid ""
 "Notes\n"
 "                for Production Plant"
-msgstr "Ver Detalles"
+msgstr "Notas para Planta de Producción"
 
 #: templates/restaurant_order.html:128
 msgid "Requisitions Report"
@@ -955,26 +1217,26 @@ msgstr "Fecha de Pedido"
 
 #: templates/restaurant_order.html:134
 msgid "Action By"
-msgstr "Acción por"
+msgstr "Acción Por"
 
 #: templates/restaurant_order.html:135
 msgid "Total Items"
-msgstr "Total de Artículos"
+msgstr "Total Artículos"
 
 #: templates/restaurant_order.html:158
 #, fuzzy
 msgid "Restaurant Notes"
-msgstr "Recepción de Restaurante"
+msgstr "Notas de Restaurante"
 
 #: templates/restaurant_order.html:160
 #, fuzzy
 msgid "Production Notes"
-msgstr "Nombre del Producto"
+msgstr "Notas de Producción"
 
 #: templates/restaurant_order.html:162
 #, fuzzy
 msgid "Receiving Notes"
-msgstr "Recepción"
+msgstr "Notas de Recepción"
 
 #: templates/restaurant_order.html:169
 #, fuzzy
@@ -993,7 +1255,7 @@ msgstr "No se encontraron pedidos enviados para recepción."
 
 #: templates/restaurant_receiving.html:63
 msgid "Optional annotations upon receipt..."
-msgstr "Optional annotations upon receipt..."
+msgstr "Anotaciones opcionales al recibir..."
 
 #: templates/restaurant_receiving.html:67
 msgid "Confirm Receipt"
@@ -1002,155 +1264,155 @@ msgstr "Confirmar Recepción"
 #: templates/setup.html:4
 #, fuzzy
 msgid "System Setup Wizard"
-msgstr "Configuración del Sistema"
+msgstr "Asistente de Configuración del Sistema"
 
 #: templates/setup.html:6
 msgid ""
 "Welcome! Since this is the first run, please set the password for the "
 "SuperAdmin account to get started."
 msgstr ""
-"Welcome! Since this is the first run, please set the password for the "
-"SuperAdmin account to get started."
+"¡Bienvenido! Dado que esta es la primera ejecución, por favor establezca la "
+"contraseña para la cuenta SuperAdmin para comenzar."
 
 #: templates/setup.html:10
 #, fuzzy
 msgid "SuperAdmin Password"
-msgstr "Contraseña Actual"
+msgstr "Contraseña de SuperAdmin"
 
 #: templates/setup.html:14
 #, fuzzy
 msgid "Confirm Password"
-msgstr "Confirmar Nueva Contraseña"
+msgstr "Confirmar Contraseña"
 
 #: templates/setup.html:17
 msgid "Complete Setup"
-msgstr "Complete Setup"
+msgstr "Completar Configuración"
 
 #: templates/welcome.html:190
 msgid "Intelligence for Gastronomy"
-msgstr "Intelligence for Gastronomy"
+msgstr "Inteligencia para la Gastronomía"
 
 #: templates/welcome.html:192
 msgid ""
 "We empower restaurants with end-to-end operational control and deep "
 "behavioral analytics to scale customer satisfaction."
 msgstr ""
-"We empower restaurants with end-to-end operational control and deep "
-"behavioral analytics to scale customer satisfaction."
+"Empoderamos a los restaurantes con control operativo de extremo a extremo y "
+"analítica profunda para escalar la satisfacción del cliente."
 
 #: templates/welcome.html:193
 msgid "Access Platform"
-msgstr "Access Platform"
+msgstr "Acceder a la Plataforma"
 
 #: templates/welcome.html:200
 msgid "Our Expertise"
-msgstr "Our Expertise"
+msgstr "Nuestra Experiencia"
 
 #: templates/welcome.html:201
 msgid "Operational Excellence & Analytics"
-msgstr "Operational Excellence & Analytics"
+msgstr "Excelencia Operativa y Analítica"
 
 #: templates/welcome.html:211
 #, fuzzy
 msgid "Operations"
-msgstr "Total de Artículos"
+msgstr "Operaciones"
 
 #: templates/welcome.html:212
 #, fuzzy
 msgid "End-to-End Requisitions"
-msgstr "Constructor de Requisiciones Diarias"
+msgstr "Requisiciones de Extremo a Extremo"
 
 #: templates/welcome.html:213
 msgid ""
 "Complete management of the supply chain. From the restaurant floor to the "
 "production plant, ensuring consistency and efficiency in every order."
 msgstr ""
-"Complete management of the supply chain. From the restaurant floor to the "
-"production plant, ensuring consistency and efficiency in every order."
+"Gestión completa de la cadena de suministro. Desde el restaurante hasta la "
+"planta, asegurando consistencia y eficiencia."
 
 #: templates/welcome.html:215
 msgid "Real-time Tracking"
-msgstr "Real-time Tracking"
+msgstr "Seguimiento en Tiempo Real"
 
 #: templates/welcome.html:216
 msgid "Inventory Sync"
-msgstr "Inventory Sync"
+msgstr "Sincronización de Inventario"
 
 #: templates/welcome.html:227
 #, fuzzy
 msgid "Intelligence"
-msgstr "Intelligent NPS"
+msgstr "Inteligencia"
 
 #: templates/welcome.html:228
 #, fuzzy
 msgid "Deep Data Analytics"
-msgstr "Advanced Analytics"
+msgstr "Analítica de Datos Profunda"
 
 #: templates/welcome.html:229
 msgid ""
 "Unlock the secrets of your menu. Market Basket Analysis to detect item "
 "correlations, average ticket trends, and restaurant traffic patterns."
 msgstr ""
-"Unlock the secrets of your menu. Market Basket Analysis to detect item "
-"correlations, average ticket trends, and restaurant traffic patterns."
+"Descubra los secretos de su menú. Análisis de Canasta para detectar "
+"correlaciones, tendencias y patrones de tráfico."
 
 #: templates/welcome.html:231
 #, fuzzy
 msgid "Market Basket"
-msgstr "Market Basket Analysis"
+msgstr "Canasta de Mercado"
 
 #: templates/welcome.html:232
 #, fuzzy
 msgid "Traffic Analysis"
-msgstr "Interactive Portfolio Analysis"
+msgstr "Análisis de Tráfico"
 
 #: templates/welcome.html:243
 #, fuzzy
 msgid "Customer"
-msgstr "Custom Branding"
+msgstr "Cliente"
 
 #: templates/welcome.html:244
 #, fuzzy
 msgid "POS NPS Management"
-msgstr "Strategic Management"
+msgstr "Gestión de NPS en Punto de Venta"
 
 #: templates/welcome.html:245
 msgid ""
 "Real-time satisfaction measurement at the point of sale. Capture critical "
 "guest feedback immediately and turn detractors into promoters."
 msgstr ""
-"Real-time satisfaction measurement at the point of sale. Capture critical "
-"guest feedback immediately and turn detractors into promoters."
+"Medición de satisfacción en tiempo real. Capture comentarios críticos de los"
+" invitados de inmediato."
 
 #: templates/welcome.html:247
 msgid "Instant Alerts"
-msgstr "Instant Alerts"
+msgstr "Alertas Instantáneas"
 
 #: templates/welcome.html:248
 msgid "Digital Surveys"
-msgstr "Digital Surveys"
+msgstr "Encuestas Digitales"
 
 #: templates/welcome.html:258
 msgid "Ready to Scale?"
-msgstr "Ready to Scale?"
+msgstr "¿Listo para Escalar?"
 
 #: templates/welcome.html:260
 msgid ""
 "Join the industry leaders using Plateback to optimize their operations and "
 "delight their customers."
 msgstr ""
-"Join the industry leaders using Plateback to optimize their operations and "
-"delight their customers."
+"Únase a los líderes de la industria que usan Plateback para optimizar sus "
+"operaciones."
 
 #: templates/welcome.html:262
 #, fuzzy
 msgid "Start Now"
-msgstr "Start New Survey"
+msgstr "Comenzar Ahora"
 
 #: templates/welcome.html:265
 #, fuzzy
 msgid "The intelligent gastronomy platform"
-msgstr "Intelligent Gastronomy Solutions"
+msgstr "La plataforma de gastronomía inteligente"
 
 #~ msgid "Welcome to ReqSys"
 #~ msgstr "Bienvenido a ReqSys"
@@ -1162,10 +1424,10 @@ msgstr "Intelligent Gastronomy Solutions"
 #~ msgstr "Data Refinement"
 
 #~ msgid "Please help us improve by answering these quick questions."
-#~ msgstr "Please help us improve by answering these quick questions."
+#~ msgstr "Por favor ayúdenos a mejorar respondiendo estas preguntas."
 
 #~ msgid "Your feedback has been successfully recorded."
-#~ msgstr "Your feedback has been successfully recorded."
+#~ msgstr "Sus comentarios han sido registrados con éxito."
 
 #~ msgid "Brand Logo"
 #~ msgstr "Brand Logo"
@@ -1181,7 +1443,7 @@ msgstr "Intelligent Gastronomy Solutions"
 #~ "El sistema centralizado de gestión de requisiciones para restaurantes."
 
 #~ msgid "The intelligent customer satisfaction and analytics platform."
-#~ msgstr "The intelligent customer satisfaction and analytics platform."
+#~ msgstr "La plataforma inteligente de satisfacción del cliente y analítica."
 
 #~ msgid ""
 #~ "Login\n"
@@ -1199,16 +1461,16 @@ msgstr "Intelligent Gastronomy Solutions"
 #~ "customer satisfaction, NPS analytics, and multi-location performance."
 
 #~ msgid "Get Started"
-#~ msgstr "Get Started"
+#~ msgstr "Comenzar"
 
 #~ msgid "Learn More"
-#~ msgstr "Learn More"
+#~ msgstr "Saber Más"
 
 #~ msgid "Why Plateback?"
 #~ msgstr "Back"
 
 #~ msgid "Everything you need to scale your brand"
-#~ msgstr "Everything you need to scale your brand"
+#~ msgstr "Todo lo que necesita para escalar su marca"
 
 #~ msgid ""
 #~ "Collect feedback in real-time with tablet-optimized surveys. Capture phone, "
@@ -1270,3 +1532,9 @@ msgstr "Intelligent Gastronomy Solutions"
 #~ msgstr ""
 #~ "Join the next generation of restaurant management. Start measuring what "
 #~ "matters today."
+
+#~ msgid "Company users:"
+#~ msgstr "Company users:"
+
+#~ msgid "SuperAdmin:"
+#~ msgstr "SuperAdmin:"

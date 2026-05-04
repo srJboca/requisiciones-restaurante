@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Plateback - Customer Experience{% endblock %}</title>
 
-    <!-- JS Configuration via Meta Tags -->
-    <meta name="api-url" content="{{ API_URL }}">
+    <!-- JS Configuration via Meta Tags (Safer than global JS variables) -->
+    <meta name="api-url" content="{{ API_URL if API_URL else 'http://localhost:8000' }}">
     {% if session.get('access_token') %}
     <meta name="api-token" content="{{ session.get('access_token') }}">
     {% endif %}
@@ -16,24 +16,41 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 
+    <!-- Dynamic Theme Styling -->
     <style>
         :root {
-            --primary: {{ session.get('primary_color', '#3D315B') }};
+
+            /* Fallbacks if session colors aren't set */
+            --primary: {
+                    {
+                    session.get('primary_color', '#3D315B')
+                }
+            }
+
+            ;
+
+            --primary-hover: {
+                    {
+                    session.get('primary_color', '#444B6E')
+                }
+            }
+
+            ;
             --secondary: #708B75;
+            --secondary-hover: #9AB87A;
             --border: #e2e8f0;
         }
 
-        /* Modern focus state using color-mix */
+        /* Modern CSS approach to opacity: color-mix handles hex, rgb, or hsl automatically */
         .form-control:focus {
             box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent) !important;
             border-color: var(--primary);
             outline: none;
         }
 
-        /* Improved Alert/Flash Messages */
+        /* Utility classes for improved flash messages */
         .alert-wrapper {
             margin-bottom: 1.5rem;
         }
@@ -43,10 +60,8 @@
             justify-content: space-between;
             align-items: center;
             padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 0.75rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            border-radius: 6px;
+            transition: opacity 0.3s ease;
         }
 
         .alert-close {
@@ -55,9 +70,7 @@
             opacity: 0.6;
             background: none;
             border: none;
-            font-size: 1.25rem;
-            padding: 0 0.5rem;
-            color: inherit;
+            font-size: 1.2rem;
         }
 
         .alert-close:hover {
@@ -70,7 +83,8 @@
 <body>
     <nav class="navbar" role="navigation" aria-label="Main Navigation">
         <!-- Brand / Logo -->
-        <a href="/" class="navbar-brand" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; font-weight: 700; color: var(--primary); font-size: 1.25rem;">
+        <a href="/" class="navbar-brand"
+            style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; font-weight: 700; color: var(--primary); font-size: 1.25rem;">
             {% if session.get('logo_url') %}
             {% set logo = session.get('logo_url') %}
             <img src="{{ logo if logo.startswith('http') else API_URL ~ logo }}"
@@ -82,8 +96,10 @@
 
         <!-- Navigation Links -->
         <div class="nav-links" style="display: flex; align-items: center; gap: 1rem;">
+
             <!-- Language Toggle -->
-            <div class="lang-toggle" style="font-size: 0.875rem; border-right: 1px solid var(--border); padding-right: 1rem; margin-right: 0.5rem;">
+            <div class="lang-toggle"
+                style="font-size: 0.875rem; border-right: 1px solid var(--border); padding-right: 1rem;">
                 <a href="{{ url_for('set_lang', lang='en') }}"
                     style="text-decoration: none; color: {% if session.get('lang', 'en') == 'en' %}var(--primary){% else %}inherit{% endif %}; font-weight: {% if session.get('lang', 'en') == 'en' %}700{% else %}400{% endif %};">EN</a>
                 <span style="color: var(--border); margin: 0 0.25rem;">|</span>
@@ -91,30 +107,31 @@
                     style="text-decoration: none; color: {% if session.get('lang') == 'es' %}var(--primary){% else %}inherit{% endif %}; font-weight: {% if session.get('lang') == 'es' %}700{% else %}400{% endif %};">ES</a>
             </div>
 
+            <!-- Role-based Links -->
             {% if session.get('access_token') %}
-                {% if session.get('subrole') == 'NPS' %}
-                    <a href="{{ url_for('nps_survey') }}">{{ _('NPS Survey') }}</a>
-                {% else %}
-                    {% set role = session.get('role') %}
-                    {% if role == 'SuperAdmin' %}
-                        <a href="{{ url_for('superadmin_dashboard') }}">{{ _('SuperAdmin') }}</a>
-                    {% elif role in ['CompanyAdmin', 'Admin'] %}
-                        <a href="{{ url_for('admin_dashboard') }}">{{ _('Admin Dashboard') }}</a>
-                    {% elif role == 'Restaurant' %}
-                        <a href="{{ url_for('restaurant_order') }}">{{ _('Order Builder') }}</a>
-                        <a href="{{ url_for('restaurant_receiving') }}">{{ _('Receiving') }}</a>
-                    {% elif role == 'Production Plant' %}
-                        <a href="{{ url_for('production_shipping') }}">{{ _('Shipping') }}</a>
-                    {% endif %}
-                    
-                    {# History is available for all operational roles #}
-                    <a href="{{ url_for('history') }}">{{ _('History') }}</a>
-                {% endif %}
-                
-                <a href="javascript:void(0)" onclick="openModal('changePasswordModal')">{{ _('Change Password') }}</a>
-                <a href="{{ url_for('logout') }}" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">{{ _('Logout') }}</a>
+            {% if session.get('subrole') == 'NPS' %}
+            <a href="{{ url_for('nps_survey') }}">{{ _('NPS Survey') }}</a>
             {% else %}
-                <a href="{{ url_for('login') }}" class="btn btn-primary" style="padding: 0.5rem 1.25rem;">{{ _('Login') }}</a>
+            {% set role = session.get('role') %}
+            {% if role == 'SuperAdmin' %}
+            <a href="{{ url_for('superadmin_dashboard') }}">{{ _('SuperAdmin') }}</a>
+            {% elif role in ['CompanyAdmin', 'Admin'] %}
+            <a href="{{ url_for('admin_dashboard') }}">{{ _('Admin Dashboard') }}</a>
+            {% elif role == 'Restaurant' %}
+            <a href="{{ url_for('restaurant_order') }}">{{ _('Order Builder') }}</a>
+            <a href="{{ url_for('restaurant_receiving') }}">{{ _('Receiving') }}</a>
+            {% elif role == 'Production Plant' %}
+            <a href="{{ url_for('production_shipping') }}">{{ _('Shipping') }}</a>
+            {% endif %}
+
+            {# Everyone except NPS gets History #}
+            <a href="{{ url_for('history') }}">{{ _('History') }}</a>
+            {% endif %}
+
+            <a href="#" onclick="openModal('changePasswordModal'); return false;">{{ _('Change Password') }}</a>
+            <a href="{{ url_for('logout') }}">{{ _('Logout') }}</a>
+            {% else %}
+            <a href="{{ url_for('login') }}">{{ _('Login') }}</a>
             {% endif %}
         </div>
     </nav>
@@ -138,14 +155,14 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Global Modal Templates -->
-    <!-- Confirm Action Modal -->
+    <!-- Confirm Modal Template -->
     <div class="modal-overlay" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
         <div class="modal">
-            <h3 id="confirmTitle" style="margin-bottom: 1rem; color: var(--primary);">Confirm Action</h3>
-            <p id="confirmModalText">Are you sure you want to proceed?</p>
+            <h3 id="confirmTitle" style="margin-bottom: 1rem; color: var(--primary);">Confirm Submission</h3>
+            <p id="confirmModalText">Are you sure?</p>
             <div class="modal-actions" style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
-                <button class="btn" style="background: var(--border);" onclick="closeModal('confirmModal')">Cancel</button>
+                <button class="btn" style="background: var(--border);"
+                    onclick="closeModal('confirmModal')">Cancel</button>
                 <button class="btn btn-primary" id="confirmModalBtn">Confirm</button>
             </div>
         </div>
@@ -168,8 +185,10 @@
                     <label class="form-label" for="confirmPassword">{{ _('Confirm New Password') }}</label>
                     <input type="password" id="confirmPassword" class="form-control" required minlength="8">
                 </div>
-                <div class="modal-actions" style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
-                    <button type="button" class="btn" style="background: var(--border);" onclick="closeModal('changePasswordModal')">{{ _('Cancel') }}</button>
+                <div class="modal-actions"
+                    style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn" style="background: var(--border);"
+                        onclick="closeModal('changePasswordModal')">{{ _('Cancel') }}</button>
                     <button type="submit" class="btn btn-primary" id="pwdSubmitBtn">{{ _('Save Changes') }}</button>
                 </div>
             </form>
@@ -178,15 +197,14 @@
 
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     <script>
-        // JS Configuration from Meta Tags
-        const API_URL = document.querySelector('meta[name="api-url"]')?.content || '';
-        const API_TOKEN = document.querySelector('meta[name="api-token"]')?.content || '';
+        // 1. Read configuration from DOM meta tags securely
+        const getMeta = (name) => document.querySelector(`meta[name="${name}"]`)?.content || '';
+        const API_URL = getMeta('api-url');
+        const API_TOKEN = getMeta('api-token');
 
-        // Generic Modal Handlers
+        // 2. Generic Modal Handlers
         function openModal(modalId) {
-            if (modalId === 'changePasswordModal') {
-                document.getElementById('changePasswordForm').reset();
-            }
+            if (modalId === 'changePasswordModal') document.getElementById('changePasswordForm').reset();
             document.getElementById(modalId).classList.add('active');
         }
 
@@ -194,23 +212,22 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
-        // Close on overlay click
+        // Close modals if clicking outside the modal content
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
             overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) closeModal(overlay.id);
+                if (e.target === overlay) overlay.classList.remove('active');
             });
         });
 
-        // Auto-dismiss alerts
+        // 3. Auto-dismiss flash messages after 5 seconds
         setTimeout(() => {
             document.querySelectorAll('.alert').forEach(alert => {
                 alert.style.opacity = '0';
-                alert.style.transform = 'translateY(-10px)';
-                setTimeout(() => alert.remove(), 300);
+                setTimeout(() => alert.remove(), 300); // Wait for transition
             });
         }, 5000);
 
-        // Change Password Logic
+        // 4. Change Password Logic
         async function submitChangePassword(e) {
             e.preventDefault();
             const btn = document.getElementById('pwdSubmitBtn');
@@ -224,7 +241,6 @@
             }
 
             btn.disabled = true;
-            const originalText = btn.textContent;
             btn.textContent = 'Saving...';
 
             try {
@@ -251,10 +267,11 @@
                 alert('Connection error. Please try again.');
             } finally {
                 btn.disabled = false;
-                btn.textContent = originalText;
+                btn.textContent = "{{ _('Save Changes') }}";
             }
         }
     </script>
     {% block scripts %}{% endblock %}
 </body>
+
 </html>

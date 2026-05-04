@@ -1,39 +1,61 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h2>SuperAdmin Dashboard</h2>
-    <p style="color: var(--text-light); margin-bottom: 2rem;">Platform-wide management — all companies.</p>
+    <h2>{{ _('SuperAdmin Dashboard') }}</h2>
+    <p style="color: var(--text-light); margin-bottom: 2rem;">{{ _('Platform-wide management — all companies.') }}</p>
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
         <!-- Left: Companies -->
         <div>
             <div class="card">
-                <h3 style="color: var(--primary); margin-bottom: 1rem;">Companies</h3>
-                <form onsubmit="createCompany(event)" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-                    <input type="text" id="newCompanyName" class="form-control" placeholder="Company Name" required>
-                    <input type="text" id="newCompanyDomain" class="form-control" placeholder="domain (e.g. lacesta)" required>
-                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">{{ _('Companies') }}</h3>
+                <form onsubmit="createCompany(event)"
+                    style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                    <input type="text" id="newCompanyName" class="form-control" placeholder="{{ _('Company Name') }}" required>
+                    <input type="text" id="newCompanyDomain" class="form-control" placeholder="{{ _('domain (e.g. lacesta)') }}"
+                        required>
+                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">{{ _('Add') }}</button>
                 </form>
                 <ul style="list-style: none;">
                     {% for c in companies %}
-                    <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start;">
+                    <li
+                        style="padding: 0.75rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start;">
                         <div>
-                            <strong style="{% if not c.is_active %}text-decoration: line-through; color: var(--text-light);{% endif %}">
+                            <strong
+                                style="{% if not c.is_active %}text-decoration: line-through; color: var(--text-light);{% endif %}">
                                 {{ c.name }}
                             </strong>
                             <br>
-                            <small style="color: var(--text-light);">@{{ c.domain }} &middot; {{ c.restaurant_count }} restaurants &middot; {{ c.user_count }} users</small>
+                            <small style="color: var(--text-light);">@{{ c.domain }} &middot; {{ c.restaurant_count }}
+                                {{ _('restaurants') }} &middot; {{ c.user_count }} {{ _('users') }}</small>
+                            <div style="margin-top: 0.5rem;">
+                                {% if c.admins %}
+                                <div style="font-size: 0.8rem; color: var(--text-light);">
+                                    {{ _('Admins') }}:
+                                    {% for admin in c.admins %}
+                                    <span
+                                        style="background: var(--background); padding: 0.1rem 0.4rem; border-radius: 4px; margin-right: 0.25rem; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                        {{ admin.username }}
+                                        <a href="javascript:void(0)"
+                                            onclick="resetAdminPassword({{ admin.id }}, '{{ admin.username }}')"
+                                            title="{{ _('Reset Password') }}"
+                                            style="color: var(--primary); text-decoration: none;">
+                                            <i class="fa-solid fa-key"></i>
+                                        </a>
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
                         <div style="display: flex; gap: 0.5rem; flex-shrink: 0;">
                             <button class="btn {% if c.is_active %}btn-danger{% else %}btn-secondary{% endif %}"
-                                    style="padding: 0.25rem 0.5rem; font-size: 0.8rem;"
-                                    onclick="toggleCompany({{ c.id }})">
-                                {% if c.is_active %}Disable{% else %}Enable{% endif %}
+                                style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="toggleCompany({{ c.id }})">
+                                {% if c.is_active %}{{ _('Disable') }}{% else %}{{ _('Enable') }}{% endif %}
                             </button>
-                            <button class="btn btn-secondary"
-                                    style="padding: 0.25rem 0.5rem; font-size: 0.8rem;"
-                                    onclick="addAdmin({{ c.id }}, '{{ c.name }}')">
-                                + Admin
+                            <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;"
+                                onclick="addAdmin({{ c.id }}, '{{ c.name }}')">
+                                + {{ _('Admin') }}
                             </button>
                         </div>
                     </li>
@@ -49,13 +71,16 @@
                 <form onsubmit="updateGlobalSettings(event)" style="display: flex; flex-direction: column; gap: 1rem;">
                     <div>
                         <label class="form-label">{{ _('Requisition ETA (Business Days)') }}:</label>
-                        <input type="number" id="globalEtaDays" class="form-control" value="{{ settings.get('eta_days', '2') }}" style="width: 100px;" min="0" required>
+                        <input type="number" id="globalEtaDays" class="form-control"
+                            value="{{ settings.get('eta_days', '2') }}" style="width: 100px;" min="0" required>
                     </div>
                     <div>
                         <label class="form-label">{{ _('Default Language') }}:</label>
                         <select id="globalDefaultLang" class="form-control" style="width: 150px;">
-                            <option value="en" {% if settings.get('default_language') == 'en' %}selected{% endif %}>{{ _('English') }}</option>
-                            <option value="es" {% if settings.get('default_language') == 'es' %}selected{% endif %}>{{ _('Spanish') }}</option>
+                            <option value="en" {% if settings.get('default_language')=='en' %}selected{% endif %}>{{
+                                _('English') }}</option>
+                            <option value="es" {% if settings.get('default_language')=='es' %}selected{% endif %}>{{
+                                _('Spanish') }}</option>
                         </select>
                     </div>
                     <div>
@@ -65,8 +90,8 @@
             </div>
 
             <div class="card">
-                <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Quick Links</h3>
-                <p><a href="{{ url_for('history') }}" class="btn btn-secondary">View All Order History</a></p>
+                <h3 style="color: var(--primary); margin-bottom: 0.5rem;">{{ _('Quick Links') }}</h3>
+                <p><a href="{{ url_for('history') }}" class="btn btn-secondary">{{ _('View All Order History') }}</a></p>
             </div>
         </div>
     </div>
@@ -75,19 +100,35 @@
 <!-- Add Admin Modal -->
 <div class="modal-overlay" id="addAdminModal">
     <div class="modal" style="width: 400px;">
-        <h3 style="margin-bottom: 1rem; color: var(--primary);">Add Company Admin</h3>
+        <h3 style="margin-bottom: 1rem; color: var(--primary);">{{ _('Add Company Admin') }}</h3>
         <p id="addAdminCompanyLabel" style="margin-bottom: 1rem; color: var(--text-light); font-size: 0.9rem;"></p>
         <div class="form-group">
-            <label class="form-label">Username</label>
-            <input type="text" id="newAdminUsername" class="form-control" placeholder="admin">
+            <label class="form-label">{{ _('Username') }}</label>
+            <input type="text" id="newAdminUsername" class="form-control" placeholder="{{ _('admin') }}">
         </div>
         <div class="form-group">
-            <label class="form-label">Password</label>
+            <label class="form-label">{{ _('Password') }}</label>
             <input type="password" id="newAdminPassword" class="form-control">
         </div>
         <div class="modal-actions" style="margin-top: 1.5rem;">
-            <button class="btn" style="background: var(--border);" onclick="closeAddAdminModal()">Cancel</button>
-            <button class="btn btn-primary" onclick="submitAddAdmin()">Create Admin</button>
+            <button class="btn" style="background: var(--border);" onclick="closeAddAdminModal()">{{ _('Cancel') }}</button>
+            <button class="btn btn-primary" onclick="submitAddAdmin()">{{ _('Create Admin') }}</button>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal-overlay" id="resetPasswordModal">
+    <div class="modal" style="width: 400px;">
+        <h3 style="margin-bottom: 1rem; color: var(--primary);">{{ _('Reset Admin Password') }}</h3>
+        <p id="resetPasswordLabel" style="margin-bottom: 1rem; color: var(--text-light); font-size: 0.9rem;"></p>
+        <div class="form-group">
+            <label class="form-label">{{ _('New Password') }}</label>
+            <input type="password" id="resetNewPassword" class="form-control" placeholder="{{ _('Minimum 6 characters') }}">
+        </div>
+        <div class="modal-actions" style="margin-top: 1.5rem;">
+            <button class="btn" style="background: var(--border);" onclick="closeResetModal()">{{ _('Cancel') }}</button>
+            <button class="btn btn-primary" onclick="submitResetPassword()">{{ _('Update Password') }}</button>
         </div>
     </div>
 </div>
@@ -109,7 +150,7 @@
             body: JSON.stringify({ name, domain })
         });
         if (res.ok) window.location.reload();
-        else { const d = await res.json(); alert(d.detail || 'Error'); }
+        else { const d = await res.json(); alert(d.detail || "{{ _('Error') }}"); }
     }
 
     async function toggleCompany(id) {
@@ -117,12 +158,12 @@
             method: 'POST', headers: { 'Authorization': `Bearer ${TOKEN}` }
         });
         if (res.ok) window.location.reload();
-        else alert('Error toggling company');
+        else alert("{{ _('Error toggling company') }}");
     }
 
     function addAdmin(companyId, companyName) {
         _currentCompanyId = companyId;
-        document.getElementById('addAdminCompanyLabel').textContent = `Company: ${companyName}`;
+        document.getElementById('addAdminCompanyLabel').textContent = `{{ _('Company') }}: ${companyName}`;
         document.getElementById('newAdminUsername').value = '';
         document.getElementById('newAdminPassword').value = '';
         document.getElementById('addAdminModal').classList.add('active');
@@ -140,8 +181,35 @@
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
             body: JSON.stringify({ username, password })
         });
-        if (res.ok) { closeAddAdminModal(); alert('Admin created successfully!'); window.location.reload(); }
-        else { const d = await res.json(); alert(d.detail || 'Error'); }
+        if (res.ok) { closeAddAdminModal(); alert("{{ _('Admin created successfully!') }}"); window.location.reload(); }
+        else { const d = await res.json(); alert(d.detail || "{{ _('Error') }}"); }
+    }
+
+    let _currentUserToReset = null;
+    function resetAdminPassword(userId, username) {
+        _currentUserToReset = userId;
+        document.getElementById('resetPasswordLabel').textContent = `{{ _('User') }}: ${username}`;
+        document.getElementById('resetNewPassword').value = '';
+        document.getElementById('resetPasswordModal').classList.add('active');
+    }
+
+    function closeResetModal() {
+        document.getElementById('resetPasswordModal').classList.remove('active');
+    }
+
+    async function submitResetPassword() {
+        const password = document.getElementById('resetNewPassword').value;
+        if (!password || password.length < 6) {
+            alert("{{ _('Password must be at least 6 characters') }}");
+            return;
+        }
+        const res = await fetch(`${API_URL}/superadmin/users/${_currentUserToReset}/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+            body: JSON.stringify({ password })
+        });
+        if (res.ok) { closeResetModal(); alert("{{ _('Password reset successfully!') }}"); }
+        else { const d = await res.json(); alert(d.detail || "{{ _('Error') }}"); }
     }
 
     async function updateGlobalSettings(e) {
@@ -153,8 +221,8 @@
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
             body: JSON.stringify({ eta_days, default_language })
         });
-        if (res.ok) { alert('Global settings saved!'); window.location.reload(); }
-        else alert('Error saving settings');
+        if (res.ok) { alert("{{ _('Global settings saved!') }}"); window.location.reload(); }
+        else alert("{{ _('Error saving settings') }}");
     }
 </script>
 {% endblock %}

@@ -3,14 +3,14 @@
     --primary-hover: #444B6E;
     --secondary: #708B75;
     --secondary-hover: #9AB87A;
-    --background: #F3F4F6;
+    --background: #F8FAFC; /* Slightly cleaner blue-ish gray */
     --surface: #FFFFFF;
-    --text: #1F2937;
-    --text-light: #6B7280;
+    --text: #0F172A; /* Darker slate for better legibility */
+    --text-light: #64748B;
     --danger: #EF4444;
     --warning: #F59E0B;
     --success: #10B981;
-    --border: #E5E7EB;
+    --border: #E2E8F0;
     --accent: #646464;
     --radius: 12px;
 }
@@ -96,7 +96,7 @@ body {
 .form-control:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 .btn {
@@ -121,7 +121,7 @@ body {
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-hover);
+    filter: brightness(1.1);
 }
 
 .btn-secondary {
@@ -130,7 +130,7 @@ body {
 }
 
 .btn-secondary:hover {
-    background-color: var(--secondary-hover);
+    filter: brightness(1.1);
 }
 
 .grid-table {
@@ -215,7 +215,25 @@ body {
 }
 
 .alert-danger {
-    background-color: #FEE2E2;
-    color: #B91C1C;
-    border: 1px solid #FCA5A5;
+    background-color: #FEF2F2;
+    color: #991B1B;
+    border: 1px solid #FEE2E2;
+}
+
+.alert-success {
+    background-color: #F0FDF4;
+    color: #166534;
+    border: 1px solid #DCFCE7;
+}
+
+.alert-warning {
+    background-color: #FFFBEB;
+    color: #92400E;
+    border: 1px solid #FEF3C7;
+}
+
+.alert-info {
+    background-color: #EFF6FF;
+    color: #1E40AF;
+    border: 1px solid #DBEAFE;
 }

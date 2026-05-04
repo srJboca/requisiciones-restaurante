@@ -24,6 +24,9 @@ class AdminCreate(BaseModel):
     username: str
     password: str
 
+class PasswordReset(BaseModel):
+    password: str
+
 class SettingUpdate(BaseModel):
     eta_days: Optional[int] = None
     default_language: Optional[str] = None
@@ -42,6 +45,7 @@ def list_companies(db: Session = Depends(get_db), _=Depends(get_current_superadm
             "is_active": c.is_active,
             "restaurant_count": len(c.restaurants),
             "user_count": len(c.users),
+            "admins": [{"id": u.id, "username": u.username} for u in c.users if u.role == 'CompanyAdmin']
         })
     return result
 
@@ -92,6 +96,26 @@ def create_company_admin(
     db.commit()
     log_audit(db, current_user.id, "Create CompanyAdmin", "User", admin.id, f"Created admin for company {company_id}")
     return {"id": admin.id, "username": admin.username, "company": company.domain}
+
+@router.post("/users/{user_id}/reset-password")
+def reset_admin_password(
+    user_id: int,
+    payload: PasswordReset,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_superadmin)
+):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # We only allow resetting CompanyAdmin passwords from here
+    if user.role != 'CompanyAdmin':
+        raise HTTPException(status_code=403, detail="Can only reset passwords for Company Admins")
+
+    user.password_hash = get_password_hash(payload.password)
+    db.commit()
+    log_audit(db, current_user.id, "Reset Admin Password", "User", user.id, f"SuperAdmin reset password for user {user.username}")
+    return {"message": "Password reset successfully"}
 
 # ── Global Settings ──────────────────────────────────────────
 

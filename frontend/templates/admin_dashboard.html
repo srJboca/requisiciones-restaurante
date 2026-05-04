@@ -62,11 +62,11 @@
 <h2>{{ _('Admin Dashboard') }}</h2>
 
 <div class="tab-container">
-    <button class="tab-btn active" onclick="switchTab('tab-org')">Organization</button>
-    <button class="tab-btn" onclick="switchTab('tab-catalog')">Catalog</button>
-    <button class="tab-btn" onclick="switchTab('tab-users')">Users & Logs</button>
-    <button class="tab-btn" onclick="switchTab('tab-nps')">NPS Survey Setup</button>
-    <button class="tab-btn" onclick="switchTab('tab-settings')">Settings</button>
+    <button class="tab-btn active" onclick="switchTab(event, 'tab-org')">{{ _('Organization') }}</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-catalog')">{{ _('Catalog') }}</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-users')">{{ _('Users & Logs') }}</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-nps')">{{ _('NPS Survey Setup') }}</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-settings')">{{ _('Settings') }}</button>
 </div>
 
 <!-- ORGANIZATION TAB -->
@@ -81,10 +81,10 @@
     </div>
     <div class="grid-2col">
         <div class="card">
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">Production Plants</h3>
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">{{ _('Production Plants') }}</h3>
             <form onsubmit="createProductionPlant(event)" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
-                <input type="text" id="newPlantName" class="form-control" placeholder="Plant Name" required>
-                <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+                <input type="text" id="newPlantName" class="form-control" placeholder="{{ _('Plant Name') }}" required>
+                <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">{{ _('Add') }}</button>
             </form>
             <ul style="list-style: none;">
                 {% for p in plants %}
@@ -93,11 +93,11 @@
                     <span
                         style="{% if not p.is_active %}text-decoration: line-through; color: var(--text-light);{% endif %}">
                         {{ p.name }} <small style="color: var(--text-light);">({{ p.restaurant_count }}
-                            restaurants)</small>
+                            {{ _('restaurants') }})</small>
                     </span>
                     <button class="btn {% if p.is_active %}btn-danger{% else %}btn-secondary{% endif %}"
                         style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" onclick="togglePlant({{ p.id }})">
-                        {% if p.is_active %}Disable{% else %}Enable{% endif %}
+                        {% if p.is_active %}{{ _('Disable') }}{% else %}{{ _('Enable') }}{% endif %}
                     </button>
                 </li>
                 {% endfor %}
@@ -105,21 +105,21 @@
         </div>
 
         <div class="card">
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">Restaurants</h3>
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">{{ _('Restaurants') }}</h3>
             <form onsubmit="createRestaurant(event)"
                 style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
                 <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" id="newRestName" class="form-control" placeholder="Name" required>
-                    <input type="text" id="newRestLoc" class="form-control" placeholder="Location">
+                    <input type="text" id="newRestName" class="form-control" placeholder="{{ _('Name') }}" required>
+                    <input type="text" id="newRestLoc" class="form-control" placeholder="{{ _('Location') }}">
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
                     <select id="newRestPlant" class="form-control">
-                        <option value="">No Production Plant</option>
+                        <option value="">{{ _('No Production Plant') }}</option>
                         {% for p in plants %}
                         <option value="{{ p.id }}">{{ p.name }}</option>
                         {% endfor %}
                     </select>
-                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">{{ _('Add') }}</button>
                 </div>
             </form>
             <ul style="list-style: none;">
@@ -131,12 +131,12 @@
                             style="{% if not r.is_active %}text-decoration: line-through; color: var(--text-light);{% endif %}">
                             {{ r.name }}{% if r.location %} - {{ r.location }}{% endif %}
                         </span><br>
-                        <small style="color: var(--text-light);">🏭 {{ r.production_plant_name or 'Unassigned'
+                        <small style="color: var(--text-light);">🏭 {{ r.production_plant_name or _('Unassigned')
                             }}</small>
                     </div>
                     <button class="btn {% if r.is_active %}btn-danger{% else %}btn-secondary{% endif %}"
                         style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" onclick="toggleRestaurant({{ r.id }})">
-                        {% if r.is_active %}Disable{% else %}Enable{% endif %}
+                        {% if r.is_active %}{{ _('Disable') }}{% else %}{{ _('Enable') }}{% endif %}
                     </button>
                 </li>
                 {% endfor %}
@@ -149,10 +149,10 @@
 <div id="tab-catalog" class="tab-pane">
     <div class="grid-2row">
         <div class="card">
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">Product Groups</h3>
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">{{ _('Product Groups') }}</h3>
             <form onsubmit="createProductGroup(event)" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
-                <input type="text" id="newGroupName" class="form-control" placeholder="Group Name" required>
-                <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+                <input type="text" id="newGroupName" class="form-control" placeholder="{{ _('Group Name') }}" required>
+                <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">{{ _('Add') }}</button>
             </form>
             <ul style="list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem;">
                 {% for g in groups %}
@@ -165,37 +165,37 @@
         </div>
 
         <div class="card">
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">Products</h3>
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">{{ _('Products') }}</h3>
 
             <form onsubmit="createProduct(event)"
                 style="margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
                 <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" id="newProdName" class="form-control" placeholder="Name" required>
-                    <input type="text" id="newProdSku" class="form-control" placeholder="SKU" required>
+                    <input type="text" id="newProdName" class="form-control" placeholder="{{ _('Name') }}" required>
+                    <input type="text" id="newProdSku" class="form-control" placeholder="{{ _('SKU') }}" required>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" id="newProdUm" class="form-control" placeholder="Unit Measure" required>
+                    <input type="text" id="newProdUm" class="form-control" placeholder="{{ _('Unit Measure') }}" required>
                     <select id="newProdGroup" class="form-control">
-                        <option value="">No Group</option>
+                        <option value="">{{ _('No Group') }}</option>
                         {% for g in groups %}
                         <option value="{{ g.id }}">{{ g.name }}</option>
                         {% endfor %}
                     </select>
-                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">{{ _('Add') }}</button>
                 </div>
             </form>
 
             <div style="margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px dashed var(--border);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <span style="font-size: 0.9rem; color: var(--text-light);">Bulk Import Products:</span>
+                    <span style="font-size: 0.9rem; color: var(--text-light);">{{ _('Bulk Import Products:') }}</span>
                     <a href="#" onclick="downloadTemplate(event)" class="btn btn-secondary"
-                        style="font-size: 0.8rem; padding: 0.2rem 0.5rem; text-decoration: none;">Download Template</a>
+                        style="font-size: 0.8rem; padding: 0.2rem 0.5rem; text-decoration: none;">{{ _('Download Template') }}</a>
                 </div>
                 <form onsubmit="importProducts(event)" style="display: flex; gap: 0.5rem;">
                     <input type="file" id="importFile" class="form-control" accept=".csv" required
                         style="padding: 0.3rem;">
                     <button type="submit" class="btn btn-primary"
-                        style="padding: 0.5rem 1rem; white-space: nowrap;">Upload CSV</button>
+                        style="padding: 0.5rem 1rem; white-space: nowrap;">{{ _('Upload CSV') }}</button>
                 </form>
             </div>
 
@@ -209,7 +209,7 @@
                     </span>
                     <button class="btn {% if p.is_active %}btn-danger{% else %}btn-secondary{% endif %}"
                         style="padding: 0.25rem 0.5rem; font-size: 0.875rem;" onclick="toggleProduct({{ p.id }})">
-                        {% if p.is_active %}Disable{% else %}Enable{% endif %}
+                        {% if p.is_active %}{{ _('Disable') }}{% else %}{{ _('Enable') }}{% endif %}
                     </button>
                 </li>
                 {% endfor %}
@@ -223,13 +223,13 @@
 <div id="tab-users" class="tab-pane">
     <div class="grid-2col">
         <div class="card">
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">Users</h3>
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">{{ _('Users') }}</h3>
 
             <form onsubmit="createUser(event)"
                 style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
                 <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" id="newUsername" class="form-control" placeholder="Username" required>
-                    <input type="password" id="newPassword" class="form-control" placeholder="Password" required>
+                    <input type="text" id="newUsername" class="form-control" placeholder="{{ _('Username') }}" required>
+                    <input type="password" id="newPassword" class="form-control" placeholder="{{ _('Password') }}" required>
                 </div>
                 <div style="display: flex; gap: 0.5rem;">
                     <select id="newUserRole" class="form-control" required
@@ -237,28 +237,28 @@
                             document.getElementById('newUserRest').style.display = this.value === 'Restaurant' ? 'block' : 'none'; 
                             document.getElementById('newUserSubrole').style.display = this.value === 'Restaurant' ? 'block' : 'none';
                             document.getElementById('newUserPlant').style.display = this.value === 'Production Plant' ? 'block' : 'none';">
-                        <option value="">Select Role</option>
-                        <option value="Admin">Admin</option>
-                        <option value="Restaurant">Restaurant</option>
-                        <option value="Production Plant">Production Plant</option>
+                        <option value="">{{ _('Select Role') }}</option>
+                        <option value="Admin">{{ _('Admin') }}</option>
+                        <option value="Restaurant">{{ _('Restaurant') }}</option>
+                        <option value="Production Plant">{{ _('Production Plant') }}</option>
                     </select>
                     <select id="newUserSubrole" class="form-control" style="display: none;">
-                        <option value="Requisition">Requisition User</option>
-                        <option value="NPS">NPS User</option>
+                        <option value="Requisition">{{ _('Requisition User') }}</option>
+                        <option value="NPS">{{ _('NPS User') }}</option>
                     </select>
                     <select id="newUserRest" class="form-control" style="display: none;">
-                        <option value="">Assign Restaurant</option>
+                        <option value="">{{ _('Assign Restaurant') }}</option>
                         {% for r in restaurants %}
                         <option value="{{ r.id }}">{{ r.name }}</option>
                         {% endfor %}
                     </select>
                     <select id="newUserPlant" class="form-control" style="display: none;">
-                        <option value="">Assign Plant</option>
+                        <option value="">{{ _('Assign Plant') }}</option>
                         {% for p in plants %}
                         <option value="{{ p.id }}">{{ p.name }}</option>
                         {% endfor %}
                     </select>
-                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Add</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">{{ _('Add') }}</button>
                 </div>
             </form>
 
@@ -270,22 +270,22 @@
                         <strong>{{ u.username }}</strong> ({{ u.role }}{% if u.subrole %} / {{ u.subrole }}{% endif %})
                     </div>
                     <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: var(--border);"
-                        onclick="adminResetPassword({{ u.id }}, '{{ u.username }}')">Reset Pwd</button>
+                        onclick="adminResetPassword({{ u.id }}, '{{ u.username }}')">{{ _('Reset Pwd') }}</button>
                 </li>
                 {% endfor %}
             </ul>
         </div>
 
         <div class="card">
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">Recent Audit Logs</h3>
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">{{ _('Recent Audit Logs') }}</h3>
             <div style="max-height: 600px; overflow-y: auto;">
                 <table class="grid-table" style="font-size: 0.875rem;">
                     <thead>
                         <tr>
-                            <th>Time</th>
-                            <th>Action</th>
-                            <th>Entity</th>
-                            <th>Details</th>
+                            <th>{{ _('Time') }}</th>
+                            <th>{{ _('Action') }}</th>
+                            <th>{{ _('Entity') }}</th>
+                            <th>{{ _('Details') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -307,23 +307,23 @@
     <!-- NPS SURVEY SETUP TAB -->
     <div id="tab-nps" class="tab-pane">
         <div class="card">
-            <h3 style="margin-bottom: 1rem; color: var(--primary);">NPS Survey Questions</h3>
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">{{ _('NPS Survey Questions') }}</h3>
             <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 1.5rem;">
-                Define the questions customers will see. The <strong>Receipt Number</strong> is always asked first.
+                {{ _('Define the questions customers will see. The Receipt Number is always asked first.') }}
             </p>
 
             <form onsubmit="createNPSQuestion(event)" style="margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.5rem;">
                 <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" id="newNPSQuestionText" class="form-control" placeholder="Question Text" required style="flex: 2;">
+                    <input type="text" id="newNPSQuestionText" class="form-control" placeholder="{{ _('Question Text') }}" required style="flex: 2;">
                     <select id="newNPSQuestionType" class="form-control" style="flex: 1;">
-                        <option value="score">Score (0-10)</option>
-                        <option value="yes_no">Yes / No</option>
-                        <option value="text">Open Text</option>
-                        <option value="phone">Customer Phone</option>
-                        <option value="email">Customer Email</option>
+                        <option value="score">{{ _('Score (0-10)') }}</option>
+                        <option value="yes_no">{{ _('Yes / No') }}</option>
+                        <option value="text">{{ _('Open Text') }}</option>
+                        <option value="phone">{{ _('Customer Phone') }}</option>
+                        <option value="email">{{ _('Customer Email') }}</option>
                     </select>
-                    <input type="number" id="newNPSQuestionOrder" class="form-control" placeholder="Order" value="0" style="width: 80px;">
-                    <button type="submit" class="btn btn-primary">Add Question</button>
+                    <input type="number" id="newNPSQuestionOrder" class="form-control" placeholder="{{ _('Order') }}" value="0" style="width: 80px;">
+                    <button type="submit" class="btn btn-primary">{{ _('Add Question') }}</button>
                 </div>
             </form>
 
@@ -331,11 +331,11 @@
                 <table class="grid-table">
                     <thead>
                         <tr>
-                            <th>Order</th>
-                            <th>Question</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>{{ _('Order') }}</th>
+                            <th>{{ _('Question') }}</th>
+                            <th>{{ _('Type') }}</th>
+                            <th>{{ _('Status') }}</th>
+                            <th>{{ _('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody id="npsQuestionsBody">
@@ -344,9 +344,9 @@
                             <td>{{ q.display_order }}</td>
                             <td>{{ q.question_text }}</td>
                             <td>{{ q.question_type }}</td>
-                            <td>{% if q.is_active %}Active{% else %}Inactive{% endif %}</td>
+                            <td>{% if q.is_active %}{{ _('Active') }}{% else %}{{ _('Inactive') }}{% endif %}</td>
                             <td>
-                                <button class="btn btn-danger btn-sm" onclick="deleteNPSQuestion({{ q.id }})" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Delete</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteNPSQuestion({{ q.id }})" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">{{ _('Delete') }}</button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -410,7 +410,7 @@
                     </div>
                     <div style="flex: 1;">
                         <input type="text" id="logoUrl" class="form-control" value="{{ logo_url }}" placeholder="https://example.com/logo.png" oninput="updateLogoPreview(this.value)">
-                        <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.5rem;">Enter the public URL of your logo (PNG/JPG recommended).</p>
+                        <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.5rem;">{{ _('Enter the public URL of your logo (PNG/JPG recommended).') }}</p>
                     </div>
                 </div>
             </div>
@@ -418,7 +418,7 @@
             <div class="form-group" style="margin-top: 1.5rem;">
                 <label for="termsUrl" style="display: block; font-size: 0.875rem; margin-bottom: 0.25rem;">{{ _('Terms and Conditions URL') }}:</label>
                 <input type="text" id="termsUrl" class="form-control" value="{{ terms_and_conditions_url }}" placeholder="https://example.com/terms">
-                <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.25rem;">Link to your data treatment and privacy policies.</p>
+                <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.25rem;">{{ _('Link to your data treatment and privacy policies.') }}</p>
             </div>
 
             <div style="margin-top: 1.5rem;">
@@ -430,7 +430,7 @@
 {% endblock %}
 {% block scripts %}
 <script>
-    function switchTab(tabId) {
+    function switchTab(event, tabId) {
         // Hide all panes
         document.querySelectorAll('.tab-pane').forEach(pane => {
             pane.classList.remove('active');
@@ -441,10 +441,10 @@
         });
         // Show selected pane and highlight button
         document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+        if (event && event.currentTarget) {
+            event.currentTarget.classList.add('active');
+        }
     }
-    const API_URL = "{{ API_URL }}";
-    const TOKEN = "{{ session.get('access_token') }}";
 
     async function createProductionPlant(e) {
         e.preventDefault();
@@ -452,7 +452,7 @@
         try {
             const res = await fetch(`${API_URL}/admin/production-plants`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_TOKEN}` },
                 body: JSON.stringify({ name })
             });
             if (res.ok) window.location.reload();
@@ -463,7 +463,7 @@
     async function togglePlant(id) {
         try {
             const res = await fetch(`${API_URL}/admin/production-plants/${id}/toggle`, {
-                method: 'POST', headers: { 'Authorization': `Bearer ${TOKEN}` }
+                method: 'POST', headers: { 'Authorization': `Bearer ${API_TOKEN}` }
             });
             if (res.ok) window.location.reload();
             else alert('Error toggling production plant');
@@ -479,7 +479,7 @@
         try {
             const res = await fetch(`${API_URL}/admin/restaurants`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_TOKEN}` },
                 body: JSON.stringify({ name, location: location || null, production_plant_id })
             });
             if (res.ok) window.location.reload();
@@ -498,7 +498,7 @@
         try {
             const res = await fetch(`${API_URL}/admin/products`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_TOKEN}` },
                 body: JSON.stringify({ name, sku, unit_measure, group_id })
             });
             if (res.ok) window.location.reload();
@@ -517,7 +517,7 @@
         try {
             const res = await fetch(`${API_URL}/admin/products/import`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${TOKEN}` }, // No Content-Type header so fetch sets it with boundary
+                headers: { 'Authorization': `Bearer ${API_TOKEN}` }, // No Content-Type header so fetch sets it with boundary
                 body: formData
             });
             const data = await res.json();
@@ -536,7 +536,7 @@
         try {
             const res = await fetch(`${API_URL}/admin/product-groups`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_TOKEN}` },
                 body: JSON.stringify({ name })
             });
             if (res.ok) window.location.reload();
@@ -548,7 +548,7 @@
         e.preventDefault();
         try {
             const res = await fetch(`${API_URL}/admin/products/template`, {
-                headers: { 'Authorization': `Bearer ${TOKEN}` }
+                headers: { 'Authorization': `Bearer ${API_TOKEN}` }
             });
             if (!res.ok) {
                 alert('Error downloading template');
@@ -584,7 +584,7 @@
         try {
             const res = await fetch(`${API_URL}/admin/users`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_TOKEN}` },
                 body: JSON.stringify({ username, password, role, subrole, restaurant_id, production_plant_id })
             });
             if (res.ok) window.location.reload();
@@ -599,7 +599,7 @@
         try {
             const res = await fetch(`${API_URL}/admin/restaurants/${id}/toggle`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${TOKEN}` }
+                headers: { 'Authorization': `Bearer ${API_TOKEN}` }
             });
             if (res.ok) window.location.reload();
             else alert('Error toggling restaurant');
@@ -610,7 +610,7 @@
         try {
             const res = await fetch(`${API_URL}/admin/products/${id}/toggle`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${TOKEN}` }
+                headers: { 'Authorization': `Bearer ${API_TOKEN}` }
             });
             if (res.ok) window.location.reload();
             else alert('Error toggling product');
@@ -630,7 +630,7 @@
         try {
             const res = await fetch(`${API_URL}/admin/settings`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_TOKEN}` },
                 body: JSON.stringify({ 
                     eta_days, 
                     default_language, 
@@ -672,7 +672,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${TOKEN}`
+                    'Authorization': `Bearer ${API_TOKEN}`
                 },
                 body: JSON.stringify({ new_password: newPassword })
             });
@@ -693,7 +693,7 @@
             try {
                 const res = await fetch(`${API_URL}/admin/nps/questions`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_TOKEN}` },
                     body: JSON.stringify({ question_text: text, question_type: type, display_order: parseInt(order) })
                 });
                 if (res.ok) window.location.reload();
@@ -705,7 +705,7 @@
             try {
                 const res = await fetch(`${API_URL}/admin/nps/questions/${qid}`, {
                     method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${TOKEN}` }
+                    headers: { 'Authorization': `Bearer ${API_TOKEN}` }
                 });
                 if (res.ok) window.location.reload();
             } catch (err) { alert('Connection error'); }
