@@ -9,6 +9,7 @@ translations = {
     "History": "Historial",
     "Change Password": "Cambiar Contraseña",
     "Logout": "Cerrar Sesión",
+    "Powered by Plateback": "Desarrollado por Plateback",
     "Login": "Ingresar",
     "Current Password": "Contraseña Actual",
     "New Password": "Nueva Contraseña",
