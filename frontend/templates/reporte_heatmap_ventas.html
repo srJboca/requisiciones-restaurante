@@ -180,7 +180,8 @@
 
 <div class="dashboard-container">
     <div class="breadcrumb">
-        <a href="{{ url_for('admin_dashboard') }}" style="text-decoration: none; color: inherit;">{{ _('Dashboard') }}</a> 
+        {% set dashboard_url = url_for('business_dashboard') if session.get('role') == 'Business User' else url_for('admin_dashboard') %}
+        <a href="{{ dashboard_url }}" style="text-decoration: none; color: inherit;">{{ _('Dashboard') }}</a> 
         / {{ _('Operational Heatmap') }}
     </div>
 

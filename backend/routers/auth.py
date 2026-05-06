@@ -128,7 +128,11 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         "token_type": "bearer",
         "role": user.role,
         "subrole": user.subrole,
+        "username": user.username,
         "company_id": user.company_id,
+        "company_name": user.company.name if user.company else None,
+        "restaurant_id": user.restaurant_id,
+        "restaurant_name": user.restaurant.name if user.restaurant else None,
         "branding": {
             "brand_name": brand_name.setting_value if brand_name else "Plateback",
             "primary_color": primary_color.setting_value if primary_color else "#3D315B",
@@ -149,7 +153,9 @@ def read_users_me(db: Session = Depends(get_db), current_user: User = Depends(ge
         "role": current_user.role,
         "subrole": current_user.subrole,
         "company_id": current_user.company_id,
+        "company_name": current_user.company.name if current_user.company else None,
         "restaurant_id": current_user.restaurant_id,
+        "restaurant_name": current_user.restaurant.name if current_user.restaurant else None,
         "production_plant_id": current_user.production_plant_id,
         "branding": {
             "brand_name": brand_name.setting_value if brand_name else "Plateback",

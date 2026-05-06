@@ -241,13 +241,14 @@
                 <div style="display: flex; gap: 0.5rem;">
                     <select id="newUserRole" class="form-control" required
                         onchange="
-                            document.getElementById('newUserRest').style.display = this.value === 'Restaurant' ? 'block' : 'none'; 
+                            document.getElementById('newUserRest').style.display = (this.value === 'Restaurant' || this.value === 'Business User') ? 'block' : 'none'; 
                             document.getElementById('newUserSubrole').style.display = this.value === 'Restaurant' ? 'block' : 'none';
                             document.getElementById('newUserPlant').style.display = this.value === 'Production Plant' ? 'block' : 'none';">
                         <option value="">{{ _('Select Role') }}</option>
                         <option value="Admin">{{ _('Admin') }}</option>
                         <option value="Restaurant">{{ _('Restaurant') }}</option>
                         <option value="Production Plant">{{ _('Production Plant') }}</option>
+                        <option value="Business User">{{ _('Business User') }}</option>
                     </select>
                     <select id="newUserSubrole" class="form-control" style="display: none;">
                         <option value="Requisition">{{ _('Requisition User') }}</option>

@@ -13,7 +13,7 @@ from typing import Optional, List
 
 from database import get_db
 from models.models import User, Restaurant, ProductGroup, Product, AuditLog, SystemSetting, Order, ProductionPlant
-from dependencies import get_current_company_admin, log_audit
+from dependencies import get_current_company_admin, log_audit, get_analytical_access
 from routers.auth import get_password_hash
 
 logger = logging.getLogger(__name__)
@@ -128,8 +128,13 @@ def toggle_production_plant(plant_id: int, db: Session = Depends(get_db), curren
 # ── Restaurants ──────────────────────────────────────────────
 
 @router.get("/restaurants")
-def get_restaurants(db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
-    rests = db.query(Restaurant).filter(Restaurant.company_id == current_user.company_id).all()
+def get_restaurants(db: Session = Depends(get_db), current_user: User = Depends(get_analytical_access)):
+    query = db.query(Restaurant).filter(Restaurant.company_id == current_user.company_id)
+    # Scope for Business User by restaurant
+    if current_user.role == 'Business User' and current_user.restaurant_id:
+        query = query.filter(Restaurant.id == current_user.restaurant_id)
+        
+    rests = query.all()
     return [{"id": r.id, "name": r.name, "location": r.location, "is_active": r.is_active,
              "production_plant_id": r.production_plant_id,
              "production_plant_name": r.production_plant.name if r.production_plant else None} for r in rests]
@@ -188,7 +193,7 @@ def get_users(db: Session = Depends(get_db), current_user: User = Depends(get_cu
 
 @router.post("/users")
 def create_user(user: UserCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
-    if user.role not in ('CompanyAdmin', 'Restaurant', 'Production Plant'):
+    if user.role not in ('CompanyAdmin', 'Restaurant', 'Production Plant', 'Business User'):
         raise HTTPException(status_code=400, detail="Invalid role for company user")
     if db.query(User).filter(User.username == user.username, User.company_id == current_user.company_id).first():
         raise HTTPException(status_code=400, detail="Username already exists in this company")
@@ -206,16 +211,18 @@ def create_user(user: UserCreate, db: Session = Depends(get_db), current_user: U
         prod_plant_id = user.production_plant_id
 
     rest_id = None
-    if user.role == 'Restaurant':
-        if not user.restaurant_id:
+    if user.role in ('Restaurant', 'Business User'):
+        if user.role == 'Restaurant' and not user.restaurant_id:
             raise HTTPException(status_code=400, detail="Restaurant must be assigned for Restaurant users")
-        rest = db.query(Restaurant).filter(
-            Restaurant.id == user.restaurant_id,
-            Restaurant.company_id == current_user.company_id
-        ).first()
-        if not rest:
-            raise HTTPException(status_code=400, detail="Restaurant not found in your company")
-        rest_id = user.restaurant_id
+        
+        if user.restaurant_id:
+            rest = db.query(Restaurant).filter(
+                Restaurant.id == user.restaurant_id,
+                Restaurant.company_id == current_user.company_id
+            ).first()
+            if not rest:
+                raise HTTPException(status_code=400, detail="Restaurant not found in your company")
+            rest_id = user.restaurant_id
 
     new_user = User(
         username=user.username,
@@ -404,7 +411,7 @@ def import_products(
 # ── Settings ─────────────────────────────────────────────────
 
 @router.get("/settings")
-def get_settings(db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
+def get_settings(db: Session = Depends(get_db), current_user: User = Depends(get_analytical_access)):
     return {
         "eta_days": _get_setting(db, current_user.company_id, 'eta_days') or "2",
         "default_language": _get_setting(db, current_user.company_id, 'default_language') or "en",

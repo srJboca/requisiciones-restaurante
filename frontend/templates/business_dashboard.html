@@ -50,16 +50,57 @@
 
 <div class="biz-container">
     <div class="welcome-card">
-        <div class="text-sm font-black uppercase tracking-[3px] opacity-80 mb-2">{{ _('Business Intelligence Hub') }}</div>
-        <h1 class="text-3xl font-black mb-2">{{ _('Welcome') }}, {{ session.get('username') }}</h1>
-        <p class="opacity-90 font-medium">
-            {% if session.get('restaurant_name') %}
-                {{ _('Monitoring performance for') }}: <strong>{{ session.get('restaurant_name') }}</strong>
-            {% else %}
-                {{ _('Monitoring global performance for') }} <strong>{{ session.get('company_name') }}</strong>
+        <div class="flex justify-between items-start">
+            <div>
+                <div class="text-sm font-black uppercase tracking-[3px] opacity-80 mb-2">{{ _('Business Intelligence Hub') }}</div>
+                <h1 class="text-3xl font-black mb-2">{{ _('Welcome') }}, {{ session.get('username') }}</h1>
+                <p class="opacity-90 font-medium">
+                    {% if session.get('restaurant_name') %}
+                        {{ _('Monitoring performance for') }}: <strong>{{ session.get('restaurant_name') }}</strong>
+                    {% else %}
+                        {{ _('Monitoring global performance for') }} <strong>{{ session.get('company_name') }}</strong>
+                    {% endif %}
+                </p>
+            </div>
+            
+            {% if not session.get('restaurant_id') %}
+            <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/20">
+                <label class="block text-[10px] font-black uppercase tracking-wider mb-2 opacity-80">{{ _('Filter by Restaurant') }}</label>
+                <select id="bizRestaurantSelector" onchange="updateBizScoping(this.value)" class="bg-white text-slate-800 font-bold py-2 px-4 rounded-xl outline-none border-none shadow-lg">
+                    <option value="">{{ _('All Restaurants') }}</option>
+                    {% for r in restaurants %}
+                    <option value="{{ r.id }}">{{ r.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
             {% endif %}
-        </p>
+        </div>
     </div>
+
+    <script>
+        function updateBizScoping(rid) {
+            // Save selected restaurant ID in session/localStorage to persist across reports
+            localStorage.setItem('biz_scoped_restaurant_id', rid);
+            // Optionally update URL parameters for the current session
+            const links = document.querySelectorAll('.biz-report-link');
+            links.forEach(link => {
+                let url = new URL(link.href);
+                if (rid) url.searchParams.set('restaurant_id', rid);
+                else url.searchParams.delete('restaurant_id');
+                link.href = url.toString();
+            });
+        }
+        
+        // On load, apply saved scope
+        window.addEventListener('load', () => {
+            const savedRid = localStorage.getItem('biz_scoped_restaurant_id');
+            const selector = document.getElementById('bizRestaurantSelector');
+            if (selector && savedRid) {
+                selector.value = savedRid;
+                updateBizScoping(savedRid);
+            }
+        });
+    </script>
 
     <div class="report-grid">
         <a href="{{ url_for('report_traffic_hours') }}" class="biz-report-link">

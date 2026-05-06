@@ -100,6 +100,8 @@
                         <a href="{{ url_for('superadmin_dashboard') }}">{{ _('SuperAdmin') }}</a>
                     {% elif role in ['CompanyAdmin', 'Admin'] %}
                         <a href="{{ url_for('admin_dashboard') }}">{{ _('Admin Dashboard') }}</a>
+                    {% elif role == 'Business User' %}
+                        <a href="{{ url_for('business_dashboard') }}">{{ _('Business Hub') }}</a>
                     {% elif role == 'Restaurant' %}
                         <a href="{{ url_for('restaurant_order') }}">{{ _('Order Builder') }}</a>
                         <a href="{{ url_for('restaurant_receiving') }}">{{ _('Receiving') }}</a>
