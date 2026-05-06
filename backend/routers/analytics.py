@@ -122,3 +122,66 @@ def get_traffic_matrices(restaurant_id: int = None, db: Session = Depends(get_db
             "peak_hour": f"{peak_hour}:00"
         }
     }
+
+@router.get("/product-mix")
+def get_product_mix(restaurant_id: int = None, db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
+    query = db.query(POSSale).filter(POSSale.company_id == current_user.company_id)
+    if restaurant_id:
+        query = query.filter(POSSale.restaurant_id == restaurant_id)
+    
+    sales = query.all()
+    if not sales:
+        return {"products": [], "categories": {}, "total_revenue": 0}
+
+    # Get mappings
+    mappings = db.query(POSProductMapping).filter(POSProductMapping.company_id == current_user.company_id).all()
+    mapping_dict = {m.product_name: {"name": (m.alternative_name or m.product_name), "category": (m.category_name or "Uncategorized")} for m in mappings if not m.is_ignored}
+    ignored_products = {m.product_name for m in mappings if m.is_ignored}
+
+    prod_stats = {} # name -> {qty, revenue, category}
+    cat_stats = {} # name -> {qty, revenue}
+    total_revenue = 0
+
+    for s in sales:
+        if s.product_name in ignored_products: continue
+        
+        info = mapping_dict.get(s.product_name, {"name": s.product_name, "category": "Uncategorized"})
+        name = info["name"]
+        cat = info["category"]
+        qty = int(s.quantity or 1)
+        rev = float(s.price_with_tax or 0)
+        
+        total_revenue += rev
+        
+        if name not in prod_stats:
+            prod_stats[name] = {"name": name, "category": cat, "qty": 0, "revenue": 0}
+        prod_stats[name]["qty"] += qty
+        prod_stats[name]["revenue"] += rev
+
+        if cat not in cat_stats:
+            cat_stats[cat] = {"name": cat, "qty": 0, "revenue": 0}
+        cat_stats[cat]["qty"] += qty
+        cat_stats[cat]["revenue"] += rev
+
+    # Convert and calculate classifications
+    product_list = list(prod_stats.values())
+    if product_list:
+        avg_rev = sum(p["revenue"] for p in product_list) / len(product_list)
+        avg_qty = sum(p["qty"] for p in product_list) / len(product_list)
+        
+        for p in product_list:
+            p["pct_revenue"] = (p["revenue"] / total_revenue * 100) if total_revenue > 0 else 0
+            # Classification logic
+            if p["revenue"] >= avg_rev and p["qty"] >= avg_qty: p["classification"] = "Star"
+            elif p["revenue"] < avg_rev and p["qty"] >= avg_qty: p["classification"] = "Workhorse"
+            elif p["revenue"] >= avg_rev and p["qty"] < avg_qty: p["classification"] = "Puzzle"
+            else: p["classification"] = "Underperformer"
+
+    # Sort products by revenue descending
+    product_list.sort(key=lambda x: x["revenue"], reverse=True)
+
+    return {
+        "products": product_list,
+        "categories": cat_stats,
+        "total_revenue": total_revenue
+    }

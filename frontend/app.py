@@ -261,6 +261,14 @@ def report_heatmap_sales():
     except: restaurants = []
     return render_template("reporte_heatmap_ventas.html", restaurants=restaurants, API_URL=PUBLIC_API_URL, token=session.get("access_token"))
 
+@app.route("/admin/reports/product-mix")
+def report_product_mix():
+    if session.get("role") not in ADMIN_ROLES: return redirect(url_for("welcome"))
+    headers = get_auth_headers()
+    try: restaurants = requests.get(f"{API_URL}/admin/restaurants", headers=headers).json()
+    except: restaurants = []
+    return render_template("reporte_mix_productos.html", restaurants=restaurants, API_URL=PUBLIC_API_URL, token=session.get("access_token"))
+
 # ── Restaurant ───────────────────────────────────────────────
 
 @app.route("/restaurant/order")
