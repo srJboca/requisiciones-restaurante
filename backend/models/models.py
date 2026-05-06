@@ -64,7 +64,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), nullable=False)
     password_hash = Column(String(255), nullable=False)
-    role = Column(Enum('SuperAdmin', 'CompanyAdmin', 'Restaurant', 'Production Plant'), nullable=False)
+    role = Column(Enum('SuperAdmin', 'CompanyAdmin', 'Restaurant', 'Production Plant', 'Business User'), nullable=False)
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=True)
     restaurant_id = Column(Integer, ForeignKey("restaurants.id"), nullable=True)
     production_plant_id = Column(Integer, ForeignKey("production_plants.id"), nullable=True)

@@ -437,6 +437,11 @@
                 <span style="font-weight: 700; color: var(--text);">{{ _('Product Portfolio Behavior') }}</span>
                 <span style="font-size: 0.75rem; color: var(--text-light);">{{ _('ABC analysis and strategic product mix distribution.') }}</span>
             </a>
+            <a href="{{ url_for('report_market_basket') }}" class="report-link" style="padding: 1rem; border: 1px solid var(--border); border-radius: 0.75rem; text-decoration: none; display: flex; flex-direction: column; gap: 0.5rem; transition: all 0.2s;">
+                <i class="fa-solid fa-basket-shopping" style="color: #f43f5e;"></i>
+                <span style="font-weight: 700; color: var(--text);">{{ _('Market Basket Analysis') }}</span>
+                <span style="font-size: 0.75rem; color: var(--text-light);">{{ _('Product correlations and combo upselling opportunities.') }}</span>
+            </a>
         </div>
     </div>
 </div>

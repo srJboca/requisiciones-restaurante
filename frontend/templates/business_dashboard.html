@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .biz-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-top: 40px;
+    }
+    .welcome-card {
+        background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary), black 20%));
+        color: white;
+        padding: 40px;
+        border-radius: 24px;
+        margin-bottom: 40px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    .report-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+    }
+    .biz-report-link {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        border: 1px solid #e1e8ed;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+    .biz-report-link:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 30px rgba(0,0,0,0.05);
+        border-color: var(--primary);
+    }
+    .icon-box {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+</style>
+
+<div class="biz-container">
+    <div class="welcome-card">
+        <div class="text-sm font-black uppercase tracking-[3px] opacity-80 mb-2">{{ _('Business Intelligence Hub') }}</div>
+        <h1 class="text-3xl font-black mb-2">{{ _('Welcome') }}, {{ session.get('username') }}</h1>
+        <p class="opacity-90 font-medium">
+            {% if session.get('restaurant_name') %}
+                {{ _('Monitoring performance for') }}: <strong>{{ session.get('restaurant_name') }}</strong>
+            {% else %}
+                {{ _('Monitoring global performance for') }} <strong>{{ session.get('company_name') }}</strong>
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="report-grid">
+        <a href="{{ url_for('report_traffic_hours') }}" class="biz-report-link">
+            <div class="icon-box" style="background: #eff6ff; color: #3b82f6;">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-black text-slate-800 mb-1">{{ _('Traffic Intelligence') }}</h3>
+                <p class="text-sm text-slate-500 leading-relaxed">{{ _('Hourly distribution, visit intensity, and value vs. volume analysis.') }}</p>
+            </div>
+        </a>
+
+        <a href="{{ url_for('report_heatmap_sales') }}" class="biz-report-link">
+            <div class="icon-box" style="background: #fef2f2; color: #ef4444;">
+                <i class="fa-solid fa-table-cells"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-black text-slate-800 mb-1">{{ _('Intelligent Heatmap Matrix') }}</h3>
+                <p class="text-sm text-slate-500 leading-relaxed">{{ _('7x24 operational overview across revenue, volume, and diners.') }}</p>
+            </div>
+        </a>
+
+        <a href="{{ url_for('report_product_mix') }}" class="biz-report-link">
+            <div class="icon-box" style="background: #f5f3ff; color: #8b5cf6;">
+                <i class="fa-solid fa-chart-pie"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-black text-slate-800 mb-1">{{ _('Product Portfolio Behavior') }}</h3>
+                <p class="text-sm text-slate-500 leading-relaxed">{{ _('ABC analysis and strategic product quadrant classification.') }}</p>
+            </div>
+        </a>
+
+        <a href="{{ url_for('report_market_basket') }}" class="biz-report-link">
+            <div class="icon-box" style="background: #fff1f2; color: #f43f5e;">
+                <i class="fa-solid fa-basket-shopping"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-black text-slate-800 mb-1">{{ _('Market Basket Analysis') }}</h3>
+                <p class="text-sm text-slate-500 leading-relaxed">{{ _('Discover product correlations and combo upselling opportunities.') }}</p>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

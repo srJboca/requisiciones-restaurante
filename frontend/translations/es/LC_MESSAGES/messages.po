@@ -1359,7 +1359,7 @@ msgstr ""
 #: templates/welcome.html:231
 #, fuzzy
 msgid "Market Basket"
-msgstr "Canasta de Mercado"
+msgstr "Análisis de Cesta"
 
 #: templates/welcome.html:232
 #, fuzzy

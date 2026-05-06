@@ -9,7 +9,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "frontendsecret_change_in_producti
 API_URL = os.environ.get("API_URL", "http://backend:8000")
 PUBLIC_API_URL = os.environ.get("PUBLIC_API_URL", "http://localhost:8000")
 
-ADMIN_ROLES = {"CompanyAdmin", "Admin"}  # "Admin" kept for backward compat
+ADMIN_ROLES = {"CompanyAdmin", "Admin", "Business User"}  # "Admin" kept for backward compat
 
 def get_locale():
     if "lang" in session:
@@ -45,6 +45,8 @@ def welcome():
         role = session.get("role")
         if role == "SuperAdmin":
             return redirect(url_for("superadmin_dashboard"))
+        elif role == "Business User":
+            return redirect(url_for("business_dashboard"))
         elif role in ADMIN_ROLES:
             return redirect(url_for("admin_dashboard"))
         elif role == "Restaurant":
@@ -95,8 +97,12 @@ def login():
                 data = res.json()
                 session["access_token"] = data["access_token"]
                 session["role"] = data["role"]
+                session["username"] = data.get("username")
                 session["subrole"] = data.get("subrole", "Requisition")
                 session["company_id"] = data.get("company_id")
+                session["company_name"] = data.get("company_name")
+                session["restaurant_id"] = data.get("restaurant_id")
+                session["restaurant_name"] = data.get("restaurant_name")
                 
                 branding = data.get("branding", {})
                 session["brand_name"] = branding.get("brand_name")
@@ -153,6 +159,17 @@ def superadmin_dashboard():
     except:
         companies, settings = [], {}
     return render_template("superadmin_dashboard.html", companies=companies, settings=settings, API_URL=PUBLIC_API_URL)
+
+@app.route("/admin/business-dashboard")
+def business_dashboard():
+    if session.get("role") != "Business User": return redirect(url_for("welcome"))
+    headers = get_auth_headers()
+    try: 
+        restaurants = requests.get(f"{API_URL}/admin/restaurants", headers=headers).json()
+    except:
+        restaurants = []
+    
+    return render_template("business_dashboard.html", restaurants=restaurants)
 
 # ── CompanyAdmin ─────────────────────────────────────────────
 
@@ -268,6 +285,14 @@ def report_product_mix():
     try: restaurants = requests.get(f"{API_URL}/admin/restaurants", headers=headers).json()
     except: restaurants = []
     return render_template("reporte_mix_productos.html", restaurants=restaurants, API_URL=PUBLIC_API_URL, token=session.get("access_token"))
+
+@app.route("/admin/reports/market-basket")
+def report_market_basket():
+    if session.get("role") not in ADMIN_ROLES: return redirect(url_for("welcome"))
+    headers = get_auth_headers()
+    try: restaurants = requests.get(f"{API_URL}/admin/restaurants", headers=headers).json()
+    except: restaurants = []
+    return render_template("reporte_market_basket.html", restaurants=restaurants, API_URL=PUBLIC_API_URL, token=session.get("access_token"))
 
 # ── Restaurant ───────────────────────────────────────────────
 

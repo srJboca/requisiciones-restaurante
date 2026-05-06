@@ -52,10 +52,21 @@ def get_current_production(current_user: User = Depends(get_current_user)) -> Us
         raise HTTPException(status_code=403, detail="Production Plant access required")
     return current_user
 
+def get_current_business_user(current_user: User = Depends(get_current_user)) -> User:
+    if current_user.role != 'Business User':
+        raise HTTPException(status_code=403, detail="Business User access required")
+    return current_user
+
 # SuperAdmin OR CompanyAdmin (used for shared endpoints)
 def get_current_admin_any(current_user: User = Depends(get_current_user)) -> User:
     if current_user.role not in ('SuperAdmin', 'CompanyAdmin'):
         raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user
+
+# Anyone who can see dashboards (Admin OR Business User)
+def get_analytical_access(current_user: User = Depends(get_current_user)) -> User:
+    if current_user.role not in ('SuperAdmin', 'CompanyAdmin', 'Business User'):
+        raise HTTPException(status_code=403, detail="Analytical access required")
     return current_user
 
 # ── Audit helper ───────────────────────────────────────────────

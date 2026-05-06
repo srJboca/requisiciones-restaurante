@@ -7,7 +7,7 @@ from collections import Counter
 
 from database import get_db
 from models.models import User, POSSale, Restaurant, POSProductMapping
-from dependencies import get_current_company_admin
+from dependencies import get_current_company_admin, get_analytical_access
 
 router = APIRouter(prefix="/admin/analytics", tags=["analytics"])
 
@@ -23,7 +23,11 @@ def parse_date(date_str):
     return None
 
 @router.get("/traffic-matrices")
-def get_traffic_matrices(restaurant_id: int = None, db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
+def get_traffic_matrices(restaurant_id: int = None, db: Session = Depends(get_db), current_user: User = Depends(get_analytical_access)):
+    # Scope for Business User by restaurant
+    if current_user.role == 'Business User' and current_user.restaurant_id:
+        restaurant_id = current_user.restaurant_id
+
     query = db.query(POSSale).filter(POSSale.company_id == current_user.company_id)
     if restaurant_id:
         query = query.filter(POSSale.restaurant_id == restaurant_id)
@@ -124,7 +128,11 @@ def get_traffic_matrices(restaurant_id: int = None, db: Session = Depends(get_db
     }
 
 @router.get("/product-mix")
-def get_product_mix(restaurant_id: int = None, db: Session = Depends(get_db), current_user: User = Depends(get_current_company_admin)):
+def get_product_mix(restaurant_id: int = None, db: Session = Depends(get_db), current_user: User = Depends(get_analytical_access)):
+    # Scope for Business User by restaurant
+    if current_user.role == 'Business User' and current_user.restaurant_id:
+        restaurant_id = current_user.restaurant_id
+
     query = db.query(POSSale).filter(POSSale.company_id == current_user.company_id)
     if restaurant_id:
         query = query.filter(POSSale.restaurant_id == restaurant_id)
@@ -184,4 +192,88 @@ def get_product_mix(restaurant_id: int = None, db: Session = Depends(get_db), cu
         "products": product_list,
         "categories": cat_stats,
         "total_revenue": total_revenue
+    }
+
+@router.get("/market-basket")
+def get_market_basket(restaurant_id: int = None, db: Session = Depends(get_db), current_user: User = Depends(get_analytical_access)):
+    # Scope for Business User by restaurant
+    if current_user.role == 'Business User' and current_user.restaurant_id:
+        restaurant_id = current_user.restaurant_id
+
+    query = db.query(POSSale).filter(POSSale.company_id == current_user.company_id)
+    if restaurant_id:
+        query = query.filter(POSSale.restaurant_id == restaurant_id)
+    
+    sales = query.all()
+    if not sales:
+        return {"pairs": [], "basket_size_dist": {}}
+
+    # Get mappings
+    mappings = db.query(POSProductMapping).filter(POSProductMapping.company_id == current_user.company_id).all()
+    mapping_dict = {m.product_name: (m.alternative_name or m.product_name) for m in mappings if not m.is_ignored}
+    ignored_products = {m.product_name for m in mappings if m.is_ignored}
+
+    # Group items by order_ref
+    orders = {} # order_ref -> set of products
+    product_freq = Counter() # product -> count of orders it appeared in
+    total_orders = 0
+
+    for s in sales:
+        if s.product_name in ignored_products: continue
+        if not s.order_ref: continue
+        
+        name = mapping_dict.get(s.product_name, s.product_name)
+        if s.order_ref not in orders:
+            orders[s.order_ref] = set()
+            total_orders += 1
+            
+        if name not in orders[s.order_ref]:
+            orders[s.order_ref].add(name)
+            product_freq[name] += 1
+
+    # Basket Size Distribution
+    basket_sizes = [len(items) for items in orders.values()]
+    basket_dist = Counter(basket_sizes)
+
+    # Calculate Pairs (Support, Confidence, Lift)
+    # We'll focus on the top 50 most frequent products to keep the matrix manageable
+    top_prods = [p for p, f in product_freq.most_common(100)]
+    pair_freq = Counter() # (p1, p2) -> count of orders both appeared in
+
+    for items in orders.values():
+        item_list = sorted([i for i in items if i in top_prods])
+        for i in range(len(item_list)):
+            for j in range(i + 1, len(item_list)):
+                pair_freq[(item_list[i], item_list[j])] += 1
+
+    pairs_result = []
+    for (p1, p2), count in pair_freq.items():
+        support = count / total_orders
+        conf_p1_to_p2 = count / product_freq[p1]
+        conf_p2_to_p1 = count / product_freq[p2]
+        
+        # Lift = P(A & B) / (P(A) * P(B))
+        p_p1 = product_freq[p1] / total_orders
+        p_p2 = product_freq[p2] / total_orders
+        lift = support / (p_p1 * p_p2) if (p_p1 * p_p2) > 0 else 0
+        
+        if lift > 1.1: # Only include interesting correlations
+            pairs_result.append({
+                "p1": p1,
+                "p2": p2,
+                "support": support,
+                "conf_1_2": conf_p1_to_p2,
+                "conf_2_1": conf_p2_to_p1,
+                "lift": lift,
+                "frequency": count
+            })
+
+    # Sort by lift descending
+    pairs_result.sort(key=lambda x: x["lift"], reverse=True)
+
+    return {
+        "pairs": pairs_result[:500], # Limit results
+        "product_freq": dict(product_freq),
+        "basket_dist": dict(basket_dist),
+        "total_orders": total_orders
     }
