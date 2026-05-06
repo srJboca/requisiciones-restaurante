@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --dashboard-header: #2c3e50;
+        --accent: var(--primary);
+        --bg: #f4f7f6;
+        --card-bg: #ffffff;
+        --text-main: #333;
+        --text-muted: #666;
+        --border: #e1e8ed;
+    }
+
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding-bottom: 40px;
+    }
+
+    .breadcrumb {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .header-section {
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-section h1 {
+        margin: 0;
+        font-size: 1.8rem;
+        color: var(--dashboard-header);
+        font-weight: 800;
+    }
+
+    /* Heatmap Controls */
+    .controls-card {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        margin-bottom: 25px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+
+    .metric-selector {
+        display: flex;
+        background: #f1f5f9;
+        padding: 4px;
+        border-radius: 10px;
+        gap: 4px;
+    }
+
+    .metric-selector button {
+        background: transparent;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .metric-selector button.active {
+        background: var(--card-bg);
+        color: var(--accent);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    /* Grid-based Heatmap */
+    .heatmap-container {
+        background: var(--card-bg);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        padding: 25px;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.04);
+        overflow-x: auto;
+    }
+
+    .heatmap-grid {
+        display: grid;
+        grid-template-columns: 80px repeat(7, 1fr) 100px;
+        gap: 4px;
+        min-width: 900px; /* Ensures it doesn't squeeze too much */
+    }
+
+    .grid-header {
+        font-size: 11px;
+        font-weight: 900;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-align: center;
+        padding-bottom: 15px;
+    }
+
+    .hour-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 15px;
+    }
+
+    .heatmap-cell {
+        height: 48px;
+        border-radius: 6px;
+        transition: all 0.2s;
+        cursor: default;
+        font-size: 0.7rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(0,0,0,0.02);
+        color: rgba(30, 41, 59, 0.6);
+    }
+
+    .heatmap-cell:hover {
+        transform: scale(1.1);
+        z-index: 10;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        color: #1e293b;
+    }
+
+    .total-cell {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        color: var(--dashboard-header);
+    }
+
+    /* Tooltip Customization */
+    .tippy-box[data-theme~='plateback'] {
+        background-color: #1e293b;
+        color: white;
+        border-radius: 12px;
+        padding: 8px;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+    }
+
+    .dna-section {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 25px;
+        margin-top: 25px;
+    }
+
+    .info-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        padding: 25px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+
+    @media (max-width: 1024px) {
+        .dna-section { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="breadcrumb">
+        <a href="{{ url_for('admin_dashboard') }}" style="text-decoration: none; color: inherit;">{{ _('Dashboard') }}</a> 
+        / {{ _('Operational Heatmap') }}
+    </div>
+
+    <div class="header-section">
+        <h1>{{ _('Intelligent Heatmap Matrix') }}</h1>
+        <div class="flex items-center gap-4">
+            <select id="restaurantFilter" onchange="loadData()" class="rounded-xl border-slate-200 text-sm font-bold p-3 border shadow-sm bg-white min-w-[240px]">
+                <option value="">{{ _('All Restaurants') }}</option>
+                {% for rest in restaurants %}
+                <option value="{{ rest.id }}">{{ rest.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-card">
+        <div class="metric-selector">
+            <button onclick="setMetric('sales')" id="btn-sales" class="active">
+                <i class="fa-solid fa-sack-dollar"></i> {{ _('Revenue') }}
+            </button>
+            <button onclick="setMetric('orders')" id="btn-orders">
+                <i class="fa-solid fa-receipt"></i> {{ _('Volume') }}
+            </button>
+            <button onclick="setMetric('diners')" id="btn-diners">
+                <i class="fa-solid fa-users"></i> {{ _('Diners') }}
+            </button>
+            <button onclick="setMetric('top_product')" id="btn-top_product">
+                <i class="fa-solid fa-crown"></i> {{ _('Top Product') }}
+            </button>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full bg-slate-100 border border-slate-200"></div>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Low</span>
+            <div class="w-24 h-2 rounded-full bg-gradient-to-r from-slate-100" id="legend-gradient"></div>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Peak</span>
+        </div>
+    </div>
+
+    <!-- Heatmap Grid Container -->
+    <div class="heatmap-container">
+        <div class="heatmap-grid" id="mainHeatmap">
+            <!-- Headers and Data filled by JS -->
+        </div>
+    </div>
+
+    <!-- Secondary Insights -->
+    <div class="dna-section">
+        <div class="info-card">
+            <h3 class="text-lg font-black text-slate-800 mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles text-brand-500"></i>
+                {{ _('Operational Insights') }}
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="insight-grid"></div>
+        </div>
+        <div class="info-card flex flex-col">
+            <h3 class="text-lg font-black text-slate-800 mb-6">{{ _('Weekly Contribution') }}</h3>
+            <div class="flex-grow flex items-center justify-center">
+                <div class="w-full h-[220px]">
+                    <canvas id="weeklyDoughnut"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const API_URL = "{{ API_URL }}";
+    const AUTH_TOKEN = "{{ token }}";
+    const BRAND_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#3498db';
+    
+    let rawData = null;
+    let currentMetric = 'sales';
+    let doughnutChart = null;
+
+    async function loadData() {
+        const restId = document.getElementById('restaurantFilter').value;
+        let url = `${API_URL}/admin/analytics/traffic-matrices`;
+        if (restId) url += `?restaurant_id=${restId}`;
+
+        try {
+            const res = await fetch(url, { headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` } });
+            rawData = await res.json();
+            renderHeatmap();
+            renderDoughnut();
+            renderInsights();
+            updateLegend();
+        } catch (err) { console.error("Error loading heatmap data:", err); }
+    }
+
+    function setMetric(m) {
+        currentMetric = m;
+        document.querySelectorAll('.metric-selector button').forEach(b => b.classList.remove('active'));
+        document.getElementById(`btn-${m}`).classList.add('active');
+        renderHeatmap();
+    }
+
+    function updateLegend() {
+        const gradient = document.getElementById('legend-gradient');
+        gradient.style.background = `linear-gradient(to right, #f1f5f9, ${BRAND_COLOR})`;
+    }
+
+    function getIntensityColor(value, max) {
+        if (!value || value === 0 || isNaN(value)) return '#f8fafc';
+        const ratio = value / max;
+        return `color-mix(in srgb, ${BRAND_COLOR} ${Math.min(Math.round(ratio * 100), 100)}%, #f8fafc)`;
+    }
+
+    function formatValue(val) {
+        if (!val || val === 0) return '';
+        if (currentMetric !== 'sales') return Math.round(val);
+        
+        // Smart Currency Formatting
+        if (val >= 1000000) return '$' + (val/1000000).toFixed(1) + 'M';
+        if (val >= 1000) return '$' + (val/1000).toFixed(1) + 'k';
+        return '$' + Math.round(val);
+    }
+
+    function renderHeatmap() {
+        const grid = document.getElementById('mainHeatmap');
+        const matrix = rawData[currentMetric];
+        const days = ['{{ _("Mon") }}', '{{ _("Tue") }}', '{{ _("Wed") }}', '{{ _("Thu") }}', '{{ _("Fri") }}', '{{ _("Sat") }}', '{{ _("Sun") }}'];
+        
+        let maxVal = 0;
+        const rowTotals = Array(24).fill(0);
+        const colTotals = Array(7).fill(0);
+
+        // Pre-calculate
+        for (let d = 0; d < 7; d++) {
+            for (let h = 7; h <= 23; h++) {
+                const val = (currentMetric === 'top_product') ? (matrix[d][h] !== '-' ? 1 : 0) : (matrix[d][h] || 0);
+                if (currentMetric !== 'top_product' && val > maxVal) maxVal = val;
+                
+                const numericVal = (currentMetric === 'top_product') ? 0 : (matrix[d][h] || 0);
+                rowTotals[h] += numericVal;
+                colTotals[d] += numericVal;
+            }
+        }
+
+        let html = '<div class="grid-header"></div>'; // Empty top-left
+        days.forEach(d => html += `<div class="grid-header">${d}</div>`);
+        html += `<div class="grid-header text-brand-500">{{ _('Avg') }}</div>`;
+
+        for (let h = 7; h <= 23; h++) {
+            html += `<div class="hour-label">${h}:00</div>`;
+            for (let d = 0; d < 7; d++) {
+                const val = matrix[d][h];
+                const color = (currentMetric === 'top_product') ? (val !== '-' ? BRAND_COLOR + '22' : '#f8fafc') : getIntensityColor(val, maxVal);
+                html += `
+                    <div class="heatmap-cell" style="background-color: ${color};" 
+                         data-day="${d}" data-hour="${h}">
+                        ${formatValue(val)}
+                    </div>`;
+            }
+            // Row Average (Average of the week for this hour)
+            const rowAvg = rowTotals[h] / 7;
+            html += `<div class="heatmap-cell total-cell">${formatValue(rowAvg)}</div>`;
+        }
+
+        // Footer Row (Average of the day across operational hours)
+        html += `<div class="grid-header mt-4 flex items-center justify-end pr-4">{{ _('Avg') }}</div>`;
+        for (let d = 0; d < 7; d++) {
+            const colAvg = colTotals[d] / 17; // 17 hours from 7 to 23
+            html += `<div class="heatmap-cell total-cell mt-4">${formatValue(colAvg)}</div>`;
+        }
+        // Grand Average
+        const grandTotal = colTotals.reduce((a,b)=>a+b,0);
+        const grandAvg = grandTotal / (7 * 17);
+        html += `<div class="heatmap-cell total-cell mt-4 font-black bg-slate-200">${formatValue(grandAvg)}</div>`;
+
+        grid.innerHTML = html;
+        initTooltips();
+    }
+
+    function initTooltips() {
+        tippy('.heatmap-cell[data-day]', {
+            theme: 'plateback',
+            allowHTML: true,
+            content(reference) {
+                const d = reference.getAttribute('data-day');
+                const h = reference.getAttribute('data-hour');
+                const dayNames = ['{{ _("Monday") }}', '{{ _("Tuesday") }}', '{{ _("Wednesday") }}', '{{ _("Thursday") }}', '{{ _("Friday") }}', '{{ _("Saturday") }}', '{{ _("Sunday") }}'];
+                
+                return `
+                    <div class="text-xs">
+                        <div class="font-black border-bottom border-slate-600 mb-2 pb-1">${dayNames[d]} @ ${h}:00</div>
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+                            <span class="text-slate-400">Sales:</span> <span class="font-bold text-white">$${Math.round(rawData.sales[d][h]).toLocaleString()}</span>
+                            <span class="text-slate-400">Orders:</span> <span class="font-bold text-white">${rawData.orders[d][h]}</span>
+                            <span class="text-slate-400">Diners:</span> <span class="font-bold text-white">${rawData.diners[d][h].toFixed(1)}</span>
+                        </div>
+                        <div class="mt-2 pt-2 border-t border-slate-600">
+                            <div class="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Top Selling</div>
+                            <div class="font-bold text-brand-400">${rawData.top_product[d][h]}</div>
+                        </div>
+                    </div>`;
+            }
+        });
+    }
+
+    function renderDoughnut() {
+        const ctx = document.getElementById('weeklyDoughnut').getContext('2d');
+        if (doughnutChart) doughnutChart.destroy();
+        doughnutChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    data: rawData.radar,
+                    backgroundColor: [BRAND_COLOR, '#334155', '#475569', '#64748b', '#94a3b8', '#cbd5e1', '#e2e8f0'],
+                    borderWidth: 0,
+                    cutout: '80%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    function renderInsights() {
+        const grid = document.getElementById('insight-grid');
+        grid.innerHTML = `
+            <div class="p-4 bg-slate-50 rounded-2xl">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{{ _('Peak Performance') }}</div>
+                <div class="text-lg font-black text-slate-800">${rawData.kpis.peak_hour}</div>
+                <div class="text-xs text-brand-600 font-bold">{{ _('Highest order frequency slot') }}</div>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-2xl">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{{ _('Profit Anchor') }}</div>
+                <div class="text-lg font-black text-slate-800">$${Math.round(rawData.kpis.avg_ticket).toLocaleString()}</div>
+                <div class="text-xs text-slate-500">{{ _('Average ticket per customer') }}</div>
+            </div>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', loadData);
+</script>
+{% endblock %}

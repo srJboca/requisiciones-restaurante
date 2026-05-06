@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Intelligence | La Cesta</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333;
+            --text-muted: #666;
+            --border: #e1e8ed;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Breadcrumb & Title */
+        .breadcrumb {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .header-section {
+            margin-bottom: 25px;
+        }
+
+        .header-section h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .kpi-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            display: block;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 8px 0;
+            color: var(--primary);
+        }
+
+        .kpi-subtext {
+            font-size: 0.8rem;
+            color: var(--accent);
+        }
+
+        /* Chart Sections */
+        .chart-container {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .chart-controls button {
+            background: #eee;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .chart-controls button.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Visual Placeholders for Charts */
+        .chart-placeholder {
+            width: 100%;
+            height: 250px;
+            background: #fafafa;
+            border: 1px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            border-radius: 8px;
+        }
+
+        .dna-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .helper-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .dna-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">Dashboard / Traffic Intelligence</div>
+    
+    <div class="header-section">
+        <h1>Traffic Intelligence Dashboard</h1>
+    </div>
+
+    <!-- Top KPI Row -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <span class="kpi-label">Revenue</span>
+            <span class="kpi-value">$232,321,573</span>
+            <span class="kpi-subtext">Total Sales in Period</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Orders</span>
+            <span class="kpi-value">2,478</span>
+            <span class="kpi-subtext">Processed Transactions</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Avg. Ticket</span>
+            <span class="kpi-value">$93,754</span>
+            <span class="kpi-subtext">Value per Order</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Peak Hour</span>
+            <span class="kpi-value">10:00</span>
+            <span class="kpi-subtext">Maximum Volume Window</span>
+        </div>
+    </div>
+
+    <!-- Hourly Distribution -->
+    <section class="chart-container">
+        <div class="chart-header">
+            <div>
+                <h2>Hourly Distribution</h2>
+                <div class="helper-text">Analyze patterns by revenue, volume or density.</div>
+            </div>
+            <div class="chart-controls">
+                <button class="active">Revenue</button>
+                <button>Volume</button>
+                <button>Density</button>
+            </div>
+        </div>
+        <!-- In a live environment, use Chart.js or D3.js here -->
+        <div class="chart-placeholder">
+            [Interactive Revenue Chart: 0:00 - 23:00]
+        </div>
+    </section>
+
+    <!-- Bottom Data Row -->
+    <div class="dna-grid">
+        <!-- Restaurant DNA -->
+        <section class="chart-container">
+            <h2>Restaurant DNA</h2>
+            <div class="helper-text">Weekly operational profile.</div>
+            <div class="chart-placeholder" style="height: 180px;">
+                [Radar Chart: Mon-Sun Performance]
+            </div>
+            <p class="helper-text">The shape indicates if this location is a Weekend powerhouse or a Weekday specialist.</p>
+        </section>
+
+        <!-- Value vs Volume -->
+        <section class="chart-container">
+            <h2>Value vs. Volume Concentration</h2>
+            <div class="helper-text">Bubble size represents order count.</div>
+            <div class="chart-placeholder" style="height: 180px;">
+                [Bubble Chart: Avg Ticket vs Hour of Day]
+            </div>
+            <p class="helper-text">Position shows time vs. average spending.</p>
+        </section>
+    </div>
+</div>
+
+</body>
+</html>

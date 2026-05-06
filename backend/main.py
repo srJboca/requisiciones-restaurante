@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
 from fastapi.staticfiles import StaticFiles
-from routers import auth, admin, requisitions, production, superadmin, nps
+from routers import auth, admin, requisitions, production, superadmin, nps, analytics
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -49,6 +49,7 @@ app.include_router(admin.router)
 app.include_router(requisitions.router)
 app.include_router(production.router)
 app.include_router(nps.router)
+app.include_router(analytics.router)
 
 @app.get("/")
 def read_root():

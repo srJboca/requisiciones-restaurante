@@ -242,17 +242,24 @@ def admin_nps_report():
                            selected_restaurant=restaurant_id,
                            API_URL=PUBLIC_API_URL)
 
-@app.route("/admin/reports/sales")
-def admin_sales_report():
-    if session.get("role") not in ADMIN_ROLES:
-        return redirect(url_for("welcome"))
-    headers = get_auth_headers()
-    try:
-        restaurants = requests.get(f"{API_URL}/admin/restaurants", headers=headers).json()
-    except:
-        restaurants = []
     # Make sure to pass the auth token to the frontend so it can fetch the ABC report
     return render_template("reporte_restaurantes.html", restaurants=restaurants, API_URL=PUBLIC_API_URL, token=session.get("access_token"))
+
+@app.route("/admin/reports/traffic-intelligence")
+def report_traffic_hours():
+    if session.get("role") not in ADMIN_ROLES: return redirect(url_for("welcome"))
+    headers = get_auth_headers()
+    try: restaurants = requests.get(f"{API_URL}/admin/restaurants", headers=headers).json()
+    except: restaurants = []
+    return render_template("reporte_trafico_horas.html", restaurants=restaurants, API_URL=PUBLIC_API_URL, token=session.get("access_token"))
+
+@app.route("/admin/reports/heatmap-matrix")
+def report_heatmap_sales():
+    if session.get("role") not in ADMIN_ROLES: return redirect(url_for("welcome"))
+    headers = get_auth_headers()
+    try: restaurants = requests.get(f"{API_URL}/admin/restaurants", headers=headers).json()
+    except: restaurants = []
+    return render_template("reporte_heatmap_ventas.html", restaurants=restaurants, API_URL=PUBLIC_API_URL, token=session.get("access_token"))
 
 # ── Restaurant ───────────────────────────────────────────────
 
