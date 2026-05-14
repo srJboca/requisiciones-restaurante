@@ -17,6 +17,11 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <div>
                 <h3 style="color: var(--primary); display: inline-block; margin-right: 1rem;">{{ _('Order #') }}{{ order.order_id }} - {{ order.restaurant_name }}</h3>
+                {% if order.is_urgent %}
+                <span style="background: var(--accent); color: white; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; vertical-align: middle; margin-right: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    🔥 {{ _('Urgent Additional') }}
+                </span>
+                {% endif %}
                 <button type="button" class="btn btn-secondary btn-sm" onclick="printOrder({{ order.order_id }})" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
                     🖨️ {{ _('Print') }}
                 </button>
