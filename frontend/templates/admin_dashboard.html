@@ -371,11 +371,22 @@
         <div class="card">
             <h3 style="margin-bottom: 1rem; color: var(--primary);"><i class="fa-solid fa-upload mr-2"></i>{{ _('Upload Sales (CSV)') }}</h3>
             <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 1.5rem;">
-                {{ _('Upload the daily POS sales file for a specific restaurant.') }}
+                {{ _('Drag and drop your POS files or click to select multiple daily files.') }}
             </p>
+            
+            <div id="dropZone" style="border: 2px dashed var(--border); border-radius: 12px; padding: 2rem; text-align: center; background: #f8fafc; transition: all 0.2s; cursor: pointer; margin-bottom: 1rem;" 
+                 onmouseover="this.style.borderColor='var(--primary)'; this.style.background='#eff6ff';" 
+                 onmouseout="this.style.borderColor='var(--border)'; this.style.background='#f8fafc';"
+                 onclick="document.getElementById('uploadFile').click()">
+                <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                <p style="font-weight: 600; color: var(--text); margin-bottom: 0.25rem;">{{ _('Click or Drag Files Here') }}</p>
+                <p style="font-size: 0.75rem; color: var(--text-light);">{{ _('Supports multiple .csv files') }}</p>
+                <input type="file" id="uploadFile" accept=".csv" multiple style="display: none;">
+            </div>
+
             <form id="uploadSalesForm" style="display: flex; flex-direction: column; gap: 1rem;">
                 <div class="form-group">
-                    <label class="form-label">{{ _('Restaurant') }}</label>
+                    <label class="form-label">{{ _('Target Restaurant') }}</label>
                     <select id="uploadRestaurant" class="form-control" required>
                         <option value="">{{ _('Select a restaurant...') }}</option>
                         {% for rest in restaurants %}
@@ -383,15 +394,19 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">{{ _('CSV File') }}</label>
-                    <input type="file" id="uploadFile" accept=".csv" class="form-control" required>
-                </div>
-                <button type="submit" id="uploadBtn" class="btn btn-primary">
-                    <i class="fa-solid fa-cloud-arrow-up mr-2"></i>{{ _('Upload Data') }}
+                <button type="submit" id="uploadBtn" class="btn btn-primary" style="width: 100%;">
+                    <i class="fa-solid fa-play mr-2"></i>{{ _('Start Batch Upload') }}
                 </button>
             </form>
-            <div id="uploadStatus" style="margin-top: 1rem; display: none; padding: 0.75rem; border-radius: 4px; font-size: 0.875rem;"></div>
+
+            <div id="uploadQueue" style="margin-top: 1.5rem; display: none;">
+                <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light); margin-bottom: 0.75rem; display: flex; justify-content: space-between;">
+                    {{ _('Upload Queue') }}
+                    <span id="queueCount">0/0</span>
+                </h4>
+                <div id="queueItems" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 300px; overflow-y: auto; padding-right: 0.5rem;">
+                </div>
+            </div>
         </div>
 
         <!-- Strategic Management Section -->
@@ -880,48 +895,113 @@
 
         // --- SALES MANAGEMENT LOGIC ---
         
+        // --- SALES MANAGEMENT LOGIC (BATCH OPTIMIZED) ---
+        
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('uploadFile');
+        const queueEl = document.getElementById('uploadQueue');
+        const queueItemsEl = document.getElementById('queueItems');
+        const queueCountEl = document.getElementById('queueCount');
+        const uploadBtn = document.getElementById('uploadBtn');
+
+        // Drag and Drop handlers
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, e => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', e => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+            updateQueuePreview();
+        });
+
+        fileInput.addEventListener('change', updateQueuePreview);
+
+        function updateQueuePreview() {
+            const files = fileInput.files;
+            if (files.length > 0) {
+                queueEl.style.display = 'block';
+                queueCountEl.innerText = `0/${files.length}`;
+                queueItemsEl.innerHTML = Array.from(files).map((f, i) => `
+                    <div id="queue-item-${i}" style="padding: 0.75rem; background: white; border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; overflow: hidden;">
+                            <i class="fa-solid fa-file-csv" style="color: var(--primary); font-size: 1.1rem;"></i>
+                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">${f.name}</span>
+                        </div>
+                        <div class="status-badge" style="color: var(--text-light); font-weight: 600; font-size: 0.7rem; text-transform: uppercase;">{{ _('Pending') }}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
         document.getElementById('uploadSalesForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
             const restaurantId = document.getElementById('uploadRestaurant').value;
-            const fileInput = document.getElementById('uploadFile');
-            const statusEl = document.getElementById('uploadStatus');
-            const btn = document.getElementById('uploadBtn');
+            const files = Array.from(fileInput.files);
+            
+            if (!restaurantId || files.length === 0) {
+                alert("{{ _('Please select a restaurant and at least one file.') }}");
+                return;
+            }
 
-            if (!restaurantId || !fileInput.files[0]) return;
+            uploadBtn.disabled = true;
+            const originalHtml = uploadBtn.innerHTML;
+            
+            let successCount = 0;
 
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const itemEl = document.getElementById(`queue-item-${i}`);
+                const badge = itemEl.querySelector('.status-badge');
+                
+                // Update UI to Processing
+                itemEl.style.borderColor = 'var(--primary)';
+                itemEl.style.background = '#eff6ff';
+                badge.style.color = '#1d4ed8';
+                badge.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>{{ _("Uploading...") }}';
+                itemEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-            btn.disabled = true;
-            const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>{{ _("Uploading...") }}';
-            statusEl.style.display = 'block';
-            statusEl.style.background = '#eff6ff';
-            statusEl.style.color = '#1d4ed8';
-            statusEl.innerText = "{{ _('Processing file, please wait...') }}";
+                const formData = new FormData();
+                formData.append('file', file);
 
-            try {
-                const res = await fetch(`${API_URL}/admin/sales/upload?restaurant_id=${restaurantId}`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${API_TOKEN}` },
-                    body: formData
-                });
+                try {
+                    const res = await fetch(`${API_URL}/admin/sales/upload?restaurant_id=${restaurantId}`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${API_TOKEN}` },
+                        body: formData
+                    });
 
-                const result = await res.json();
-                if (res.ok) {
-                    statusEl.style.background = '#f0fdf4';
-                    statusEl.style.color = '#15803d';
-                    statusEl.innerText = result.message || "{{ _('Success! Data loaded correctly.') }}";
-                } else {
-                    throw new Error(result.detail || "{{ _('Error uploading file') }}");
+                    const result = await res.json();
+                    if (res.ok) {
+                        badge.style.color = '#15803d';
+                        badge.innerHTML = '<i class="fa-solid fa-check mr-1"></i>{{ _("Success") }}';
+                        itemEl.style.background = '#f0fdf4';
+                        itemEl.style.borderColor = '#bbf7d0';
+                        successCount++;
+                    } else {
+                        throw new Error(result.detail || "{{ _('Error') }}");
+                    }
+                } catch (err) {
+                    badge.style.color = '#b91c1c';
+                    badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i>${err.message}`;
+                    itemEl.style.background = '#fef2f2';
+                    itemEl.style.borderColor = '#fecaca';
                 }
-            } catch (err) {
-                statusEl.style.background = '#fef2f2';
-                statusEl.style.color = '#b91c1c';
-                statusEl.innerText = err.message;
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalHtml;
+                
+                queueCountEl.innerText = `${i + 1}/${files.length}`;
+            }
+
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = originalHtml;
+
+            if (successCount === files.length) {
+                setTimeout(() => alert(`{{ _('Successfully uploaded all') }} ${successCount} {{ _('files!') }}`), 500);
+            } else {
+                setTimeout(() => alert(`{{ _('Process finished.') }} ${successCount}/${files.length} {{ _('files were successful.') }}`), 500);
             }
         });
 

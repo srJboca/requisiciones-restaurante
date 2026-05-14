@@ -177,7 +177,7 @@
 {% endblock %}
 {% block scripts %}
 <script>
-    const API_URL = "{{ API_URL }}";
+    window.API_URL = window.API_URL || "{{ API_URL }}";
     const ETA_DAYS = {{ eta_days }};
 
     function setMinDate() {
@@ -242,13 +242,19 @@
         const rows = document.querySelectorAll('.product-row');
         
         rows.forEach(row => {
-            let matchGroup = (groupId === 'all' || row.dataset.group === groupId);
-            let matchRequired = true;
+            const rawRowGroupId = row.getAttribute('data-group');
+            // Handle Jinja2 rendering None as "None" string or empty
+            const rowGroupId = (rawRowGroupId && rawRowGroupId !== "None") ? String(rawRowGroupId).trim() : "";
+            const selectedGroupId = String(groupId).trim();
             
+            // Group match logic: 'all' matches everything, otherwise check for exact ID match
+            let matchGroup = (selectedGroupId === 'all' || rowGroupId === selectedGroupId);
+            
+            let matchRequired = true;
             if (requiredOnly) {
                 const reqInput = row.querySelector('.req-qty');
-                let req = parseFloat(reqInput.value);
-                if (isNaN(req) || req <= 0) {
+                const reqValue = parseFloat(reqInput.value);
+                if (isNaN(reqValue) || reqValue <= 0) {
                     matchRequired = false;
                 }
             }

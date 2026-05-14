@@ -18,7 +18,7 @@
     </form>
 </div>
 <script>
-    const API_URL = "{{ API_URL }}";
+    window.API_URL = window.API_URL || "{{ API_URL }}";
     const loginForm = document.querySelector('form');
     const submitBtn = loginForm.querySelector('button');
     const originalText = submitBtn.innerText;

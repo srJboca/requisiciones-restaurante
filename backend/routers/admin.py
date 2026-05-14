@@ -14,6 +14,7 @@ from typing import Optional, List
 from database import get_db
 from models.models import User, Restaurant, ProductGroup, Product, AuditLog, SystemSetting, Order, ProductionPlant
 from dependencies import get_current_company_admin, log_audit, get_analytical_access
+from utils.cache import analytics_cache
 from routers.auth import get_password_hash
 
 logger = logging.getLogger(__name__)
@@ -343,19 +344,24 @@ def import_products(
 
     imported, skipped, updated = 0, 0, 0
     errors: list[str] = []
-    group_cache: dict[str, int] = {}  # group_name → group_id to avoid repeated lookups
     
-    # Pre-load existing products to avoid duplicate queries and handle duplicates within the CSV itself
+    # Pre-fetch groups and existing products to minimize DB hits
+    groups = db.query(ProductGroup).filter(ProductGroup.company_id == current_user.company_id).all()
+    group_cache = {g.name: g.id for g in groups}
+    
     existing_products = db.query(Product).filter(Product.company_id == current_user.company_id).all()
     sku_cache = {p.sku: p for p in existing_products}
 
-    for row_num, row in enumerate(reader, start=2):  # 2 = first data row
+    # Store new groups to be created
+    new_groups_to_create = {}
+
+    # We'll use a transaction for efficiency
+    for row_num, row in enumerate(reader, start=2):
         name = (row.get("name") or "").strip()
         sku = (row.get("sku") or "").strip()
         unit_measure = (row.get("unit_measure") or "").strip()
         group_name = (row.get("group_name") or "").strip()
 
-        # Required field check
         if not name or not sku or not unit_measure:
             errors.append(f"Row {row_num}: missing required field(s) — skipped.")
             skipped += 1
@@ -366,20 +372,18 @@ def import_products(
         if group_name:
             if group_name in group_cache:
                 group_id = group_cache[group_name]
+            elif group_name in new_groups_to_create:
+                group_id = new_groups_to_create[group_name]
             else:
-                group = db.query(ProductGroup).filter(
-                    ProductGroup.name == group_name,
-                    ProductGroup.company_id == current_user.company_id
-                ).first()
-                if not group:
-                    group = ProductGroup(name=group_name, company_id=current_user.company_id)
-                    db.add(group)
-                    db.flush()  # get the auto-generated id
-                group_cache[group_name] = group.id
-                group_id = group.id
+                # Create group immediately to get ID for this batch
+                new_group = ProductGroup(name=group_name, company_id=current_user.company_id)
+                db.add(new_group)
+                db.flush()
+                group_id = new_group.id
+                new_groups_to_create[group_name] = group_id
+                group_cache[group_name] = group_id
 
         if sku in sku_cache:
-            # Update existing product
             prod = sku_cache[sku]
             prod.name = name
             prod.unit_measure = unit_measure
@@ -571,36 +575,39 @@ async def upload_sales(
         if order_ref:
             order_refs_to_clear.add(order_ref)
 
-        pos_sale = POSSale(
-            restaurant_id=restaurant_id,
-            company_id=current_user.company_id,
-            order_ref=order_ref,
-            date_open=norm_row.get("FECHA_APERTURA", ""),
-            date_close=norm_row.get("FECHA_CIERRE", ""),
-            payment_method=norm_row.get("MEDIODEPAGO", ""),
-            product_name=product_name,
-            quantity=parse_colombian_float(norm_row.get("CANTIDAD", 0)),
-            diners=int(parse_colombian_float(norm_row.get("COMENSALES", 0))),
-            price_with_tax=parse_colombian_float(norm_row.get("PRECIOCONIMPUESTO", 0)),
-            total_tip=parse_colombian_float(norm_row.get("TOTALPROPINA", 0)),
-        )
-        new_records.append(pos_sale)
+        new_records.append({
+            "restaurant_id": restaurant_id,
+            "company_id": current_user.company_id,
+            "order_ref": order_ref,
+            "date_open": norm_row.get("FECHA_APERTURA", ""),
+            "date_close": norm_row.get("FECHA_CIERRE", ""),
+            "payment_method": norm_row.get("MEDIODEPAGO", ""),
+            "product_name": product_name,
+            "quantity": parse_colombian_float(norm_row.get("CANTIDAD", 0)),
+            "diners": int(parse_colombian_float(norm_row.get("COMENSALES", 0))),
+            "price_with_tax": parse_colombian_float(norm_row.get("PRECIOCONIMPUESTO", 0)),
+            "total_tip": parse_colombian_float(norm_row.get("TOTALPROPINA", 0)),
+        })
         imported += 1
         
     # Atomic replace: Clear existing orders found in this batch for this specific restaurant
     if order_refs_to_clear:
-        # Convert set to list for SQLAlchemy IN clause
-        # We limit the batch size if needed, but for a single CSV it should be fine
         db.query(POSSale).filter(
             POSSale.restaurant_id == restaurant_id,
             POSSale.order_ref.in_(list(order_refs_to_clear))
         ).delete(synchronize_session=False)
 
-    # Insert new records
-    for record in new_records:
-        db.add(record)
+    # Insert new records using SQLAlchemy Core for high performance
+    if new_records:
+        db.execute(POSSale.__table__.insert(), new_records)
         
     db.commit()
+    
+    # Invalidate analytical cache for this company
+    analytics_cache.clear(pattern=f"traffic_{current_user.company_id}")
+    analytics_cache.clear(pattern=f"prodmix_{current_user.company_id}")
+    analytics_cache.clear(pattern=f"mktbasket_{current_user.company_id}")
+
     logger.info(f"Imported {imported} records for restaurant {restaurant_id} (replaced existing orders if any)")
     log_audit(db, current_user.id, "Upload Sales CSV", "POSSale", details=f"Imported {imported} sales records for restaurant {restaurant_id}. Replaced overlapping order references.")
     return {"message": f"Successfully imported {imported} sales records."}

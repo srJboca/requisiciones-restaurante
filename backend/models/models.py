@@ -234,11 +234,11 @@ class POSSale(Base):
     __tablename__ = "pos_sales"
 
     id = Column(Integer, primary_key=True, index=True)
-    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), nullable=False)
-    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
-    order_ref = Column(String(100))
-    date_open = Column(String(50))
-    date_close = Column(String(50))
+    restaurant_id = Column(Integer, ForeignKey("restaurants.id"), nullable=False, index=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
+    order_ref = Column(String(100), index=True)
+    date_open = Column(String(50), index=True)
+    date_close = Column(String(50), index=True)
     payment_method = Column(String(100))
     product_name = Column(String(255))
     quantity = Column(Numeric(10, 2))
@@ -254,8 +254,8 @@ class IgnoredPOSProduct(Base):
     __tablename__ = "ignored_pos_products"
 
     id = Column(Integer, primary_key=True, index=True)
-    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
-    product_name = Column(String(255), nullable=False)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
+    product_name = Column(String(255), nullable=False, index=True)
     created_at = Column(TIMESTAMP, server_default=text('CURRENT_TIMESTAMP'))
 
     company = relationship("Company")
@@ -264,8 +264,8 @@ class POSProductMapping(Base):
     __tablename__ = "pos_product_mappings"
 
     id = Column(Integer, primary_key=True, index=True)
-    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
-    product_name = Column(String(255), nullable=False)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False, index=True)
+    product_name = Column(String(255), nullable=False, index=True)
     category_name = Column(String(100), default="Uncategorized")
     is_ignored = Column(Boolean, default=False)
     alternative_name = Column(String(255), nullable=True)

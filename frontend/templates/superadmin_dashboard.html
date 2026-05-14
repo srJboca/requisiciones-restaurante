@@ -136,7 +136,7 @@
 {% endblock %}
 {% block scripts %}
 <script>
-    const API_URL = "{{ API_URL }}";
+    window.API_URL = window.API_URL || "{{ API_URL }}";
     const TOKEN = "{{ session.get('access_token') }}";
     let _currentCompanyId = null;
 

@@ -196,12 +196,20 @@
     <div class="header-section">
         <h1>{{ _('Market Basket Analysis') }}</h1>
         <div class="flex items-center gap-4">
+            <div class="flex items-center bg-white rounded-xl border border-slate-200 p-1 shadow-sm">
+                <input type="date" id="startDate" class="border-none text-sm font-medium focus:ring-0 p-2" title="{{ _('Start Date') }}">
+                <span class="text-slate-400 px-1">→</span>
+                <input type="date" id="endDate" class="border-none text-sm font-medium focus:ring-0 p-2" title="{{ _('End Date') }}">
+            </div>
             <select id="restaurantFilter" onchange="loadData()" class="rounded-xl border-slate-200 text-sm font-bold p-3 border shadow-sm bg-white min-w-[240px]">
                 <option value="">{{ _('All Restaurants') }}</option>
                 {% for rest in restaurants %}
                 <option value="{{ rest.id }}">{{ rest.name }}</option>
                 {% endfor %}
             </select>
+            <button onclick="loadData()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition-all flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> {{ _('Discover Patterns') }}
+            </button>
         </div>
     </div>
 
@@ -295,7 +303,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const API_URL = "{{ API_URL }}";
+    window.API_URL = window.API_URL || "{{ API_URL }}";
     const AUTH_TOKEN = "{{ token }}";
     const BRAND_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#3498db';
     
@@ -304,8 +312,13 @@
 
     async function loadData() {
         const restId = document.getElementById('restaurantFilter').value;
-        let url = `${API_URL}/admin/analytics/market-basket`;
-        if (restId) url += `?restaurant_id=${restId}`;
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+
+        let url = `${API_URL}/admin/analytics/market-basket?cache=1`;
+        if (restId) url += `&restaurant_id=${restId}`;
+        if (start) url += `&start_date=${start}`;
+        if (end) url += `&end_date=${end}`;
 
         try {
             const res = await fetch(url, { headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` } });
