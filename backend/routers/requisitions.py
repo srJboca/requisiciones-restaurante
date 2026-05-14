@@ -17,10 +17,12 @@ class OrderItemCreate(BaseModel):
 class OrderCreate(BaseModel):
     order_date: str
     items: List[OrderItemCreate]
+    is_urgent: bool = False
 
 class OrderSend(BaseModel):
     order_date: str
     restaurant_notes: str | None = None
+    is_urgent: bool = False
 
 class OrderReceiveItem(BaseModel):
     order_item_id: int
@@ -61,18 +63,19 @@ def get_eta_days(db: Session = Depends(get_db), current_user: User = Depends(get
     return {"eta_days": int(setting.setting_value) if setting else 2}
 
 @router.get("/active")
-def get_active_order(date: str | None = None, db: Session = Depends(get_db), current_user: User = Depends(get_current_restaurant)):
+def get_active_order(date: str | None = None, is_urgent: bool = False, db: Session = Depends(get_db), current_user: User = Depends(get_current_restaurant)):
     if not current_user.restaurant_id:
         raise HTTPException(status_code=400, detail="User is not assigned to a restaurant")
     
     order_date = date if date else datetime.now().strftime("%Y-%m-%d")
     order = db.query(Order).filter(
         Order.restaurant_id == current_user.restaurant_id,
-        Order.order_date == order_date
+        Order.order_date == order_date,
+        Order.is_urgent == is_urgent
     ).first()
     
     if not order:
-        return {"status": "None", "items": [], "delivery_date": None}
+        return {"status": "None", "items": [], "delivery_date": None, "is_urgent": is_urgent}
         
     items = []
     for i in order.items:
@@ -86,6 +89,7 @@ def get_active_order(date: str | None = None, db: Session = Depends(get_db), cur
         "status": order.status, 
         "items": items, 
         "order_id": order.id, 
+        "is_urgent": order.is_urgent,
         "delivery_date": order.delivery_date,
         "submitted_by_name": order.submitted_by.username if order.submitted_by else None,
         "shipped_by_name": order.shipped_by.username if order.shipped_by else None,
@@ -98,17 +102,19 @@ def save_draft(order_data: OrderCreate, db: Session = Depends(get_db), current_u
         raise HTTPException(status_code=400, detail="User is not assigned to a restaurant")
     
     order_date = order_data.order_date
+    is_urgent = order_data.is_urgent
     
     order = db.query(Order).filter(
         Order.restaurant_id == current_user.restaurant_id,
-        Order.order_date == order_date
+        Order.order_date == order_date,
+        Order.is_urgent == is_urgent
     ).first()
     
     if order and order.status != 'Draft':
         raise HTTPException(status_code=400, detail="Order has already been sent to production")
         
     if not order:
-        order = Order(restaurant_id=current_user.restaurant_id, order_date=order_date, status='Draft')
+        order = Order(restaurant_id=current_user.restaurant_id, order_date=order_date, status='Draft', is_urgent=is_urgent)
         db.add(order)
         db.commit()
         db.refresh(order)
@@ -136,17 +142,24 @@ def send_order(send_data: OrderSend, db: Session = Depends(get_db), current_user
         raise HTTPException(status_code=400, detail="User is not assigned to a restaurant")
         
     order_date = send_data.order_date
+    is_urgent = send_data.is_urgent
+    
     order = db.query(Order).filter(
         Order.restaurant_id == current_user.restaurant_id,
-        Order.order_date == order_date
+        Order.order_date == order_date,
+        Order.is_urgent == is_urgent
     ).first()
     
     if not order or order.status != 'Draft':
         raise HTTPException(status_code=400, detail="No draft found or order is already sent")
         
     # Calculate ETA
-    setting = db.query(SystemSetting).filter(SystemSetting.setting_key == 'eta_days').first()
-    eta_days = int(setting.setting_value) if setting else 2
+    if is_urgent:
+        # Additionals are sent on the next business day (1 day ETA)
+        eta_days = 1
+    else:
+        setting = db.query(SystemSetting).filter(SystemSetting.setting_key == 'eta_days').first()
+        eta_days = int(setting.setting_value) if setting else 2
     
     start_dt = datetime.strptime(order_date, "%Y-%m-%d")
     delivery_dt = add_business_days(start_dt, eta_days)
@@ -156,7 +169,7 @@ def send_order(send_data: OrderSend, db: Session = Depends(get_db), current_user
     order.submitted_by_id = current_user.id
     order.restaurant_notes = send_data.restaurant_notes
     db.commit()
-    log_audit(db, current_user.id, "Send Order", "Order", order.id, f"Sent order to production for {order_date} with ETA {order.delivery_date}")
+    log_audit(db, current_user.id, "Send Order", "Order", order.id, f"Sent {'urgent ' if is_urgent else ''}order to production for {order_date} with ETA {order.delivery_date}")
     return {"message": "Order sent to production", "delivery_date": order.delivery_date}
 
 @router.get("/report")
@@ -171,6 +184,7 @@ def get_report(db: Session = Depends(get_db), current_user: User = Depends(get_c
             "order_id": o.id,
             "order_date": o.order_date,
             "status": o.status,
+            "is_urgent": o.is_urgent,
             "total_items": len(o.items),
             "delivery_date": o.delivery_date,
             "submitted_by_name": o.submitted_by.username if o.submitted_by else None,

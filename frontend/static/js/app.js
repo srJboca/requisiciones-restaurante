@@ -17,7 +17,7 @@ function closeConfirmModal() {
     overlay.classList.remove('active');
 }
 
-window.saveOrderDraft = function(items, hasZeroInventory, orderDate, token, apiUrl) {
+window.saveOrderDraft = function(items, hasZeroInventory, orderDate, token, apiUrl, isUrgent = false) {
     const submit = async () => {
         try {
             const res = await fetch(`${apiUrl}/requisitions/draft`, {
@@ -26,7 +26,7 @@ window.saveOrderDraft = function(items, hasZeroInventory, orderDate, token, apiU
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ items, order_date: orderDate })
+                body: JSON.stringify({ items, order_date: orderDate, is_urgent: isUrgent })
             });
             
             if (res.ok) {
@@ -48,7 +48,7 @@ window.saveOrderDraft = function(items, hasZeroInventory, orderDate, token, apiU
     }
 }
 
-window.sendOrderToProduction = function(orderDate, token, apiUrl, notes = null) {
+window.sendOrderToProduction = function(orderDate, token, apiUrl, notes = null, isUrgent = false) {
     showConfirmModal("Are you sure you want to send this order to production? You will not be able to modify it afterwards.", async () => {
         try {
             const res = await fetch(`${apiUrl}/requisitions/send`, {
@@ -57,7 +57,7 @@ window.sendOrderToProduction = function(orderDate, token, apiUrl, notes = null) 
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ order_date: orderDate, restaurant_notes: notes })
+                body: JSON.stringify({ order_date: orderDate, restaurant_notes: notes, is_urgent: isUrgent })
             });
             
             if (res.ok) {

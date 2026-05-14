@@ -3,7 +3,7 @@
 <div class="card">
     <h2>{{ _('Daily Requisition Builder') }}</h2>
 
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 1rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 1rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
         <div style="display: flex; gap: 1rem; align-items: flex-end;">
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" for="orderDate">{{ _('Requisition Date') }}</label>
@@ -11,9 +11,22 @@
                     onchange="changeDate()" style="width: 150px;">
             </div>
 
+            <div style="display: flex; background: #f3f4f6; border-radius: 8px; padding: 4px; height: 38px;">
+                <button type="button" onclick="changeMode(false)" 
+                    style="border: none; padding: 0 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; font-weight: 500;
+                    {% if not is_urgent %}background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); color: var(--primary);{% else %}background: transparent; color: #6b7280;{% endif %}">
+                    {{ _('Regular') }}
+                </button>
+                <button type="button" onclick="changeMode(true)"
+                    style="border: none; padding: 0 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; font-weight: 500;
+                    {% if is_urgent %}background: var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,0.1); color: white;{% else %}background: transparent; color: #6b7280;{% endif %}">
+                    {{ _('Additionals') }}
+                </button>
+            </div>
+
             <div class="form-group" style="margin: 0;">
                 <label class="form-label" for="groupSelect">{{ _('Filter by Product Group') }}</label>
-                <select id="groupSelect" class="form-control" onchange="filterProducts()" style="width: 250px;">
+                <select id="groupSelect" class="form-control" onchange="filterProducts()" style="width: 200px;">
                     <option value="all">{{ _('All Groups') }}</option>
                     {% for g in groups %}
                     <option value="{{ g.id }}">{{ g.name }}</option>
@@ -57,10 +70,10 @@
             {% if today_order.status == 'Draft' or today_order.status == 'None' %}
             <button type="submit" class="btn btn-secondary">{{ _('Save Draft') }}</button>
             <button type="button" class="btn btn-primary"
-                onclick="window.sendOrderToProduction(document.getElementById('orderDate').value, '{{ session.get('access_token') }}', API_URL, document.getElementById('restaurantNotes').value)">{{
+                onclick="window.sendOrderToProduction(document.getElementById('orderDate').value, '{{ session.get('access_token') }}', API_URL, document.getElementById('restaurantNotes').value, {{ 'true' if is_urgent else 'false' }})">{{
                 _('Send to Production') }}</button>
             {% else %}
-            <p style="color: var(--success); font-weight: 500;">{{ _('Order for') }} {{ selected_date }} {{ _('has
+            <p style="color: var(--success); font-weight: 500;">{{ _('Order for') }} {{ selected_date }} ({% if is_urgent %}{{ _('Additionals') }}{% else %}{{ _('Regular') }}{% endif %}) {{ _('has
                 been') }} {{ _(today_order.status) }}.</p>
             {% endif %}
         </div>
@@ -114,10 +127,10 @@
             {% if today_order.status == 'Draft' or today_order.status == 'None' %}
             <button type="submit" class="btn btn-secondary">{{ _('Save Draft') }}</button>
             <button type="button" class="btn btn-primary"
-                onclick="window.sendOrderToProduction(document.getElementById('orderDate').value, '{{ session.get('access_token') }}', API_URL, document.getElementById('restaurantNotes').value)">{{
+                onclick="window.sendOrderToProduction(document.getElementById('orderDate').value, '{{ session.get('access_token') }}', API_URL, document.getElementById('restaurantNotes').value, {{ 'true' if is_urgent else 'false' }})">{{
                 _('Send to Production') }}</button>
             {% else %}
-            <p style="color: var(--success); font-weight: 500;">{{ _('Order for') }} {{ selected_date }} {{ _('has
+            <p style="color: var(--success); font-weight: 500;">{{ _('Order for') }} {{ selected_date }} ({% if is_urgent %}{{ _('Additionals') }}{% else %}{{ _('Regular') }}{% endif %}) {{ _('has
                 been') }} {{ _(today_order.status) }}.</p>
             {% endif %}
         </div>
@@ -129,6 +142,7 @@
     <table class="grid-table" style="margin-top: 1rem;">
         <thead>
             <tr>
+                <th>{{ _('Type') }}</th>
                 <th>{{ _('Order Date') }}</th>
                 <th>{{ _('Status') }}</th>
                 <th>{{ _('Action By') }}</th>
@@ -138,6 +152,17 @@
         <tbody>
             {% for o in report_orders %}
             <tr>
+                <td>
+                    {% if o.is_urgent %}
+                    <span style="background: var(--accent); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">
+                        {{ _('Additional') }}
+                    </span>
+                    {% else %}
+                    <span style="background: #e5e7eb; color: #4b5563; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">
+                        {{ _('Regular') }}
+                    </span>
+                    {% endif %}
+                </td>
                 <td>{{ o.order_date }}</td>
                 <td>
                     <span style="padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem; font-weight: 500;
@@ -166,7 +191,7 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="4" style="text-align: center; padding: 2rem; color: var(--text-light);">{{ _('No past
+                <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-light);">{{ _('No past
                     requisitions found.') }}</td>
             </tr>
             {% endfor %}
@@ -179,6 +204,7 @@
 <script>
     window.API_URL = window.API_URL || "{{ API_URL }}";
     const ETA_DAYS = {{ eta_days }};
+    const IS_URGENT = {{ 'true' if is_urgent else 'false' }};
 
     function setMinDate() {
         const today = new Date();
@@ -196,7 +222,7 @@
         // Correct for timezone offset to prevent date shifting
         date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
 
-        let daysToAdd = ETA_DAYS;
+        let daysToAdd = IS_URGENT ? 1 : ETA_DAYS;
         while (daysToAdd > 0) {
             date.setDate(date.getDate() + 1);
             if (date.getDay() !== 0 && date.getDay() !== 6) { // Skip Sunday(0) and Saturday(6)
@@ -212,7 +238,12 @@
 
     function changeDate() {
         const date = document.getElementById('orderDate').value;
-        window.location.href = `/restaurant/order?date=${date}`;
+        window.location.href = `/restaurant/order?date=${date}&urgent=${IS_URGENT ? '1' : '0'}`;
+    }
+
+    function changeMode(urgent) {
+        const date = document.getElementById('orderDate').value;
+        window.location.href = `/restaurant/order?date=${date}&urgent=${urgent ? '1' : '0'}`;
     }
 
     function updateZeroInventoryHighlights() {
@@ -302,7 +333,7 @@
         }
 
         const orderDate = document.getElementById('orderDate').value;
-        window.saveOrderDraft(items, hasZeroInventory, orderDate, "{{ session.get('access_token') }}", API_URL);
+        window.saveOrderDraft(items, hasZeroInventory, orderDate, "{{ session.get('access_token') }}", API_URL, IS_URGENT);
     }
 </script>
 {% endblock %}

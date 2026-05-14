@@ -174,6 +174,7 @@ class Order(Base):
     order_date = Column(String(10), nullable=False)
     delivery_date = Column(String(10), nullable=True)
     status = Column(Enum('Draft', 'Submitted', 'Shipped', 'Closed'), default='Draft', nullable=False)
+    is_urgent = Column(Boolean, default=False, nullable=False)
     
     restaurant_notes = Column(Text, nullable=True)
     production_notes = Column(Text, nullable=True)

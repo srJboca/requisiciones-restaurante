@@ -302,21 +302,24 @@ def restaurant_order():
         return redirect(url_for("welcome"))
     headers = get_auth_headers()
     selected_date = request.args.get("date", datetime.now().strftime("%Y-%m-%d"))
+    is_urgent = request.args.get("urgent", "0") == "1"
+    
     try:
         groups = requests.get(f"{API_URL}/requisitions/product-groups", headers=headers).json()
         products = requests.get(f"{API_URL}/requisitions/products", headers=headers).json()
-        res = requests.get(f"{API_URL}/requisitions/active?date={selected_date}", headers=headers)
-        today_order = res.json() if res.status_code == 200 else {"status": "None", "items": []}
+        res = requests.get(f"{API_URL}/requisitions/active?date={selected_date}&is_urgent={1 if is_urgent else 0}", headers=headers)
+        today_order = res.json() if res.status_code == 200 else {"status": "None", "items": [], "is_urgent": is_urgent}
         report_orders = requests.get(f"{API_URL}/requisitions/report", headers=headers).json()
         eta_days = requests.get(f"{API_URL}/requisitions/eta-days", headers=headers).json().get('eta_days', 2)
     except:
-        groups, products, today_order, report_orders, eta_days = [], [], {"status": "None", "items": []}, [], 2
+        groups, products, today_order, report_orders, eta_days = [], [], {"status": "None", "items": [], "is_urgent": is_urgent}, [], 2
 
     today_items_map = {item['product_id']: item for item in today_order.get('items', [])}
     return render_template("restaurant_order.html",
                            groups=groups, products=products, today_order=today_order,
                            today_items=today_items_map, report_orders=report_orders,
-                           selected_date=selected_date, eta_days=eta_days, API_URL=PUBLIC_API_URL)
+                           selected_date=selected_date, is_urgent=is_urgent,
+                           eta_days=eta_days, API_URL=PUBLIC_API_URL)
 
 @app.route("/restaurant/receiving")
 def restaurant_receiving():
