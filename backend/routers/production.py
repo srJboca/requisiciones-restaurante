@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List
+from datetime import timedelta
 
 from database import get_db
 from models.models import User, Order, OrderItem, Restaurant
@@ -72,6 +73,7 @@ def get_requirements(
                 "restaurant_name": o.restaurant.name,
                 "order_date": o.order_date,
                 "is_urgent": o.is_urgent,
+                "created_at": (o.created_at - timedelta(hours=5)).strftime('%Y-%m-%d %H:%M:%S') if o.created_at else None,
                 "restaurant_notes": o.restaurant_notes,
                 "items": items,
                 "submitted_by_name": o.submitted_by.username if o.submitted_by else None,
@@ -129,6 +131,7 @@ def get_history(
             "restaurant_name": o.restaurant.name if o.restaurant else "Unknown",
             "order_date": o.order_date,
             "is_urgent": o.is_urgent,
+            "created_at": (o.created_at - timedelta(hours=5)).strftime('%Y-%m-%d %H:%M:%S') if o.created_at else None,
             "status": o.status,
             "submitted_by_name": o.submitted_by.username if o.submitted_by else None,
             "shipped_by_name": o.shipped_by.username if o.shipped_by else None,

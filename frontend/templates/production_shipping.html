@@ -28,6 +28,7 @@
             </div>
             <span style="color: var(--text-light); text-align: right;">
                 {{ _('Date') }}: {{ order.order_date }}<br>
+                {% if order.created_at %}<small style="color: var(--text-light);">{{ _('Created At') }}: {{ order.created_at }}</small><br>{% endif %}
                 {% if order.submitted_by_name %}<small>{{ _('Submitted by') }}: {{ order.submitted_by_name }}</small>{% endif %}
             </span>
         </div>

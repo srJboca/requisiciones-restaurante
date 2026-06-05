@@ -25,6 +25,11 @@
             </div>
 
             <div class="form-group" style="margin: 0;">
+                <label class="form-label" for="searchInput">{{ _('Search Product') }}</label>
+                <input type="text" id="searchInput" class="form-control" placeholder="{{ _('Product name...') }}" oninput="filterProducts()" style="width: 200px;">
+            </div>
+
+            <div class="form-group" style="margin: 0;">
                 <label class="form-label" for="groupSelect">{{ _('Filter by Product Group') }}</label>
                 <select id="groupSelect" class="form-control" onchange="filterProducts()" style="width: 200px;">
                     <option value="all">{{ _('All Groups') }}</option>
@@ -82,7 +87,9 @@
             <thead>
                 <tr>
                     <th>{{ _('SKU') }}</th>
-                    <th>{{ _('Product Name') }}</th>
+                    <th style="cursor: pointer; user-select: none;" onclick="sortProductsByName()">
+                        {{ _('Product Name') }} <i id="sortNameIcon" class="fas fa-sort" style="color: var(--text-light); margin-left: 0.25rem;"></i>
+                    </th>
                     <th>{{ _('Unit Measure') }}</th>
                     <th>{{ _('Current Inventory') }}</th>
                     <th>{{ _('Required Quantity') }}</th>
@@ -270,6 +277,7 @@
     function filterProducts() {
         const groupId = document.getElementById('groupSelect').value;
         const requiredOnly = document.getElementById('showRequiredOnly').checked;
+        const searchQuery = document.getElementById('searchInput') ? document.getElementById('searchInput').value.trim().toLowerCase() : '';
         const rows = document.querySelectorAll('.product-row');
         
         rows.forEach(row => {
@@ -290,12 +298,45 @@
                 }
             }
             
-            if (matchGroup && matchRequired) {
+            let matchSearch = true;
+            if (searchQuery !== '') {
+                const productName = row.children[1].textContent.trim().toLowerCase();
+                if (!productName.includes(searchQuery)) {
+                    matchSearch = false;
+                }
+            }
+            
+            if (matchGroup && matchRequired && matchSearch) {
                 row.classList.remove('hidden');
             } else {
                 row.classList.add('hidden');
             }
         });
+    }
+
+    let sortNameAscending = true;
+    function sortProductsByName() {
+        const tbody = document.getElementById('productGrid');
+        const rows = Array.from(tbody.querySelectorAll('.product-row'));
+        
+        rows.sort((a, b) => {
+            const nameA = a.children[1].textContent.trim().toLowerCase();
+            const nameB = b.children[1].textContent.trim().toLowerCase();
+            if (nameA < nameB) return sortNameAscending ? -1 : 1;
+            if (nameA > nameB) return sortNameAscending ? 1 : -1;
+            return 0;
+        });
+
+        const icon = document.getElementById('sortNameIcon');
+        if (sortNameAscending) {
+            icon.className = 'fas fa-sort-alpha-down';
+        } else {
+            icon.className = 'fas fa-sort-alpha-up';
+        }
+        
+        sortNameAscending = !sortNameAscending;
+        
+        rows.forEach(row => tbody.appendChild(row));
     }
 
     async function submitOrder(e) {
